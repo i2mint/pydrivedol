@@ -41,4 +41,5 @@ from pydrivedol.base import (
     # Needing API setup:
     GDReader,  # read-only Mapping interface to a Google Drive folder
     GDStore,  # read-write MutableMapping interface to a Google Drive folder
+    drive_from_service_account,  # headless auth: build a GoogleDrive from an SA key
 )
