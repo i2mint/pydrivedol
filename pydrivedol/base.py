@@ -36,9 +36,9 @@ def _extract_file_id(url: str) -> Optional[str]:
     'ABC123'
     """
     patterns = [
-        r'drive\.google\.com/file/d/([^/]+)',
-        r'drive\.google\.com/open\?id=([^&]+)',
-        r'drive\.google\.com/uc\?.*id=([^&]+)',
+        r"drive\.google\.com/file/d/([^/]+)",
+        r"drive\.google\.com/open\?id=([^&]+)",
+        r"drive\.google\.com/uc\?.*id=([^&]+)",
     ]
     for pattern in patterns:
         match = re.search(pattern, url)
@@ -54,7 +54,7 @@ def _extract_folder_id(url: str) -> Optional[str]:
     >>> _extract_folder_id('https://drive.google.com/drive/folders/ABC123')
     'ABC123'
     """
-    pattern = r'drive\.google\.com/drive/(?:u/\d+/)?folders/([^?]+)'
+    pattern = r"drive\.google\.com/drive/(?:u/\d+/)?folders/([^?]+)"
     match = re.search(pattern, url)
     return match.group(1) if match else None
 
@@ -64,7 +64,7 @@ def _resolve_cache_dir(use_cache: Union[bool, str]) -> Optional[str]:
     if use_cache is False:
         return None
     if use_cache is True:
-        cache_dir = os.path.expanduser('~/.cache/pydrivedol/cached/')
+        cache_dir = os.path.expanduser("~/.cache/pydrivedol/cached/")
     else:
         cache_dir = use_cache
     os.makedirs(cache_dir, exist_ok=True)
@@ -128,16 +128,16 @@ def get_bytes(
 
 def _download_from_drive(file_id: str) -> bytes:
     """Download file content from Google Drive."""
-    download_url = f'https://drive.google.com/uc?export=download&id={file_id}'
+    download_url = f"https://drive.google.com/uc?export=download&id={file_id}"
 
     session = requests.Session()
     response = session.get(download_url, stream=True)
 
     # Handle virus scan warning for large files
-    if 'download_warning' in response.text or 'virus' in response.text.lower():
+    if "download_warning" in response.text or "virus" in response.text.lower():
         for key, value in response.cookies.items():
-            if key.startswith('download_warning'):
-                params = {'id': file_id, 'confirm': value}
+            if key.startswith("download_warning"):
+                params = {"id": file_id, "confirm": value}
                 response = session.get(download_url, params=params, stream=True)
                 break
 
@@ -154,11 +154,11 @@ def _handle_local_path_output(
     if local_path is True:
         if cached_file and os.path.exists(cached_file):
             return cached_file
-        with tempfile.NamedTemporaryFile(delete=False, suffix='') as tmp:
+        with tempfile.NamedTemporaryFile(delete=False, suffix="") as tmp:
             tmp.write(content)
             return tmp.name
     elif isinstance(local_path, str):
-        os.makedirs(os.path.dirname(local_path) or '.', exist_ok=True)
+        os.makedirs(os.path.dirname(local_path) or ".", exist_ok=True)
         Path(local_path).write_bytes(content)
         return content
     else:
@@ -174,13 +174,13 @@ def _require_pydrive2():
     """Raise ImportError if PyDrive2 not available."""
     if not _PYDRIVE2_AVAILABLE:
         raise ImportError(
-            "PyDrive2 required for GDReader/GDStore. " "Install: pip install pydrive2"
+            "PyDrive2 required for GDReader/GDStore. Install: pip install pydrive2"
         )
 
 
 def _init_google_drive(
-    credentials_file: str = 'client_secrets.json',
-    settings_file: str = 'settings.yaml',
+    credentials_file: str = "client_secrets.json",
+    settings_file: str = "settings.yaml",
 ):
     """Initialize and authenticate Google Drive."""
     gauth = GoogleAuth()
@@ -216,8 +216,8 @@ class GDReader(Mapping):
         folder_url: str,
         *,
         max_levels: Optional[int] = None,
-        credentials_file: str = 'client_secrets.json',
-        settings_file: str = 'settings.yaml',
+        credentials_file: str = "client_secrets.json",
+        settings_file: str = "settings.yaml",
         include_hidden: bool = False,
     ):
         """
@@ -245,26 +245,26 @@ class GDReader(Mapping):
         self._drive = _init_google_drive(credentials_file, settings_file)
         self._file_cache = None
 
-    def _list_files(self, folder_id: str, prefix: str = '', level: int = 0):
+    def _list_files(self, folder_id: str, prefix: str = "", level: int = 0):
         """Recursively list files in folder."""
         if self.max_levels is not None and level > self.max_levels:
             return
 
         query = f"'{folder_id}' in parents and trashed=false"
-        file_list = self._drive.ListFile({'q': query}).GetList()
+        file_list = self._drive.ListFile({"q": query}).GetList()
 
         for item in file_list:
-            name = item['title']
-            if not self.include_hidden and name.startswith('.'):
+            name = item["title"]
+            if not self.include_hidden and name.startswith("."):
                 continue
 
             item_path = os.path.join(prefix, name) if prefix else name
 
-            if item['mimeType'] == 'application/vnd.google-apps.folder':
+            if item["mimeType"] == "application/vnd.google-apps.folder":
                 if self.max_levels is None or level < self.max_levels:
-                    yield from self._list_files(item['id'], item_path, level + 1)
+                    yield from self._list_files(item["id"], item_path, level + 1)
             else:
-                yield (item_path, item['id'])
+                yield (item_path, item["id"])
 
     @property
     def _files(self):
@@ -292,12 +292,12 @@ class GDReader(Mapping):
             raise KeyError(f"File not found: {key}")
 
         file_id = self._files[key]
-        gfile = self._drive.CreateFile({'id': file_id})
+        gfile = self._drive.CreateFile({"id": file_id})
 
         # Download as bytes
-        content = gfile.GetContentString(mimetype='application/octet-stream')
+        content = gfile.GetContentString(mimetype="application/octet-stream")
         if isinstance(content, str):
-            content = content.encode('latin-1')
+            content = content.encode("latin-1")
 
         return content
 
@@ -305,8 +305,8 @@ class GDReader(Mapping):
         self,
         key: str,
         *,
-        permission_type: str = 'anyone',
-        permission_role: str = 'reader',
+        permission_type: str = "anyone",
+        permission_role: str = "reader",
     ) -> str:
         """
         Get shareable URL for file.
@@ -323,17 +323,17 @@ class GDReader(Mapping):
             raise KeyError(f"File not found: {key}")
 
         file_id = self._files[key]
-        gfile = self._drive.CreateFile({'id': file_id})
+        gfile = self._drive.CreateFile({"id": file_id})
 
         gfile.InsertPermission(
             {
-                'type': permission_type,
-                'value': permission_type if permission_type == 'anyone' else None,
-                'role': permission_role,
+                "type": permission_type,
+                "value": permission_type if permission_type == "anyone" else None,
+                "role": permission_role,
             }
         )
 
-        return gfile['alternateLink']
+        return gfile["alternateLink"]
 
 
 class GDStore(GDReader, MutableMapping):
@@ -358,7 +358,7 @@ class GDStore(GDReader, MutableMapping):
         Returns:
             Parent folder ID
         """
-        parts = key.split('/')
+        parts = key.split("/")
         folder_parts = parts[:-1]
 
         current_id = self.folder_id
@@ -370,20 +370,20 @@ class GDStore(GDReader, MutableMapping):
                 f"and mimeType='application/vnd.google-apps.folder' "
                 f"and trashed=false"
             )
-            folders = self._drive.ListFile({'q': query}).GetList()
+            folders = self._drive.ListFile({"q": query}).GetList()
 
             if folders:
-                current_id = folders[0]['id']
+                current_id = folders[0]["id"]
             else:
                 folder = self._drive.CreateFile(
                     {
-                        'title': folder_name,
-                        'parents': [{'id': current_id}],
-                        'mimeType': 'application/vnd.google-apps.folder',
+                        "title": folder_name,
+                        "parents": [{"id": current_id}],
+                        "mimeType": "application/vnd.google-apps.folder",
                     }
                 )
                 folder.Upload()
-                current_id = folder['id']
+                current_id = folder["id"]
 
         return current_id
 
@@ -396,10 +396,8 @@ class GDStore(GDReader, MutableMapping):
         filename = os.path.basename(key)
 
         # Check if file exists
-        query = (
-            f"'{parent_id}' in parents " f"and title='{filename}' " f"and trashed=false"
-        )
-        files = self._drive.ListFile({'q': query}).GetList()
+        query = f"'{parent_id}' in parents and title='{filename}' and trashed=false"
+        files = self._drive.ListFile({"q": query}).GetList()
 
         if files:
             # Update existing
@@ -407,10 +405,10 @@ class GDStore(GDReader, MutableMapping):
         else:
             # Create new
             gfile = self._drive.CreateFile(
-                {'title': filename, 'parents': [{'id': parent_id}]}
+                {"title": filename, "parents": [{"id": parent_id}]}
             )
 
-        gfile.SetContentString(value.decode('latin-1'))
+        gfile.SetContentString(value.decode("latin-1"))
         gfile.Upload()
 
         self._refresh_cache()
@@ -421,7 +419,7 @@ class GDStore(GDReader, MutableMapping):
             raise KeyError(f"File not found: {key}")
 
         file_id = self._files[key]
-        gfile = self._drive.CreateFile({'id': file_id})
+        gfile = self._drive.CreateFile({"id": file_id})
         gfile.Delete()
 
         self._refresh_cache()

@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pydrivedol"
-version = "0.0.2"
+version = "0.0.3"
 description = "pydrive (googledrive) with a simple (dict-like or list-like) interface"
 readme = "README.md"
 license = "Apache-2.0"
