@@ -248,7 +248,7 @@ class TestHelperFunctions:
             ('https://drive.google.com/uc?id=DEF456&export=download', 'DEF456'),
         ]
         for url, expected_id in urls:
-            file_id = pydrivedol._extract_file_id(url)
+            file_id = pydrivedol.base._extract_file_id(url)
             assert file_id == expected_id, f"Failed for URL: {url}"
 
     def test_extract_folder_id(self):
@@ -258,7 +258,7 @@ class TestHelperFunctions:
             ('https://drive.google.com/drive/u/0/folders/XYZ789', 'XYZ789'),
         ]
         for url, expected_id in urls:
-            folder_id = pydrivedol._extract_folder_id(url)
+            folder_id = pydrivedol.base._extract_folder_id(url)
             assert folder_id == expected_id, f"Failed for URL: {url}"
 
 
