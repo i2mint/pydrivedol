@@ -197,6 +197,42 @@ def _init_google_drive(
     return GoogleDrive(gauth)
 
 
+def drive_from_service_account(
+    key_file: str,
+    *,
+    scopes=("https://www.googleapis.com/auth/drive",),
+    subject: Optional[str] = None,
+):
+    """Build an authenticated ``GoogleDrive`` from a service-account key file.
+
+    For headless / server use — no browser OAuth flow. Share the target Drive folder
+    with the service account's ``client_email`` (Viewer for read, Editor for write).
+    Pass the resulting drive to ``GDReader``/``GDStore`` via their ``drive=`` argument.
+
+    Args:
+        key_file: path to the service-account JSON key.
+        scopes: OAuth scopes; default is full Drive (use ``.../auth/drive.readonly``
+            to enforce read-only at the token level).
+        subject: optional user email to impersonate (domain-wide delegation).
+
+    >>> drive = drive_from_service_account('sa-key.json')   # doctest: +SKIP
+    >>> reader = GDReader(folder_url, drive=drive)           # doctest: +SKIP
+    """
+    _require_pydrive2()
+    service_config = {"client_json_file_path": key_file}
+    if subject:
+        service_config["client_user_email"] = subject
+    gauth = GoogleAuth(
+        settings={
+            "client_config_backend": "service",
+            "service_config": service_config,
+            "oauth_scope": list(scopes),
+        }
+    )
+    gauth.ServiceAuth()
+    return GoogleDrive(gauth)
+
+
 class GDReader(Mapping):
     """
     Read-only Mapping to Google Drive folder.
@@ -219,6 +255,7 @@ class GDReader(Mapping):
         credentials_file: str = "client_secrets.json",
         settings_file: str = "settings.yaml",
         include_hidden: bool = False,
+        drive=None,
     ):
         """
         Initialize reader.
@@ -229,6 +266,9 @@ class GDReader(Mapping):
             credentials_file: OAuth2 credentials path
             settings_file: Auth settings path
             include_hidden: Include files starting with '.'
+            drive: a pre-authenticated ``GoogleDrive`` (e.g. from
+                ``drive_from_service_account``). When given, the OAuth
+                ``credentials_file``/``settings_file`` flow is skipped.
         """
         _require_pydrive2()
 
@@ -242,7 +282,9 @@ class GDReader(Mapping):
         self._credentials_file = credentials_file
         self._settings_file = settings_file
 
-        self._drive = _init_google_drive(credentials_file, settings_file)
+        self._drive = (
+            drive if drive is not None else _init_google_drive(credentials_file, settings_file)
+        )
         self._file_cache = None
 
     def _list_files(self, folder_id: str, prefix: str = "", level: int = 0):
