@@ -283,7 +283,9 @@ class GDReader(Mapping):
         self._settings_file = settings_file
 
         self._drive = (
-            drive if drive is not None else _init_google_drive(credentials_file, settings_file)
+            drive
+            if drive is not None
+            else _init_google_drive(credentials_file, settings_file)
         )
         self._file_cache = None
 
