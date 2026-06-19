@@ -1,0 +1,196 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pydrivedol.base &mdash; pydrivedol 0.0.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=e3a6060d"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="pydrivedol.tests" href="tests.html" />
+    <link rel="prev" title="pydrivedol" href="../pydrivedol.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pydrivedol
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../pydrivedol.html">pydrivedol</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">pydrivedol.base</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pydrivedol.base.GDReader"><code class="docutils literal notranslate"><span class="pre">GDReader</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pydrivedol.base.GDReader.get_url"><code class="docutils literal notranslate"><span class="pre">GDReader.get_url()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pydrivedol.base.GDStore"><code class="docutils literal notranslate"><span class="pre">GDStore</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pydrivedol.base.get_bytes"><code class="docutils literal notranslate"><span class="pre">get_bytes()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tests.html">pydrivedol.tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tests/test_base.html">pydrivedol.tests.test_base</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pydrivedol</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">pydrivedol.base</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/module_docs/pydrivedol/base.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-pydrivedol.base">
+<span id="pydrivedol-base"></span><h1>pydrivedol.base<a class="headerlink" href="#module-pydrivedol.base" title="Link to this heading"></a></h1>
+<p>Base objects for pydrivedol: simple download function, GDReader, GDStore.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pydrivedol.base.GDReader">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pydrivedol.base.</span></span><span class="sig-name descname"><span class="pre">GDReader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">credentials_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'client_secrets.json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'settings.yaml'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pydrivedol/base.html#GDReader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydrivedol.base.GDReader" title="Link to this definition"></a></dt>
+<dd><p>Read-only Mapping to Google Drive folder.</p>
+<p>Keys are relative file paths, values are file contents as bytes.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">reader</span> <span class="o">=</span> <span class="n">GDReader</span><span class="p">(</span><span class="n">folder_url</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">reader</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">content</span> <span class="o">=</span> <span class="n">reader</span><span class="p">[</span><span class="s1">&#39;path/to/file.txt&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">reader</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;file.txt&#39;</span> <span class="ow">in</span> <span class="n">reader</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">url</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">get_url</span><span class="p">(</span><span class="s1">&#39;file.txt&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="pydrivedol.base.GDReader.get_url">
+<span class="sig-name descname"><span class="pre">get_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">permission_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'anyone'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permission_role</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'reader'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/pydrivedol/base.html#GDReader.get_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydrivedol.base.GDReader.get_url" title="Link to this definition"></a></dt>
+<dd><p>Get shareable URL for file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> – File path</p></li>
+<li><p><strong>permission_type</strong> – ‘anyone’, ‘user’, ‘group’, ‘domain’</p></li>
+<li><p><strong>permission_role</strong> – ‘reader’, ‘writer’, ‘commenter’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Shareable URL</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pydrivedol.base.GDStore">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pydrivedol.base.</span></span><span class="sig-name descname"><span class="pre">GDStore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">credentials_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'client_secrets.json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'settings.yaml'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pydrivedol/base.html#GDStore"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydrivedol.base.GDStore" title="Link to this definition"></a></dt>
+<dd><p>Read-write MutableMapping to Google Drive folder.</p>
+<p>Extends GDReader with write and delete operations.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">store</span> <span class="o">=</span> <span class="n">GDStore</span><span class="p">(</span><span class="n">folder_url</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">store</span><span class="p">[</span><span class="s1">&#39;file.txt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;Hello&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">store</span><span class="p">[</span><span class="s1">&#39;dir/file.txt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;Nested&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">del</span> <span class="n">store</span><span class="p">[</span><span class="s1">&#39;file.txt&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pydrivedol.base.get_bytes">
+<span class="sig-prename descclassname"><span class="pre">pydrivedol.base.</span></span><span class="sig-name descname"><span class="pre">get_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/pydrivedol/base.html#get_bytes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydrivedol.base.get_bytes" title="Link to this definition"></a></dt>
+<dd><p>Download bytes from public Google Drive URL.</p>
+<p>Works with publicly shared files, no API setup required.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>url</strong> – Google Drive shared link</p></li>
+<li><p><strong>local_path</strong> – False (return bytes), True (save to temp), or str (save to path)</p></li>
+<li><p><strong>use_cache</strong> – False (no cache), True (use ~/.cache/pydrivedol/cached/), or str (use dir)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>bytes if local_path is False or str, filepath str if local_path is True</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">content</span> <span class="o">=</span> <span class="n">get_bytes</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="n">get_bytes</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">local_path</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">content</span> <span class="o">=</span> <span class="n">get_bytes</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">local_path</span><span class="o">=</span><span class="s1">&#39;/tmp/file.txt&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../pydrivedol.html" class="btn btn-neutral float-left" title="pydrivedol" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tests.html" class="btn btn-neutral float-right" title="pydrivedol.tests" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

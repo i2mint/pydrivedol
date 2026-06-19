@@ -1,0 +1,8 @@
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   module_docs/pydrivedol
+   module_docs/pydrivedol/base
+   module_docs/pydrivedol/tests
+   module_docs/pydrivedol/tests/test_base
