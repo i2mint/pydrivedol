@@ -34,6 +34,12 @@ Usage:
     >>> store['file.txt'] = b'content'  # doctest: +SKIP
     >>> del store['file.txt']  # doctest: +SKIP
 
+    Make a native Google Sheet from an .xlsx (Drive converts it, keeping formatting)
+
+    >>> url = xlsx_to_google_sheet(folder_url, 'My Schema', '/tmp/schema.xlsx')  # doctest: +SKIP
+    >>> store = GDStore(folder_url, convert_office=True)  # doctest: +SKIP
+    >>> store['schema.xlsx'] = xlsx_bytes  # -> a Google Sheet  # doctest: +SKIP
+
 """
 
 from pydrivedol.base import (
@@ -42,4 +48,6 @@ from pydrivedol.base import (
     GDReader,  # read-only Mapping interface to a Google Drive folder
     GDStore,  # read-write MutableMapping interface to a Google Drive folder
     drive_from_service_account,  # headless auth: build a GoogleDrive from an SA key
+    xlsx_to_google_sheet,  # upload an .xlsx as a native Google Sheet -> URL
+    GOOGLE_MIME,  # office-ext -> Google-native editor mimetype map
 )

@@ -231,6 +231,70 @@ def drive_from_service_account(
     )
     gauth.ServiceAuth()
     return GoogleDrive(gauth)
+# Office → Google-native editor MIME types (the target when ``convert=True``).
+GOOGLE_MIME = {
+    '.xlsx': 'application/vnd.google-apps.spreadsheet',
+    '.xls': 'application/vnd.google-apps.spreadsheet',
+    '.csv': 'application/vnd.google-apps.spreadsheet',
+    '.docx': 'application/vnd.google-apps.document',
+    '.doc': 'application/vnd.google-apps.document',
+    '.pptx': 'application/vnd.google-apps.presentation',
+    '.ppt': 'application/vnd.google-apps.presentation',
+}
+
+
+def _upload_converting(
+    drive,
+    *,
+    parent_id: Optional[str],
+    title: str,
+    content: Optional[bytes] = None,
+    path: Optional[str] = None,
+    convert: bool = False,
+    google_mimetype: Optional[str] = None,
+    file_id: Optional[str] = None,
+):
+    """Create/update a Drive file from ``content`` (bytes) or a ``path``, optionally converting.
+
+    When ``convert`` is True the uploaded office file is converted to the corresponding **Google
+    editor format** — ``.xlsx`` → a *native Google Sheet*, ``.docx`` → Doc, ``.pptx`` → Slides —
+    so you get an editable Google file rather than an uploaded blob. The target type defaults to
+    the extension mapping in :data:`GOOGLE_MIME`; pass ``google_mimetype`` to force it. Pass
+    ``file_id`` to update an existing file in place.
+
+    ``drive`` is injected (a PyDrive2 ``GoogleDrive``) so this stays pure and unit-testable.
+    Returns the uploaded PyDrive2 ``GoogleFile``.
+    """
+    if content is None and path is None:
+        raise ValueError("provide either content (bytes) or path")
+    meta = {'title': title}
+    if file_id:
+        meta['id'] = file_id
+    elif parent_id:
+        meta['parents'] = [{'id': parent_id}]
+    if convert:
+        if google_mimetype is None:
+            ext = os.path.splitext(path or title)[1].lower()
+            google_mimetype = GOOGLE_MIME.get(ext)
+        if google_mimetype:
+            meta['mimeType'] = google_mimetype
+    gfile = drive.CreateFile(meta)
+    tmp_to_clean = None
+    try:
+        if path is not None:
+            gfile.SetContentFile(path)
+        else:
+            suffix = os.path.splitext(title)[1] or ''
+            with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+                tmp.write(content)
+                tmp_to_clean = tmp.name
+            gfile.SetContentFile(tmp_to_clean)
+        # In Drive v2, param={'convert': True} converts the uploaded media to the Google type.
+        gfile.Upload(param={'convert': True} if convert else {})
+    finally:
+        if tmp_to_clean and os.path.exists(tmp_to_clean):
+            os.remove(tmp_to_clean)
+    return gfile
 
 
 class GDReader(Mapping):
@@ -390,7 +454,54 @@ class GDStore(GDReader, MutableMapping):
     >>> store['file.txt'] = b'Hello'  # doctest: +SKIP
     >>> store['dir/file.txt'] = b'Nested'  # doctest: +SKIP
     >>> del store['file.txt']  # doctest: +SKIP
+
+    Pass ``convert_office=True`` to make ``store['x.xlsx'] = xlsx_bytes`` create a *native
+    Google Sheet* (xlsx → Sheet, docx → Doc, pptx → Slides) instead of an uploaded blob. For
+    one-off control use :meth:`upload` with ``convert=True``.
     """
+
+    def __init__(self, folder_url: str, *, convert_office: bool = False, **kwargs):
+        """Like :class:`GDReader`, plus ``convert_office`` (default off, backward-compatible):
+        when True, office uploads are converted to their native Google editor type."""
+        super().__init__(folder_url, **kwargs)
+        self.convert_office = convert_office
+
+    def upload(
+        self,
+        key: str,
+        value: Optional[bytes] = None,
+        *,
+        path: Optional[str] = None,
+        convert: Optional[bool] = None,
+        google_mimetype: Optional[str] = None,
+    ) -> str:
+        """Upload ``value`` (bytes) or a file ``path`` to ``key``; return the shareable URL.
+
+        With ``convert=True`` (or the store's ``convert_office`` default) an office file becomes a
+        native Google doc — e.g. ``store.upload('schema.xlsx', xlsx_bytes, convert=True)`` yields a
+        Google Sheet. Updates an existing same-named file in the target folder, else creates it.
+        """
+        if convert is None:
+            convert = self.convert_office
+        parent_id = self._get_or_create_folders(key)
+        filename = os.path.basename(key)
+        query = (
+            f"'{parent_id}' in parents " f"and title='{filename}' " f"and trashed=false"
+        )
+        existing = self._drive.ListFile({'q': query}).GetList()
+        file_id = existing[0]['id'] if existing else None
+        gfile = _upload_converting(
+            self._drive,
+            parent_id=parent_id,
+            title=filename,
+            content=value,
+            path=path,
+            convert=convert,
+            google_mimetype=google_mimetype,
+            file_id=file_id,
+        )
+        self._refresh_cache()
+        return gfile['alternateLink']
 
     def _get_or_create_folders(self, key: str) -> str:
         """
@@ -432,9 +543,17 @@ class GDStore(GDReader, MutableMapping):
         return current_id
 
     def __setitem__(self, key: str, value: bytes):
-        """Write bytes to file, creating folders as needed."""
+        """Write bytes to file, creating folders as needed.
+
+        If the store was created with ``convert_office=True`` and ``key`` is an office file, it
+        is uploaded as a native Google doc (see :meth:`upload`); otherwise it is stored as raw bytes.
+        """
         if not isinstance(value, bytes):
             raise TypeError(f"Value must be bytes, got {type(value)}")
+
+        if getattr(self, 'convert_office', False):
+            self.upload(key, value, convert=True)
+            return
 
         parent_id = self._get_or_create_folders(key)
         filename = os.path.basename(key)
@@ -467,3 +586,61 @@ class GDStore(GDReader, MutableMapping):
         gfile.Delete()
 
         self._refresh_cache()
+
+
+# =============================================================================
+# Convenience: make a native Google Sheet from an .xlsx
+# =============================================================================
+
+
+def xlsx_to_google_sheet(
+    folder_url: Optional[str],
+    title: str,
+    xlsx: Union[str, Path, bytes],
+    *,
+    share_with=(),
+    anyone_reader: bool = False,
+    credentials_file: str = 'client_secrets.json',
+    settings_file: str = 'settings.yaml',
+    drive=None,
+) -> str:
+    """Upload an ``.xlsx`` as a **native Google Sheet** and return its shareable URL.
+
+    The whole point: Drive can *convert* an uploaded spreadsheet into an editable Google Sheet
+    (preserving cell formatting), rather than parking an ``.xlsx`` blob. This wraps that.
+
+    Args:
+        folder_url: destination Drive folder URL (``None`` → the account's root).
+        title: the Google Sheet's name.
+        xlsx: a path (``str``/``Path``) or raw ``bytes``.
+        share_with: emails to grant ``writer`` access (no notification email sent).
+        anyone_reader: also grant anyone-with-link ``reader`` access.
+        credentials_file / settings_file: PyDrive2 auth (ignored if ``drive`` is given).
+        drive: an existing PyDrive2 ``GoogleDrive`` (skips auth).
+
+    Returns:
+        The Google Sheet URL (``alternateLink``).
+
+    >>> url = xlsx_to_google_sheet(folder_url, 'My Schema', '/tmp/schema.xlsx',
+    ...                            anyone_reader=True)  # doctest: +SKIP
+    """
+    if drive is None:
+        _require_pydrive2()
+        drive = _init_google_drive(credentials_file, settings_file)
+    parent_id = _extract_folder_id(folder_url) if folder_url else None
+    path = str(xlsx) if isinstance(xlsx, (str, Path)) else None
+    content = xlsx if isinstance(xlsx, bytes) else None
+    gfile = _upload_converting(
+        drive,
+        parent_id=parent_id,
+        title=title,
+        content=content,
+        path=path,
+        convert=True,
+        google_mimetype='application/vnd.google-apps.spreadsheet',
+    )
+    for email in share_with:
+        gfile.InsertPermission({'type': 'user', 'value': email, 'role': 'writer'})
+    if anyone_reader:
+        gfile.InsertPermission({'type': 'anyone', 'value': 'anyone', 'role': 'reader'})
+    return gfile['alternateLink']
