@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pydrivedol.base &mdash; pydrivedol 0.0.2 documentation</title>
+  <title>pydrivedol.base &mdash; pydrivedol 0.0.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=e3a6060d"></script>
+      <script src="../../_static/documentation_options.js?v=47de8214"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -50,6 +50,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/pydrivedol/base.html">pydrivedol.base</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/pydrivedol/tests.html">pydrivedol.tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/pydrivedol/tests/test_base.html">pydrivedol.tests.test_base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/pydrivedol/tests/test_service_account.html">pydrivedol.tests.test_service_account</a></li>
 </ul>
 
         </div>
@@ -115,9 +116,9 @@
 <span class="sd">    &#39;ABC123&#39;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">patterns</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="sa">r</span><span class="s1">&#39;drive\.google\.com/file/d/([^/]+)&#39;</span><span class="p">,</span>
-        <span class="sa">r</span><span class="s1">&#39;drive\.google\.com/open\?id=([^&amp;]+)&#39;</span><span class="p">,</span>
-        <span class="sa">r</span><span class="s1">&#39;drive\.google\.com/uc\?.*id=([^&amp;]+)&#39;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;drive\.google\.com/file/d/([^/]+)&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;drive\.google\.com/open\?id=([^&amp;]+)&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;drive\.google\.com/uc\?.*id=([^&amp;]+)&quot;</span><span class="p">,</span>
     <span class="p">]</span>
     <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">patterns</span><span class="p">:</span>
         <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
@@ -133,7 +134,7 @@
 <span class="sd">    &gt;&gt;&gt; _extract_folder_id(&#39;https://drive.google.com/drive/folders/ABC123&#39;)</span>
 <span class="sd">    &#39;ABC123&#39;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;drive\.google\.com/drive/(?:u/\d+/)?folders/([^?]+)&#39;</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;drive\.google\.com/drive/(?:u/\d+/)?folders/([^?]+)&quot;</span>
     <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">match</span> <span class="k">else</span> <span class="kc">None</span>
 
@@ -143,7 +144,7 @@
     <span class="k">if</span> <span class="n">use_cache</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">use_cache</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s1">&#39;~/.cache/pydrivedol/cached/&#39;</span><span class="p">)</span>
+        <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~/.cache/pydrivedol/cached/&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">use_cache</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -210,16 +211,16 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_download_from_drive</span><span class="p">(</span><span class="n">file_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Download file content from Google Drive.&quot;&quot;&quot;</span>
-    <span class="n">download_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;https://drive.google.com/uc?export=download&amp;id=</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="n">download_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://drive.google.com/uc?export=download&amp;id=</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">&quot;</span>
 
     <span class="n">session</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
     <span class="n">response</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">download_url</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># Handle virus scan warning for large files</span>
-    <span class="k">if</span> <span class="s1">&#39;download_warning&#39;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span> <span class="ow">or</span> <span class="s1">&#39;virus&#39;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+    <span class="k">if</span> <span class="s2">&quot;download_warning&quot;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span> <span class="ow">or</span> <span class="s2">&quot;virus&quot;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">cookies</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;download_warning&#39;</span><span class="p">):</span>
-                <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">file_id</span><span class="p">,</span> <span class="s1">&#39;confirm&#39;</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span>
+            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;download_warning&quot;</span><span class="p">):</span>
+                <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">file_id</span><span class="p">,</span> <span class="s2">&quot;confirm&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span>
                 <span class="n">response</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">download_url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="k">break</span>
 
@@ -236,11 +237,11 @@
     <span class="k">if</span> <span class="n">local_path</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">cached_file</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cached_file</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">cached_file</span>
-        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
             <span class="n">tmp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">tmp</span><span class="o">.</span><span class="n">name</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span> <span class="ow">or</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">Path</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span><span class="o">.</span><span class="n">write_bytes</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">content</span>
     <span class="k">else</span><span class="p">:</span>
@@ -256,13 +257,13 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Raise ImportError if PyDrive2 not available.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">_PYDRIVE2_AVAILABLE</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
-            <span class="s2">&quot;PyDrive2 required for GDReader/GDStore. &quot;</span> <span class="s2">&quot;Install: pip install pydrive2&quot;</span>
+            <span class="s2">&quot;PyDrive2 required for GDReader/GDStore. Install: pip install pydrive2&quot;</span>
         <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_init_google_drive</span><span class="p">(</span>
-    <span class="n">credentials_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;client_secrets.json&#39;</span><span class="p">,</span>
-    <span class="n">settings_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;settings.yaml&#39;</span><span class="p">,</span>
+    <span class="n">credentials_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;client_secrets.json&quot;</span><span class="p">,</span>
+    <span class="n">settings_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;settings.yaml&quot;</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize and authenticate Google Drive.&quot;&quot;&quot;</span>
     <span class="n">gauth</span> <span class="o">=</span> <span class="n">GoogleAuth</span><span class="p">()</span>
@@ -277,6 +278,45 @@
 
     <span class="n">gauth</span><span class="o">.</span><span class="n">SaveCredentialsFile</span><span class="p">(</span><span class="n">credentials_file</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">GoogleDrive</span><span class="p">(</span><span class="n">gauth</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="drive_from_service_account">
+<a class="viewcode-back" href="../../module_docs/pydrivedol/base.html#pydrivedol.base.drive_from_service_account">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">drive_from_service_account</span><span class="p">(</span>
+    <span class="n">key_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">scopes</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;https://www.googleapis.com/auth/drive&quot;</span><span class="p">,),</span>
+    <span class="n">subject</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build an authenticated ``GoogleDrive`` from a service-account key file.</span>
+
+<span class="sd">    For headless / server use — no browser OAuth flow. Share the target Drive folder</span>
+<span class="sd">    with the service account&#39;s ``client_email`` (Viewer for read, Editor for write).</span>
+<span class="sd">    Pass the resulting drive to ``GDReader``/``GDStore`` via their ``drive=`` argument.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        key_file: path to the service-account JSON key.</span>
+<span class="sd">        scopes: OAuth scopes; default is full Drive (use ``.../auth/drive.readonly``</span>
+<span class="sd">            to enforce read-only at the token level).</span>
+<span class="sd">        subject: optional user email to impersonate (domain-wide delegation).</span>
+
+<span class="sd">    &gt;&gt;&gt; drive = drive_from_service_account(&#39;sa-key.json&#39;)   # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; reader = GDReader(folder_url, drive=drive)           # doctest: +SKIP</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_require_pydrive2</span><span class="p">()</span>
+    <span class="n">service_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;client_json_file_path&quot;</span><span class="p">:</span> <span class="n">key_file</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">subject</span><span class="p">:</span>
+        <span class="n">service_config</span><span class="p">[</span><span class="s2">&quot;client_user_email&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subject</span>
+    <span class="n">gauth</span> <span class="o">=</span> <span class="n">GoogleAuth</span><span class="p">(</span>
+        <span class="n">settings</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;client_config_backend&quot;</span><span class="p">:</span> <span class="s2">&quot;service&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;service_config&quot;</span><span class="p">:</span> <span class="n">service_config</span><span class="p">,</span>
+            <span class="s2">&quot;oauth_scope&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">scopes</span><span class="p">),</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">gauth</span><span class="o">.</span><span class="n">ServiceAuth</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">GoogleDrive</span><span class="p">(</span><span class="n">gauth</span><span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="GDReader">
@@ -300,9 +340,10 @@
         <span class="n">folder_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">max_levels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">credentials_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;client_secrets.json&#39;</span><span class="p">,</span>
-        <span class="n">settings_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;settings.yaml&#39;</span><span class="p">,</span>
+        <span class="n">credentials_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;client_secrets.json&quot;</span><span class="p">,</span>
+        <span class="n">settings_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;settings.yaml&quot;</span><span class="p">,</span>
         <span class="n">include_hidden</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">drive</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize reader.</span>
@@ -313,6 +354,9 @@
 <span class="sd">            credentials_file: OAuth2 credentials path</span>
 <span class="sd">            settings_file: Auth settings path</span>
 <span class="sd">            include_hidden: Include files starting with &#39;.&#39;</span>
+<span class="sd">            drive: a pre-authenticated ``GoogleDrive`` (e.g. from</span>
+<span class="sd">                ``drive_from_service_account``). When given, the OAuth</span>
+<span class="sd">                ``credentials_file``/``settings_file`` flow is skipped.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">_require_pydrive2</span><span class="p">()</span>
 
@@ -326,29 +370,31 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_credentials_file</span> <span class="o">=</span> <span class="n">credentials_file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_settings_file</span> <span class="o">=</span> <span class="n">settings_file</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span> <span class="o">=</span> <span class="n">_init_google_drive</span><span class="p">(</span><span class="n">credentials_file</span><span class="p">,</span> <span class="n">settings_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">drive</span> <span class="k">if</span> <span class="n">drive</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_init_google_drive</span><span class="p">(</span><span class="n">credentials_file</span><span class="p">,</span> <span class="n">settings_file</span><span class="p">)</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_file_cache</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_list_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_list_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Recursively list files in folder.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_levels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">level</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_levels</span><span class="p">:</span>
             <span class="k">return</span>
 
         <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">folder_id</span><span class="si">}</span><span class="s2">&#39; in parents and trashed=false&quot;</span>
-        <span class="n">file_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">ListFile</span><span class="p">({</span><span class="s1">&#39;q&#39;</span><span class="p">:</span> <span class="n">query</span><span class="p">})</span><span class="o">.</span><span class="n">GetList</span><span class="p">()</span>
+        <span class="n">file_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">ListFile</span><span class="p">({</span><span class="s2">&quot;q&quot;</span><span class="p">:</span> <span class="n">query</span><span class="p">})</span><span class="o">.</span><span class="n">GetList</span><span class="p">()</span>
 
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">file_list</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_hidden</span> <span class="ow">and</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_hidden</span> <span class="ow">and</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
                 <span class="k">continue</span>
 
             <span class="n">item_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="k">if</span> <span class="n">prefix</span> <span class="k">else</span> <span class="n">name</span>
 
-            <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;mimeType&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;application/vnd.google-apps.folder&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;mimeType&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;application/vnd.google-apps.folder&quot;</span><span class="p">:</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_levels</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">level</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_levels</span><span class="p">:</span>
-                    <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list_files</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span> <span class="n">item_path</span><span class="p">,</span> <span class="n">level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list_files</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">item_path</span><span class="p">,</span> <span class="n">level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">yield</span> <span class="p">(</span><span class="n">item_path</span><span class="p">,</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
+                <span class="k">yield</span> <span class="p">(</span><span class="n">item_path</span><span class="p">,</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -376,12 +422,12 @@
             <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File not found: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="n">file_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-        <span class="n">gfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">CreateFile</span><span class="p">({</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">file_id</span><span class="p">})</span>
+        <span class="n">gfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">CreateFile</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">file_id</span><span class="p">})</span>
 
         <span class="c1"># Download as bytes</span>
-        <span class="n">content</span> <span class="o">=</span> <span class="n">gfile</span><span class="o">.</span><span class="n">GetContentString</span><span class="p">(</span><span class="n">mimetype</span><span class="o">=</span><span class="s1">&#39;application/octet-stream&#39;</span><span class="p">)</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">gfile</span><span class="o">.</span><span class="n">GetContentString</span><span class="p">(</span><span class="n">mimetype</span><span class="o">=</span><span class="s2">&quot;application/octet-stream&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">content</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;latin-1&#39;</span><span class="p">)</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;latin-1&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">content</span>
 
@@ -391,8 +437,8 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">permission_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;anyone&#39;</span><span class="p">,</span>
-        <span class="n">permission_role</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;reader&#39;</span><span class="p">,</span>
+        <span class="n">permission_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;anyone&quot;</span><span class="p">,</span>
+        <span class="n">permission_role</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;reader&quot;</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get shareable URL for file.</span>
@@ -409,17 +455,17 @@
             <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File not found: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="n">file_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-        <span class="n">gfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">CreateFile</span><span class="p">({</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">file_id</span><span class="p">})</span>
+        <span class="n">gfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">CreateFile</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">file_id</span><span class="p">})</span>
 
         <span class="n">gfile</span><span class="o">.</span><span class="n">InsertPermission</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">permission_type</span><span class="p">,</span>
-                <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">permission_type</span> <span class="k">if</span> <span class="n">permission_type</span> <span class="o">==</span> <span class="s1">&#39;anyone&#39;</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s1">&#39;role&#39;</span><span class="p">:</span> <span class="n">permission_role</span><span class="p">,</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">permission_type</span><span class="p">,</span>
+                <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">permission_type</span> <span class="k">if</span> <span class="n">permission_type</span> <span class="o">==</span> <span class="s2">&quot;anyone&quot;</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="n">permission_role</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">gfile</span><span class="p">[</span><span class="s1">&#39;alternateLink&#39;</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="n">gfile</span><span class="p">[</span><span class="s2">&quot;alternateLink&quot;</span><span class="p">]</span></div>
 </div>
 
 
@@ -448,7 +494,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Parent folder ID</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">parts</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
         <span class="n">folder_parts</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
         <span class="n">current_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder_id</span>
@@ -460,20 +506,20 @@
                 <span class="sa">f</span><span class="s2">&quot;and mimeType=&#39;application/vnd.google-apps.folder&#39; &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;and trashed=false&quot;</span>
             <span class="p">)</span>
-            <span class="n">folders</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">ListFile</span><span class="p">({</span><span class="s1">&#39;q&#39;</span><span class="p">:</span> <span class="n">query</span><span class="p">})</span><span class="o">.</span><span class="n">GetList</span><span class="p">()</span>
+            <span class="n">folders</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">ListFile</span><span class="p">({</span><span class="s2">&quot;q&quot;</span><span class="p">:</span> <span class="n">query</span><span class="p">})</span><span class="o">.</span><span class="n">GetList</span><span class="p">()</span>
 
             <span class="k">if</span> <span class="n">folders</span><span class="p">:</span>
-                <span class="n">current_id</span> <span class="o">=</span> <span class="n">folders</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+                <span class="n">current_id</span> <span class="o">=</span> <span class="n">folders</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">folder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">CreateFile</span><span class="p">(</span>
                     <span class="p">{</span>
-                        <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="n">folder_name</span><span class="p">,</span>
-                        <span class="s1">&#39;parents&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">current_id</span><span class="p">}],</span>
-                        <span class="s1">&#39;mimeType&#39;</span><span class="p">:</span> <span class="s1">&#39;application/vnd.google-apps.folder&#39;</span><span class="p">,</span>
+                        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">folder_name</span><span class="p">,</span>
+                        <span class="s2">&quot;parents&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">current_id</span><span class="p">}],</span>
+                        <span class="s2">&quot;mimeType&quot;</span><span class="p">:</span> <span class="s2">&quot;application/vnd.google-apps.folder&quot;</span><span class="p">,</span>
                     <span class="p">}</span>
                 <span class="p">)</span>
                 <span class="n">folder</span><span class="o">.</span><span class="n">Upload</span><span class="p">()</span>
-                <span class="n">current_id</span> <span class="o">=</span> <span class="n">folder</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+                <span class="n">current_id</span> <span class="o">=</span> <span class="n">folder</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">current_id</span>
 
@@ -486,10 +532,8 @@
         <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 
         <span class="c1"># Check if file exists</span>
-        <span class="n">query</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">parent_id</span><span class="si">}</span><span class="s2">&#39; in parents &quot;</span> <span class="sa">f</span><span class="s2">&quot;and title=&#39;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39; &quot;</span> <span class="sa">f</span><span class="s2">&quot;and trashed=false&quot;</span>
-        <span class="p">)</span>
-        <span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">ListFile</span><span class="p">({</span><span class="s1">&#39;q&#39;</span><span class="p">:</span> <span class="n">query</span><span class="p">})</span><span class="o">.</span><span class="n">GetList</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">parent_id</span><span class="si">}</span><span class="s2">&#39; in parents and title=&#39;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39; and trashed=false&quot;</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">ListFile</span><span class="p">({</span><span class="s2">&quot;q&quot;</span><span class="p">:</span> <span class="n">query</span><span class="p">})</span><span class="o">.</span><span class="n">GetList</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">files</span><span class="p">:</span>
             <span class="c1"># Update existing</span>
@@ -497,10 +541,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Create new</span>
             <span class="n">gfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">CreateFile</span><span class="p">(</span>
-                <span class="p">{</span><span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;parents&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">parent_id</span><span class="p">}]}</span>
+                <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;parents&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">parent_id</span><span class="p">}]}</span>
             <span class="p">)</span>
 
-        <span class="n">gfile</span><span class="o">.</span><span class="n">SetContentString</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;latin-1&#39;</span><span class="p">))</span>
+        <span class="n">gfile</span><span class="o">.</span><span class="n">SetContentString</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;latin-1&quot;</span><span class="p">))</span>
         <span class="n">gfile</span><span class="o">.</span><span class="n">Upload</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_cache</span><span class="p">()</span>
@@ -511,7 +555,7 @@
             <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File not found: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="n">file_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-        <span class="n">gfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">CreateFile</span><span class="p">({</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">file_id</span><span class="p">})</span>
+        <span class="n">gfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">CreateFile</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">file_id</span><span class="p">})</span>
         <span class="n">gfile</span><span class="o">.</span><span class="n">Delete</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_cache</span><span class="p">()</span></div>
