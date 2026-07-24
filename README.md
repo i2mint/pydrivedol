@@ -49,7 +49,7 @@ content = get_bytes(url)
 temp_path = get_bytes(url, local_path=True)
 
 # Save to specific path
-get_bytes(url, local_path='/path/to/save.pdf')
+get_bytes(url, local_path="/path/to/save.pdf")
 
 # With caching
 get_bytes(url, use_cache=True)  # Uses ~/.cache/pydrivedol/cached/
@@ -73,18 +73,18 @@ for filepath in reader:
 # data/report.xlsx
 
 # Get file contents (values are bytes)
-content = reader['file.txt']
-pdf_bytes = reader['folder/nested.pdf']
+content = reader["file.txt"]
+pdf_bytes = reader["folder/nested.pdf"]
 
 # Check if file exists
-if 'data/report.xlsx' in reader:
+if "data/report.xlsx" in reader:
     print("Found report!")
 
 # Get number of files
 num_files = len(reader)
 
 # Get shareable URL
-url = reader.get_url('file.txt')
+url = reader.get_url("file.txt")
 ```
 
 ### Read-Write Operations
@@ -96,22 +96,22 @@ from pydrivedol import GDStore
 store = GDStore(folder_url)
 
 # Write a file
-store['newfile.txt'] = b'Hello, World!'
+store["newfile.txt"] = b"Hello, World!"
 
 # Write to nested folder (creates folders automatically)
-store['reports/2024/summary.txt'] = b'Q1 results...'
+store["reports/2024/summary.txt"] = b"Q1 results..."
 
 # Update existing file
-store['newfile.txt'] = b'Updated content'
+store["newfile.txt"] = b"Updated content"
 
 # Delete file
-del store['newfile.txt']
+del store["newfile.txt"]
 
 # Full CRUD operations
-store['data.json'] = b'{"key": "value"}'
-data = store['data.json']  # Read
-store['data.json'] = b'{"key": "new"}'  # Update
-del store['data.json']  # Delete
+store["data.json"] = b'{"key": "value"}'
+data = store["data.json"]  # Read
+store["data.json"] = b'{"key": "new"}'  # Update
+del store["data.json"]  # Delete
 ```
 
 ## API Setup (for GDReader/GDStore)
@@ -179,8 +179,8 @@ reader = GDReader(folder_url, include_hidden=True)
 ```python
 reader = GDReader(
     folder_url,
-    credentials_file='/path/to/client_secrets.json',
-    settings_file='/path/to/settings.yaml'
+    credentials_file="/path/to/client_secrets.json",
+    settings_file="/path/to/settings.yaml",
 )
 ```
 
@@ -188,13 +188,13 @@ reader = GDReader(
 
 ```python
 # Get public URL for a file
-url = reader.get_url('file.txt')
+url = reader.get_url("file.txt")
 
 # With specific permissions
 url = reader.get_url(
-    'file.txt',
-    permission_type='anyone',  # 'anyone', 'user', 'group', 'domain'
-    permission_role='reader'    # 'reader', 'writer', 'commenter'
+    "file.txt",
+    permission_type="anyone",  # 'anyone', 'user', 'group', 'domain'
+    permission_role="reader",  # 'reader', 'writer', 'commenter'
 )
 ```
 
@@ -207,7 +207,7 @@ from pydrivedol import get_bytes
 content = get_bytes(url, use_cache=True)
 
 # Use custom cache directory
-content = get_bytes(url, use_cache='/path/to/cache/')
+content = get_bytes(url, use_cache="/path/to/cache/")
 
 # Files are cached by ID, subsequent calls are instant
 content = get_bytes(url, use_cache=True)  # From cache!
@@ -224,7 +224,7 @@ from pathlib import Path
 store = GDStore(folder_url)
 
 # Backup all .py files
-for filepath in Path('.').glob('**/*.py'):
+for filepath in Path(".").glob("**/*.py"):
     store[str(filepath)] = filepath.read_bytes()
 ```
 
@@ -268,8 +268,8 @@ from io import StringIO
 reader = GDReader(folder_url)
 
 for filepath in reader:
-    if filepath.endswith('.csv'):
-        content = reader[filepath].decode('utf-8')
+    if filepath.endswith(".csv"):
+        content = reader[filepath].decode("utf-8")
         csv_reader = csv.DictReader(StringIO(content))
         for row in csv_reader:
             print(row)
@@ -308,7 +308,7 @@ gauth = GoogleAuth()
 gauth.LocalWebserverAuth()
 drive = GoogleDrive(gauth)
 
-file_list = drive.ListFile({'q': "'folder_id' in parents"}).GetList()
+file_list = drive.ListFile({"q": "'folder_id' in parents"}).GetList()
 for file in file_list:
     content = file.GetContentString()
 
@@ -327,12 +327,12 @@ for filepath, content in reader.items():
 from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
 
-creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-service = build('drive', 'v3', credentials=creds)
+creds = Credentials.from_authorized_user_file("token.json", SCOPES)
+service = build("drive", "v3", credentials=creds)
 results = service.files().list().execute()
-items = results.get('files', [])
+items = results.get("files", [])
 
-# pydrivedol  
+# pydrivedol
 from pydrivedol import GDReader
 
 reader = GDReader(folder_url)
