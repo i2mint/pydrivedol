@@ -231,15 +231,17 @@ def drive_from_service_account(
     )
     gauth.ServiceAuth()
     return GoogleDrive(gauth)
+
+
 # Office → Google-native editor MIME types (the target when ``convert=True``).
 GOOGLE_MIME = {
-    '.xlsx': 'application/vnd.google-apps.spreadsheet',
-    '.xls': 'application/vnd.google-apps.spreadsheet',
-    '.csv': 'application/vnd.google-apps.spreadsheet',
-    '.docx': 'application/vnd.google-apps.document',
-    '.doc': 'application/vnd.google-apps.document',
-    '.pptx': 'application/vnd.google-apps.presentation',
-    '.ppt': 'application/vnd.google-apps.presentation',
+    ".xlsx": "application/vnd.google-apps.spreadsheet",
+    ".xls": "application/vnd.google-apps.spreadsheet",
+    ".csv": "application/vnd.google-apps.spreadsheet",
+    ".docx": "application/vnd.google-apps.document",
+    ".doc": "application/vnd.google-apps.document",
+    ".pptx": "application/vnd.google-apps.presentation",
+    ".ppt": "application/vnd.google-apps.presentation",
 }
 
 
@@ -267,30 +269,30 @@ def _upload_converting(
     """
     if content is None and path is None:
         raise ValueError("provide either content (bytes) or path")
-    meta = {'title': title}
+    meta = {"title": title}
     if file_id:
-        meta['id'] = file_id
+        meta["id"] = file_id
     elif parent_id:
-        meta['parents'] = [{'id': parent_id}]
+        meta["parents"] = [{"id": parent_id}]
     if convert:
         if google_mimetype is None:
             ext = os.path.splitext(path or title)[1].lower()
             google_mimetype = GOOGLE_MIME.get(ext)
         if google_mimetype:
-            meta['mimeType'] = google_mimetype
+            meta["mimeType"] = google_mimetype
     gfile = drive.CreateFile(meta)
     tmp_to_clean = None
     try:
         if path is not None:
             gfile.SetContentFile(path)
         else:
-            suffix = os.path.splitext(title)[1] or ''
+            suffix = os.path.splitext(title)[1] or ""
             with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
                 tmp.write(content)
                 tmp_to_clean = tmp.name
             gfile.SetContentFile(tmp_to_clean)
         # In Drive v2, param={'convert': True} converts the uploaded media to the Google type.
-        gfile.Upload(param={'convert': True} if convert else {})
+        gfile.Upload(param={"convert": True} if convert else {})
     finally:
         if tmp_to_clean and os.path.exists(tmp_to_clean):
             os.remove(tmp_to_clean)
@@ -485,11 +487,9 @@ class GDStore(GDReader, MutableMapping):
             convert = self.convert_office
         parent_id = self._get_or_create_folders(key)
         filename = os.path.basename(key)
-        query = (
-            f"'{parent_id}' in parents " f"and title='{filename}' " f"and trashed=false"
-        )
-        existing = self._drive.ListFile({'q': query}).GetList()
-        file_id = existing[0]['id'] if existing else None
+        query = f"'{parent_id}' in parents and title='{filename}' and trashed=false"
+        existing = self._drive.ListFile({"q": query}).GetList()
+        file_id = existing[0]["id"] if existing else None
         gfile = _upload_converting(
             self._drive,
             parent_id=parent_id,
@@ -501,7 +501,7 @@ class GDStore(GDReader, MutableMapping):
             file_id=file_id,
         )
         self._refresh_cache()
-        return gfile['alternateLink']
+        return gfile["alternateLink"]
 
     def _get_or_create_folders(self, key: str) -> str:
         """
@@ -551,7 +551,7 @@ class GDStore(GDReader, MutableMapping):
         if not isinstance(value, bytes):
             raise TypeError(f"Value must be bytes, got {type(value)}")
 
-        if getattr(self, 'convert_office', False):
+        if getattr(self, "convert_office", False):
             self.upload(key, value, convert=True)
             return
 
@@ -600,8 +600,8 @@ def xlsx_to_google_sheet(
     *,
     share_with=(),
     anyone_reader: bool = False,
-    credentials_file: str = 'client_secrets.json',
-    settings_file: str = 'settings.yaml',
+    credentials_file: str = "client_secrets.json",
+    settings_file: str = "settings.yaml",
     drive=None,
 ) -> str:
     """Upload an ``.xlsx`` as a **native Google Sheet** and return its shareable URL.
@@ -637,10 +637,10 @@ def xlsx_to_google_sheet(
         content=content,
         path=path,
         convert=True,
-        google_mimetype='application/vnd.google-apps.spreadsheet',
+        google_mimetype="application/vnd.google-apps.spreadsheet",
     )
     for email in share_with:
-        gfile.InsertPermission({'type': 'user', 'value': email, 'role': 'writer'})
+        gfile.InsertPermission({"type": "user", "value": email, "role": "writer"})
     if anyone_reader:
-        gfile.InsertPermission({'type': 'anyone', 'value': 'anyone', 'role': 'reader'})
-    return gfile['alternateLink']
+        gfile.InsertPermission({"type": "anyone", "value": "anyone", "role": "reader"})
+    return gfile["alternateLink"]
