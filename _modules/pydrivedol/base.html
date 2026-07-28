@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pydrivedol.base &mdash; pydrivedol 0.0.4 documentation</title>
+  <title>pydrivedol.base &mdash; pydrivedol 0.0.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=8c5712d9"></script>
+      <script src="../../_static/documentation_options.js?v=282f96c0"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -317,6 +317,70 @@
     <span class="n">gauth</span><span class="o">.</span><span class="n">ServiceAuth</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">GoogleDrive</span><span class="p">(</span><span class="n">gauth</span><span class="p">)</span></div>
 
+<span class="c1"># Office → Google-native editor MIME types (the target when ``convert=True``).</span>
+<span class="n">GOOGLE_MIME</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;.xlsx&#39;</span><span class="p">:</span> <span class="s1">&#39;application/vnd.google-apps.spreadsheet&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;.xls&#39;</span><span class="p">:</span> <span class="s1">&#39;application/vnd.google-apps.spreadsheet&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;.csv&#39;</span><span class="p">:</span> <span class="s1">&#39;application/vnd.google-apps.spreadsheet&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;.docx&#39;</span><span class="p">:</span> <span class="s1">&#39;application/vnd.google-apps.document&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;.doc&#39;</span><span class="p">:</span> <span class="s1">&#39;application/vnd.google-apps.document&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;.pptx&#39;</span><span class="p">:</span> <span class="s1">&#39;application/vnd.google-apps.presentation&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;.ppt&#39;</span><span class="p">:</span> <span class="s1">&#39;application/vnd.google-apps.presentation&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_upload_converting</span><span class="p">(</span>
+    <span class="n">drive</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">parent_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">content</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">convert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">google_mimetype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">file_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create/update a Drive file from ``content`` (bytes) or a ``path``, optionally converting.</span>
+
+<span class="sd">    When ``convert`` is True the uploaded office file is converted to the corresponding **Google</span>
+<span class="sd">    editor format** — ``.xlsx`` → a *native Google Sheet*, ``.docx`` → Doc, ``.pptx`` → Slides —</span>
+<span class="sd">    so you get an editable Google file rather than an uploaded blob. The target type defaults to</span>
+<span class="sd">    the extension mapping in :data:`GOOGLE_MIME`; pass ``google_mimetype`` to force it. Pass</span>
+<span class="sd">    ``file_id`` to update an existing file in place.</span>
+
+<span class="sd">    ``drive`` is injected (a PyDrive2 ``GoogleDrive``) so this stays pure and unit-testable.</span>
+<span class="sd">    Returns the uploaded PyDrive2 ``GoogleFile``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">content</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;provide either content (bytes) or path&quot;</span><span class="p">)</span>
+    <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="n">title</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">file_id</span><span class="p">:</span>
+        <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_id</span>
+    <span class="k">elif</span> <span class="n">parent_id</span><span class="p">:</span>
+        <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;parents&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">parent_id</span><span class="p">}]</span>
+    <span class="k">if</span> <span class="n">convert</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">google_mimetype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">path</span> <span class="ow">or</span> <span class="n">title</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="n">google_mimetype</span> <span class="o">=</span> <span class="n">GOOGLE_MIME</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">google_mimetype</span><span class="p">:</span>
+            <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;mimeType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">google_mimetype</span>
+    <span class="n">gfile</span> <span class="o">=</span> <span class="n">drive</span><span class="o">.</span><span class="n">CreateFile</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
+    <span class="n">tmp_to_clean</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">gfile</span><span class="o">.</span><span class="n">SetContentFile</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">suffix</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">title</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span>
+            <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="n">suffix</span><span class="p">)</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+                <span class="n">tmp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+                <span class="n">tmp_to_clean</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">gfile</span><span class="o">.</span><span class="n">SetContentFile</span><span class="p">(</span><span class="n">tmp_to_clean</span><span class="p">)</span>
+        <span class="c1"># In Drive v2, param={&#39;convert&#39;: True} converts the uploaded media to the Google type.</span>
+        <span class="n">gfile</span><span class="o">.</span><span class="n">Upload</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;convert&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span> <span class="k">if</span> <span class="n">convert</span> <span class="k">else</span> <span class="p">{})</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">tmp_to_clean</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">tmp_to_clean</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">tmp_to_clean</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">gfile</span>
 
 
 <div class="viewcode-block" id="GDReader">
@@ -484,7 +548,57 @@
 <span class="sd">    &gt;&gt;&gt; store[&#39;file.txt&#39;] = b&#39;Hello&#39;  # doctest: +SKIP</span>
 <span class="sd">    &gt;&gt;&gt; store[&#39;dir/file.txt&#39;] = b&#39;Nested&#39;  # doctest: +SKIP</span>
 <span class="sd">    &gt;&gt;&gt; del store[&#39;file.txt&#39;]  # doctest: +SKIP</span>
+
+<span class="sd">    Pass ``convert_office=True`` to make ``store[&#39;x.xlsx&#39;] = xlsx_bytes`` create a *native</span>
+<span class="sd">    Google Sheet* (xlsx → Sheet, docx → Doc, pptx → Slides) instead of an uploaded blob. For</span>
+<span class="sd">    one-off control use :meth:`upload` with ``convert=True``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">convert_office</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Like :class:`GDReader`, plus ``convert_office`` (default off, backward-compatible):</span>
+<span class="sd">        when True, office uploads are converted to their native Google editor type.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">folder_url</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">convert_office</span> <span class="o">=</span> <span class="n">convert_office</span>
+
+<div class="viewcode-block" id="GDStore.upload">
+<a class="viewcode-back" href="../../module_docs/pydrivedol/base.html#pydrivedol.base.GDStore.upload">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">upload</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">convert</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">google_mimetype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Upload ``value`` (bytes) or a file ``path`` to ``key``; return the shareable URL.</span>
+
+<span class="sd">        With ``convert=True`` (or the store&#39;s ``convert_office`` default) an office file becomes a</span>
+<span class="sd">        native Google doc — e.g. ``store.upload(&#39;schema.xlsx&#39;, xlsx_bytes, convert=True)`` yields a</span>
+<span class="sd">        Google Sheet. Updates an existing same-named file in the target folder, else creates it.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">convert</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">convert</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert_office</span>
+        <span class="n">parent_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_create_folders</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">parent_id</span><span class="si">}</span><span class="s2">&#39; in parents &quot;</span> <span class="sa">f</span><span class="s2">&quot;and title=&#39;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39; &quot;</span> <span class="sa">f</span><span class="s2">&quot;and trashed=false&quot;</span>
+        <span class="p">)</span>
+        <span class="n">existing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">ListFile</span><span class="p">({</span><span class="s1">&#39;q&#39;</span><span class="p">:</span> <span class="n">query</span><span class="p">})</span><span class="o">.</span><span class="n">GetList</span><span class="p">()</span>
+        <span class="n">file_id</span> <span class="o">=</span> <span class="n">existing</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">existing</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">gfile</span> <span class="o">=</span> <span class="n">_upload_converting</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="p">,</span>
+            <span class="n">parent_id</span><span class="o">=</span><span class="n">parent_id</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+            <span class="n">content</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
+            <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
+            <span class="n">convert</span><span class="o">=</span><span class="n">convert</span><span class="p">,</span>
+            <span class="n">google_mimetype</span><span class="o">=</span><span class="n">google_mimetype</span><span class="p">,</span>
+            <span class="n">file_id</span><span class="o">=</span><span class="n">file_id</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_cache</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">gfile</span><span class="p">[</span><span class="s1">&#39;alternateLink&#39;</span><span class="p">]</span></div>
+
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_or_create_folders</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -526,9 +640,17 @@
         <span class="k">return</span> <span class="n">current_id</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write bytes to file, creating folders as needed.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write bytes to file, creating folders as needed.</span>
+
+<span class="sd">        If the store was created with ``convert_office=True`` and ``key`` is an office file, it</span>
+<span class="sd">        is uploaded as a native Google doc (see :meth:`upload`); otherwise it is stored as raw bytes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Value must be bytes, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;convert_office&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">convert</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">return</span>
 
         <span class="n">parent_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_create_folders</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
@@ -561,6 +683,67 @@
         <span class="n">gfile</span><span class="o">.</span><span class="n">Delete</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_cache</span><span class="p">()</span></div>
+
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Convenience: make a native Google Sheet from an .xlsx</span>
+<span class="c1"># =============================================================================</span>
+
+
+<div class="viewcode-block" id="xlsx_to_google_sheet">
+<a class="viewcode-back" href="../../module_docs/pydrivedol/base.html#pydrivedol.base.xlsx_to_google_sheet">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">xlsx_to_google_sheet</span><span class="p">(</span>
+    <span class="n">folder_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">xlsx</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">share_with</span><span class="o">=</span><span class="p">(),</span>
+    <span class="n">anyone_reader</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">credentials_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;client_secrets.json&#39;</span><span class="p">,</span>
+    <span class="n">settings_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;settings.yaml&#39;</span><span class="p">,</span>
+    <span class="n">drive</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Upload an ``.xlsx`` as a **native Google Sheet** and return its shareable URL.</span>
+
+<span class="sd">    The whole point: Drive can *convert* an uploaded spreadsheet into an editable Google Sheet</span>
+<span class="sd">    (preserving cell formatting), rather than parking an ``.xlsx`` blob. This wraps that.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        folder_url: destination Drive folder URL (``None`` → the account&#39;s root).</span>
+<span class="sd">        title: the Google Sheet&#39;s name.</span>
+<span class="sd">        xlsx: a path (``str``/``Path``) or raw ``bytes``.</span>
+<span class="sd">        share_with: emails to grant ``writer`` access (no notification email sent).</span>
+<span class="sd">        anyone_reader: also grant anyone-with-link ``reader`` access.</span>
+<span class="sd">        credentials_file / settings_file: PyDrive2 auth (ignored if ``drive`` is given).</span>
+<span class="sd">        drive: an existing PyDrive2 ``GoogleDrive`` (skips auth).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The Google Sheet URL (``alternateLink``).</span>
+
+<span class="sd">    &gt;&gt;&gt; url = xlsx_to_google_sheet(folder_url, &#39;My Schema&#39;, &#39;/tmp/schema.xlsx&#39;,</span>
+<span class="sd">    ...                            anyone_reader=True)  # doctest: +SKIP</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">drive</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_require_pydrive2</span><span class="p">()</span>
+        <span class="n">drive</span> <span class="o">=</span> <span class="n">_init_google_drive</span><span class="p">(</span><span class="n">credentials_file</span><span class="p">,</span> <span class="n">settings_file</span><span class="p">)</span>
+    <span class="n">parent_id</span> <span class="o">=</span> <span class="n">_extract_folder_id</span><span class="p">(</span><span class="n">folder_url</span><span class="p">)</span> <span class="k">if</span> <span class="n">folder_url</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">xlsx</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">xlsx</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">))</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">xlsx</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">xlsx</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">gfile</span> <span class="o">=</span> <span class="n">_upload_converting</span><span class="p">(</span>
+        <span class="n">drive</span><span class="p">,</span>
+        <span class="n">parent_id</span><span class="o">=</span><span class="n">parent_id</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+        <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
+        <span class="n">convert</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">google_mimetype</span><span class="o">=</span><span class="s1">&#39;application/vnd.google-apps.spreadsheet&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">email</span> <span class="ow">in</span> <span class="n">share_with</span><span class="p">:</span>
+        <span class="n">gfile</span><span class="o">.</span><span class="n">InsertPermission</span><span class="p">({</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">email</span><span class="p">,</span> <span class="s1">&#39;role&#39;</span><span class="p">:</span> <span class="s1">&#39;writer&#39;</span><span class="p">})</span>
+    <span class="k">if</span> <span class="n">anyone_reader</span><span class="p">:</span>
+        <span class="n">gfile</span><span class="o">.</span><span class="n">InsertPermission</span><span class="p">({</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;anyone&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="s1">&#39;anyone&#39;</span><span class="p">,</span> <span class="s1">&#39;role&#39;</span><span class="p">:</span> <span class="s1">&#39;reader&#39;</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">gfile</span><span class="p">[</span><span class="s1">&#39;alternateLink&#39;</span><span class="p">]</span></div>
 
 </pre></div>
 
