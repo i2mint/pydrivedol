@@ -10,6 +10,8 @@
 ## Features
 
 - 🚀 **Simple public downloads** - No API setup required for public files
+- 🔒 **Private files too** - Pass an authenticated `drive=` to reach files shared only with you
+- 🗂️ **Files as dict** - `GDFiles` keyed by file id *or* Drive URL
 - 📂 **Folder as dict** - Browse folders with `dict`-like interface
 - 💾 **Read/write operations** - Full CRUD support through mapping protocol
 - 🔄 **Recursive traversal** - Control depth with `max_levels`
@@ -54,6 +56,62 @@ get_bytes(url, local_path="/path/to/save.pdf")
 # With caching
 get_bytes(url, use_cache=True)  # Uses ~/.cache/pydrivedol/cached/
 ```
+
+If the file is **not** publicly shared, Google answers with its HTML sign-in page — under
+HTTP 200, so it looks like a successful download. pydrivedol refuses to hand that back as
+file content and raises `NotPubliclyShared` instead, telling you to authenticate:
+
+```python
+from pydrivedol import get_bytes, NotPubliclyShared
+
+try:
+    content = get_bytes(url)
+except NotPubliclyShared:
+    content = get_bytes(url, drive=drive)  # see below
+```
+
+(If you really are downloading an HTML file, pass `allow_html=True`.)
+
+### Private Files (Requires API Setup)
+
+Authenticate once, then pass the `drive` wherever bytes are needed:
+
+```python
+from pydrivedol import drive_from_service_account, get_bytes, get_metadata, GDFiles
+
+drive = drive_from_service_account("service-account-key.json")
+
+# Is it worth downloading? Metadata is cheap — it fetches no content.
+info = get_metadata(url, drive=drive)
+info["title"], info["fileSize"], info["mimeType"], info["modifiedDate"]
+# ('client_export.xlsx', 18512345, 'application/vnd...sheet', '2026-08-01T12:00:00.000Z')
+
+# Same get_bytes, now authenticated — local_path= and use_cache= work as before
+content = get_bytes(url, drive=drive)
+```
+
+`fileSize` comes back as an `int` (Drive sends it as a string), and is **absent** for
+Google-native files — Sheets/Docs/Slides have no stored byte size.
+
+### Files as a Mapping: `GDFiles`
+
+When files arrive as *links* rather than as a folder listing, key by the link:
+
+```python
+files = GDFiles(drive)
+
+content = files[url]            # a Drive file URL...
+content = files[file_id]        # ...or the bare id: same entry
+url in files                    # metadata probe, never a download
+files.metadata(url)             # name / size / mimeType / modifiedDate
+
+# Iteration needs a scope — an unscoped GDFiles addresses the whole Drive
+scoped = GDFiles(drive, folder_url=folder_url)
+list(scoped)                    # file ids
+```
+
+Unscoped, `iter()` and `len()` raise `NotImplementedError` (with a message naming
+`folder_url=`) rather than silently paginating your entire Drive. Lookup works either way.
 
 ### Working with Folders (Requires API Setup)
 
@@ -150,6 +208,40 @@ reader = GDReader(folder_url)
 3. Credentials are saved for future use
 
 That's it! You only need to authenticate once.
+
+### Headless / server: use a service account instead
+
+The browser flow above is unusable from a script, a server, or an agent. For those, create a
+**service account** — a robot identity with its own key file and no interactive login:
+
+1. [Google Cloud Console](https://console.cloud.google.com/) → your project →
+   "APIs & Services" → "Credentials"
+2. "Create Credentials" → **Service account**. Any name; no roles needed.
+3. Open the new service account → "Keys" → "Add key" → "Create new key" → **JSON**. The key
+   file downloads once and cannot be re-downloaded.
+4. Copy the service account's **`client_email`** (it looks like
+   `something@your-project.iam.gserviceaccount.com`).
+5. In Google Drive, **share the file or folder with that `client_email`** — Viewer to read,
+   Editor to write. This is the step people forget: the service account is a separate
+   identity, and a file shared with *you* is not shared with *it*.
+6. Point pydrivedol at the key file:
+
+```python
+from pydrivedol import drive_from_service_account
+
+drive = drive_from_service_account("service-account-key.json")
+```
+
+Keep the key file out of version control (this repo's `.gitignore` covers the usual names) and
+out of the repo entirely if you can — read its path from an environment variable.
+
+Read-only by token, if you want the extra guarantee:
+
+```python
+drive = drive_from_service_account(
+    key_file, scopes=("https://www.googleapis.com/auth/drive.readonly",)
+)
+```
 
 ## Advanced Usage
 
@@ -281,11 +373,14 @@ pydrivedol follows the `dol` package patterns:
 
 ```
 Helper Functions
-  └─ get_bytes()              # Simple public downloads (no API)
-  
-API-Based Classes  
-  └─ GDReader (Mapping)       # Read-only folder access
-      └─ GDStore (MutableMapping)  # Read-write folder access
+  └─ get_bytes(url)                    # Simple public downloads (no API)
+  └─ get_bytes(url, drive=...)         # Authenticated: reaches private files
+  └─ get_metadata(url, drive=...)      # Name/size/mimeType/date, no download
+
+API-Based Classes
+  └─ GDFiles (Mapping)                 # Files, keyed by file id or file URL
+  └─ GDReader (Mapping)                # Read-only folder access, keyed by path
+      └─ GDStore (MutableMapping)      # Read-write folder access
 ```
 
 **Design Principles:**
@@ -409,6 +504,17 @@ pip install pydrive2
 1. Check that your Google account has access to the folder
 2. Verify folder sharing settings
 3. Re-authenticate: delete saved credentials and run again
+
+### `NotPubliclyShared` from `get_bytes`
+
+The file is not shared "anyone with the link", so the unauthenticated endpoint cannot reach
+it. Either make it public, or authenticate and pass `drive=` (see *Private Files* above). For
+a service account, remember the file/folder must be shared with the account's `client_email`.
+
+### Downloaded file won't open / `BadZipFile` on an xlsx
+
+You are almost certainly holding Google's sign-in page rather than the file. Recent versions
+raise `NotPubliclyShared` for exactly this; if you are pinned to an older one, upgrade.
 
 ### Tests are skipped
 

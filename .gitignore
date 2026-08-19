@@ -113,3 +113,18 @@ venv.bak/
 
 # PyCharm
 .idea
+
+# Google credentials — NEVER commit these
+client_secrets.json
+client_secret*.json
+credentials.json
+settings.yaml
+token.json
+token.pickle
+mycreds.txt
+*-key.json
+*_key.json
+*service*account*.json
+*serviceaccount*.json
+sa-key*.json
+.credentials/
