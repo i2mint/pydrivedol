@@ -5,5 +5,6 @@
    module_docs/pydrivedol
    module_docs/pydrivedol/base
    module_docs/pydrivedol/tests
+   module_docs/pydrivedol/tests/test_authenticated_access
    module_docs/pydrivedol/tests/test_base
    module_docs/pydrivedol/tests/test_service_account

@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pydrivedol.base &mdash; pydrivedol 0.0.5 documentation</title>
+  <title>pydrivedol.base &mdash; pydrivedol 0.0.6 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=282f96c0"></script>
+      <script src="../../_static/documentation_options.js?v=1fd71caa"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -49,6 +49,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/pydrivedol.html">pydrivedol</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/pydrivedol/base.html">pydrivedol.base</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/pydrivedol/tests.html">pydrivedol.tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/pydrivedol/tests/test_authenticated_access.html">pydrivedol.tests.test_authenticated_access</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/pydrivedol/tests/test_base.html">pydrivedol.tests.test_base</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/pydrivedol/tests/test_service_account.html">pydrivedol.tests.test_service_account</a></li>
 </ul>
@@ -78,10 +79,20 @@
            <div itemprop="articleBody">
              
   <h1>Source code for pydrivedol.base</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Base objects for pydrivedol: simple download function, GDReader, GDStore.</span>
+<span></span><span class="sd">"""</span>
+<span class="sd">Base objects for pydrivedol: download functions, GDFiles, GDReader, GDStore.</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Two access levels, both returning ``bytes``:</span>
+
+<span class="sd">- **Public, no setup**: :func:`get_bytes` against Google's unauthenticated download endpoint.</span>
+<span class="sd">  It raises :class:`NotPubliclyShared` rather than handing back the HTML sign-in page Drive</span>
+<span class="sd">  serves (with HTTP 200) when the file is not shared publicly.</span>
+<span class="sd">- **Authenticated**: pass a PyDrive2 ``GoogleDrive`` -- from :func:`drive_from_service_account`</span>
+<span class="sd">  for headless use -- as ``drive=`` to :func:`get_bytes` / :func:`get_metadata`, or build a</span>
+<span class="sd">  :class:`GDFiles` (file-level Mapping, keyed by file id or URL), :class:`GDReader` /</span>
+<span class="sd">  :class:`GDStore` (folder-level, keyed by relative path).</span>
+
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
@@ -104,21 +115,39 @@
 
 
 <span class="c1"># =============================================================================</span>
+<span class="c1"># Errors</span>
+<span class="c1"># =============================================================================</span>
+
+
+<div class="viewcode-block" id="NotPubliclyShared">
+<a class="viewcode-back" href="../../module_docs/pydrivedol/base.html#pydrivedol.base.NotPubliclyShared">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">NotPubliclyShared</span><span class="p">(</span><span class="ne">RuntimeError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Raised when an unauthenticated download returns a sign-in page instead of file content.</span>
+
+<span class="sd">    Google serves its HTML sign-in / permission interstitial with HTTP **200**, so without an</span>
+<span class="sd">    explicit check that page body would be returned as if it were the file: plausible-looking</span>
+<span class="sd">    bytes that only blow up much later, in whatever tries to parse them. Catch this to fall</span>
+<span class="sd">    back to an authenticated fetch (``get_bytes(url, drive=...)``).</span>
+<span class="sd">    """</span></div>
+
+
+
+<span class="c1"># =============================================================================</span>
 <span class="c1"># Helper Functions</span>
 <span class="c1"># =============================================================================</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_extract_file_id</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Extract Google Drive file ID from URL.</span>
 
-<span class="sd">    &gt;&gt;&gt; _extract_file_id(&#39;https://drive.google.com/file/d/ABC123/view&#39;)</span>
-<span class="sd">    &#39;ABC123&#39;</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; _extract_file_id('https://drive.google.com/file/d/ABC123/view')</span>
+<span class="sd">    'ABC123'</span>
+<span class="sd">    """</span>
     <span class="n">patterns</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="sa">r</span><span class="s2">&quot;drive\.google\.com/file/d/([^/]+)&quot;</span><span class="p">,</span>
-        <span class="sa">r</span><span class="s2">&quot;drive\.google\.com/open\?id=([^&amp;]+)&quot;</span><span class="p">,</span>
-        <span class="sa">r</span><span class="s2">&quot;drive\.google\.com/uc\?.*id=([^&amp;]+)&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">"drive\.google\.com/file/d/([^/]+)"</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">"drive\.google\.com/open\?id=([^&amp;]+)"</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">"drive\.google\.com/uc\?.*id=([^&amp;]+)"</span><span class="p">,</span>
     <span class="p">]</span>
     <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">patterns</span><span class="p">:</span>
         <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
@@ -128,23 +157,65 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_extract_folder_id</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Extract Google Drive folder ID from URL.</span>
 
-<span class="sd">    &gt;&gt;&gt; _extract_folder_id(&#39;https://drive.google.com/drive/folders/ABC123&#39;)</span>
-<span class="sd">    &#39;ABC123&#39;</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;drive\.google\.com/drive/(?:u/\d+/)?folders/([^?]+)&quot;</span>
+<span class="sd">    &gt;&gt;&gt; _extract_folder_id('https://drive.google.com/drive/folders/ABC123')</span>
+<span class="sd">    'ABC123'</span>
+<span class="sd">    """</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"drive\.google\.com/drive/(?:u/\d+/)?folders/([^?]+)"</span>
     <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">match</span> <span class="k">else</span> <span class="kc">None</span>
 
 
+<span class="c1">#: A bare Drive file id: URL-safe base64-ish, and long enough not to be a typo'd URL.</span>
+<span class="n">_FILE_ID_PATTERN</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^[A-Za-z0-9_-]{10,}$"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_file_id</span><span class="p">(</span><span class="n">url_or_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Normalise a file key -- a Drive file URL *or* a bare file id -- to a file id.</span>
+
+<span class="sd">    URLs are parsed with :func:`_extract_file_id`; anything else is accepted only if it looks</span>
+<span class="sd">    like a Drive id, so that a malformed URL still fails loudly instead of being sent to the</span>
+<span class="sd">    API as a nonsense id.</span>
+
+<span class="sd">    &gt;&gt;&gt; _resolve_file_id('https://drive.google.com/file/d/1AbCdEfGhIjKlMnOp/view')</span>
+<span class="sd">    '1AbCdEfGhIjKlMnOp'</span>
+<span class="sd">    &gt;&gt;&gt; _resolve_file_id('1AbCdEfGhIjKlMnOp')</span>
+<span class="sd">    '1AbCdEfGhIjKlMnOp'</span>
+<span class="sd">    """</span>
+    <span class="n">file_id</span> <span class="o">=</span> <span class="n">_extract_file_id</span><span class="p">(</span><span class="n">url_or_id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">file_id</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">file_id</span>
+    <span class="k">if</span> <span class="n">_FILE_ID_PATTERN</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">url_or_id</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">url_or_id</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Not a Google Drive file URL or file id: </span><span class="si">{</span><span class="n">url_or_id</span><span class="si">!r}</span><span class="s2">. Expected something like "</span>
+        <span class="s2">"'https://drive.google.com/file/d/&lt;id&gt;/view' or the bare '&lt;id&gt;'."</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_not_found</span><span class="p">(</span><span class="n">error</span><span class="p">:</span> <span class="ne">BaseException</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Whether a Drive API error means "no such file" rather than a transient failure.</span>
+
+<span class="sd">    Used to keep the Mapping contract honest: a genuinely missing file becomes ``KeyError``,</span>
+<span class="sd">    while a 5xx / auth / network failure is left to propagate as itself.</span>
+
+<span class="sd">    &gt;&gt;&gt; _is_not_found(Exception('&lt;HttpError 404 ... "File not found: abc"&gt;'))</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; _is_not_found(Exception('&lt;HttpError 500 ... "Backend Error"&gt;'))</span>
+<span class="sd">    False</span>
+<span class="sd">    """</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">return</span> <span class="s2">"404"</span> <span class="ow">in</span> <span class="n">text</span> <span class="ow">or</span> <span class="s2">"not found"</span> <span class="ow">in</span> <span class="n">text</span> <span class="ow">or</span> <span class="s2">"notfound"</span> <span class="ow">in</span> <span class="n">text</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_cache_dir</span><span class="p">(</span><span class="n">use_cache</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get cache directory path, creating if needed.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Get cache directory path, creating if needed."""</span>
     <span class="k">if</span> <span class="n">use_cache</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">use_cache</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~/.cache/pydrivedol/cached/&quot;</span><span class="p">)</span>
+        <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">"~/.cache/pydrivedol/cached/"</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">use_cache</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -152,8 +223,57 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_cached_path</span><span class="p">(</span><span class="n">file_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cache_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get path for cached file.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Get path for cached file."""</span>
     <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">file_id</span><span class="p">)</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># HTML-interstitial detection (the "silent success" guard)</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="c1">#: Content type Drive declares for its sign-in / confirmation pages.</span>
+<span class="n">_HTML_CONTENT_TYPE</span> <span class="o">=</span> <span class="s2">"text/html"</span>
+<span class="c1">#: Document prefixes that mark a payload as an HTML page rather than file bytes.</span>
+<span class="n">_HTML_BODY_PREFIXES</span> <span class="o">=</span> <span class="p">(</span><span class="sa">b</span><span class="s2">"&lt;!doctype html"</span><span class="p">,</span> <span class="sa">b</span><span class="s2">"&lt;html"</span><span class="p">)</span>
+<span class="c1">#: How much of the body to sniff for those prefixes.</span>
+<span class="n">_HTML_SNIFF_NBYTES</span> <span class="o">=</span> <span class="mi">64</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_looks_like_html</span><span class="p">(</span><span class="n">content</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">content_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Whether a downloaded payload is an HTML page rather than raw file bytes.</span>
+
+<span class="sd">    True when the declared content type is HTML, or when the body itself opens with an HTML</span>
+<span class="sd">    document prefix. Leading whitespace and a UTF-8 BOM are tolerated; matching is</span>
+<span class="sd">    case-insensitive.</span>
+
+<span class="sd">    &gt;&gt;&gt; _looks_like_html(b'id,name', 'text/csv')</span>
+<span class="sd">    False</span>
+<span class="sd">    &gt;&gt;&gt; _looks_like_html(b'  &lt;!DOCTYPE HTML&gt;&lt;html&gt;&lt;head&gt;...')</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; _looks_like_html(b'anything at all', 'text/html; charset=utf-8')</span>
+<span class="sd">    True</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">_HTML_CONTENT_TYPE</span> <span class="ow">in</span> <span class="n">content_type</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="n">head</span> <span class="o">=</span> <span class="n">content</span><span class="p">[:</span><span class="n">_HTML_SNIFF_NBYTES</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="sa">b</span><span class="s2">"</span><span class="se">\xef\xbb\xbf</span><span class="s2">"</span><span class="p">)</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">head</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">_HTML_BODY_PREFIXES</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_not_publicly_shared_message</span><span class="p">(</span><span class="n">file_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Compose the actionable error text for an HTML payload from the public endpoint."""</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Google Drive returned an HTML page, not file content, for file id </span><span class="si">{</span><span class="n">file_id</span><span class="si">!r}</span><span class="s2">. "</span>
+        <span class="s2">"That page is Google's sign-in / permission interstitial, served with HTTP 200, so the "</span>
+        <span class="s2">"download 'succeeded' with the wrong bytes. It means the file is not shared publicly "</span>
+        <span class="s2">"and the unauthenticated endpoint cannot reach it (it can also be Drive's large-file "</span>
+        <span class="s2">"confirmation page).</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"Fix -- authenticate and pass a drive= client:</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"    from pydrivedol import drive_from_service_account, get_bytes</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"    drive = drive_from_service_account('service-account-key.json')</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"    content = get_bytes(url, drive=drive)</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"...having shared the file (or its folder) with the service account's client_email.</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"If you really are downloading an HTML file, pass allow_html=True."</span>
+    <span class="p">)</span>
 
 
 <span class="c1"># =============================================================================</span>
@@ -168,80 +288,109 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">local_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">use_cache</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">drive</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">allow_html</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Download bytes from public Google Drive URL.</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Download bytes from a Google Drive URL.</span>
 
-<span class="sd">    Works with publicly shared files, no API setup required.</span>
+<span class="sd">    Without ``drive`` this uses Google's public download endpoint -- no API setup, but it only</span>
+<span class="sd">    reaches files shared "anyone with the link", and it raises :class:`NotPubliclyShared` if</span>
+<span class="sd">    Drive answers with its sign-in page instead of the file. Pass an authenticated ``drive``</span>
+<span class="sd">    (see :func:`drive_from_service_account`) to reach **private** files shared with that</span>
+<span class="sd">    identity.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        url: Google Drive shared link</span>
+<span class="sd">        url: Google Drive file link (a bare file id is accepted too).</span>
 <span class="sd">        local_path: False (return bytes), True (save to temp), or str (save to path)</span>
 <span class="sd">        use_cache: False (no cache), True (use ~/.cache/pydrivedol/cached/), or str (use dir)</span>
+<span class="sd">        drive: an authenticated PyDrive2 ``GoogleDrive``. When given, the download goes through</span>
+<span class="sd">            the API; ``None`` (default) keeps the public, unauthenticated behaviour exactly.</span>
+<span class="sd">        allow_html: by default an HTML payload from the *public* endpoint raises, because it is</span>
+<span class="sd">            Google's login page masquerading as file content. Set True only when the file you</span>
+<span class="sd">            are downloading genuinely is HTML. Ignored on the authenticated path.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        bytes if local_path is False or str, filepath str if local_path is True</span>
 
+<span class="sd">    Raises:</span>
+<span class="sd">        NotPubliclyShared: the public endpoint returned a sign-in page; pass ``drive=``.</span>
+
 <span class="sd">    &gt;&gt;&gt; content = get_bytes(url)  # doctest: +SKIP</span>
 <span class="sd">    &gt;&gt;&gt; path = get_bytes(url, local_path=True)  # doctest: +SKIP</span>
-<span class="sd">    &gt;&gt;&gt; content = get_bytes(url, local_path=&#39;/tmp/file.txt&#39;)  # doctest: +SKIP</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">file_id</span> <span class="o">=</span> <span class="n">_extract_file_id</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">file_id</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not extract file ID from URL: </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="sd">    &gt;&gt;&gt; content = get_bytes(url, local_path='/tmp/file.txt')  # doctest: +SKIP</span>
+
+<span class="sd">    A private file, shared with a service account:</span>
+
+<span class="sd">    &gt;&gt;&gt; drive = drive_from_service_account('service-account-key.json')  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; content = get_bytes(private_url, drive=drive)  # doctest: +SKIP</span>
+<span class="sd">    """</span>
+    <span class="n">file_id</span> <span class="o">=</span> <span class="n">_resolve_file_id</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
 
     <span class="c1"># Check cache</span>
     <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">_resolve_cache_dir</span><span class="p">(</span><span class="n">use_cache</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">cache_dir</span><span class="p">:</span>
-        <span class="n">cached_file</span> <span class="o">=</span> <span class="n">_get_cached_path</span><span class="p">(</span><span class="n">file_id</span><span class="p">,</span> <span class="n">cache_dir</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cached_file</span><span class="p">):</span>
-            <span class="n">content</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cached_file</span><span class="p">)</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">()</span>
-            <span class="k">return</span> <span class="n">_handle_local_path_output</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">local_path</span><span class="p">,</span> <span class="n">cached_file</span><span class="p">)</span>
+    <span class="n">cached_file</span> <span class="o">=</span> <span class="n">_get_cached_path</span><span class="p">(</span><span class="n">file_id</span><span class="p">,</span> <span class="n">cache_dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">cache_dir</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">cached_file</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cached_file</span><span class="p">):</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cached_file</span><span class="p">)</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">_handle_local_path_output</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">local_path</span><span class="p">,</span> <span class="n">cached_file</span><span class="p">)</span>
 
     <span class="c1"># Download</span>
-    <span class="n">content</span> <span class="o">=</span> <span class="n">_download_from_drive</span><span class="p">(</span><span class="n">file_id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">drive</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">_download_via_api</span><span class="p">(</span><span class="n">drive</span><span class="p">,</span> <span class="n">file_id</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">_download_from_drive</span><span class="p">(</span><span class="n">file_id</span><span class="p">,</span> <span class="n">allow_html</span><span class="o">=</span><span class="n">allow_html</span><span class="p">)</span>
 
     <span class="c1"># Cache if requested</span>
-    <span class="k">if</span> <span class="n">cache_dir</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">cached_file</span><span class="p">:</span>
         <span class="n">Path</span><span class="p">(</span><span class="n">cached_file</span><span class="p">)</span><span class="o">.</span><span class="n">write_bytes</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">_handle_local_path_output</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">local_path</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_download_from_drive</span><span class="p">(</span><span class="n">file_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download file content from Google Drive.&quot;&quot;&quot;</span>
-    <span class="n">download_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://drive.google.com/uc?export=download&amp;id=</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_download_from_drive</span><span class="p">(</span><span class="n">file_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">allow_html</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Download file content from Google Drive's public (unauthenticated) endpoint.</span>
+
+<span class="sd">    Guards against the silent-success failure: Drive answers an unauthorised request with its</span>
+<span class="sd">    HTML sign-in page under HTTP 200, which would otherwise be returned as the file's content.</span>
+<span class="sd">    """</span>
+    <span class="n">download_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"https://drive.google.com/uc?export=download&amp;id=</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">"</span>
 
     <span class="n">session</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
     <span class="n">response</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">download_url</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># Handle virus scan warning for large files</span>
-    <span class="k">if</span> <span class="s2">&quot;download_warning&quot;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span> <span class="ow">or</span> <span class="s2">&quot;virus&quot;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+    <span class="k">if</span> <span class="s2">"download_warning"</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span> <span class="ow">or</span> <span class="s2">"virus"</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">cookies</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;download_warning&quot;</span><span class="p">):</span>
-                <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">file_id</span><span class="p">,</span> <span class="s2">&quot;confirm&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span>
+            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"download_warning"</span><span class="p">):</span>
+                <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"id"</span><span class="p">:</span> <span class="n">file_id</span><span class="p">,</span> <span class="s2">"confirm"</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span>
                 <span class="n">response</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">download_url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="k">break</span>
 
     <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Download failed. Status: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Download failed. Status: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_html</span> <span class="ow">and</span> <span class="n">_looks_like_html</span><span class="p">(</span>
+        <span class="n">content</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"Content-Type"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+    <span class="p">):</span>
+        <span class="k">raise</span> <span class="n">NotPubliclyShared</span><span class="p">(</span><span class="n">_not_publicly_shared_message</span><span class="p">(</span><span class="n">file_id</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">content</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_handle_local_path_output</span><span class="p">(</span>
     <span class="n">content</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">local_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">cached_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Handle local_path argument logic.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Handle local_path argument logic."""</span>
     <span class="k">if</span> <span class="n">local_path</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">cached_file</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cached_file</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">cached_file</span>
-        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">""</span><span class="p">)</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
             <span class="n">tmp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">tmp</span><span class="o">.</span><span class="n">name</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"."</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">Path</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span><span class="o">.</span><span class="n">write_bytes</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">content</span>
     <span class="k">else</span><span class="p">:</span>
@@ -254,18 +403,18 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_require_pydrive2</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raise ImportError if PyDrive2 not available.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Raise ImportError if PyDrive2 not available."""</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">_PYDRIVE2_AVAILABLE</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
-            <span class="s2">&quot;PyDrive2 required for GDReader/GDStore. Install: pip install pydrive2&quot;</span>
+            <span class="s2">"PyDrive2 required for GDReader/GDStore. Install: pip install pydrive2"</span>
         <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_init_google_drive</span><span class="p">(</span>
-    <span class="n">credentials_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;client_secrets.json&quot;</span><span class="p">,</span>
-    <span class="n">settings_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;settings.yaml&quot;</span><span class="p">,</span>
+    <span class="n">credentials_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"client_secrets.json"</span><span class="p">,</span>
+    <span class="n">settings_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"settings.yaml"</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize and authenticate Google Drive.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Initialize and authenticate Google Drive."""</span>
     <span class="n">gauth</span> <span class="o">=</span> <span class="n">GoogleAuth</span><span class="p">()</span>
     <span class="n">gauth</span><span class="o">.</span><span class="n">LoadCredentialsFile</span><span class="p">(</span><span class="n">credentials_file</span><span class="p">)</span>
 
@@ -285,13 +434,13 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">drive_from_service_account</span><span class="p">(</span>
     <span class="n">key_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">scopes</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;https://www.googleapis.com/auth/drive&quot;</span><span class="p">,),</span>
+    <span class="n">scopes</span><span class="o">=</span><span class="p">(</span><span class="s2">"https://www.googleapis.com/auth/drive"</span><span class="p">,),</span>
     <span class="n">subject</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build an authenticated ``GoogleDrive`` from a service-account key file.</span>
+<span class="w">    </span><span class="sd">"""Build an authenticated ``GoogleDrive`` from a service-account key file.</span>
 
 <span class="sd">    For headless / server use — no browser OAuth flow. Share the target Drive folder</span>
-<span class="sd">    with the service account&#39;s ``client_email`` (Viewer for read, Editor for write).</span>
+<span class="sd">    with the service account's ``client_email`` (Viewer for read, Editor for write).</span>
 <span class="sd">    Pass the resulting drive to ``GDReader``/``GDStore`` via their ``drive=`` argument.</span>
 
 <span class="sd">    Args:</span>
@@ -300,32 +449,156 @@
 <span class="sd">            to enforce read-only at the token level).</span>
 <span class="sd">        subject: optional user email to impersonate (domain-wide delegation).</span>
 
-<span class="sd">    &gt;&gt;&gt; drive = drive_from_service_account(&#39;sa-key.json&#39;)   # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; drive = drive_from_service_account('sa-key.json')   # doctest: +SKIP</span>
 <span class="sd">    &gt;&gt;&gt; reader = GDReader(folder_url, drive=drive)           # doctest: +SKIP</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">_require_pydrive2</span><span class="p">()</span>
-    <span class="n">service_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;client_json_file_path&quot;</span><span class="p">:</span> <span class="n">key_file</span><span class="p">}</span>
+    <span class="n">service_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"client_json_file_path"</span><span class="p">:</span> <span class="n">key_file</span><span class="p">}</span>
     <span class="k">if</span> <span class="n">subject</span><span class="p">:</span>
-        <span class="n">service_config</span><span class="p">[</span><span class="s2">&quot;client_user_email&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subject</span>
+        <span class="n">service_config</span><span class="p">[</span><span class="s2">"client_user_email"</span><span class="p">]</span> <span class="o">=</span> <span class="n">subject</span>
     <span class="n">gauth</span> <span class="o">=</span> <span class="n">GoogleAuth</span><span class="p">(</span>
         <span class="n">settings</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;client_config_backend&quot;</span><span class="p">:</span> <span class="s2">&quot;service&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;service_config&quot;</span><span class="p">:</span> <span class="n">service_config</span><span class="p">,</span>
-            <span class="s2">&quot;oauth_scope&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">scopes</span><span class="p">),</span>
+            <span class="s2">"client_config_backend"</span><span class="p">:</span> <span class="s2">"service"</span><span class="p">,</span>
+            <span class="s2">"service_config"</span><span class="p">:</span> <span class="n">service_config</span><span class="p">,</span>
+            <span class="s2">"oauth_scope"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">scopes</span><span class="p">),</span>
         <span class="p">}</span>
     <span class="p">)</span>
     <span class="n">gauth</span><span class="o">.</span><span class="n">ServiceAuth</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">GoogleDrive</span><span class="p">(</span><span class="n">gauth</span><span class="p">)</span></div>
 
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Authenticated access (needs a ``drive``)</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="c1">#: Drive's mimeType for a folder -- the marker that a listing entry should be recursed into.</span>
+<span class="n">_FOLDER_MIMETYPE</span> <span class="o">=</span> <span class="s2">"application/vnd.google-apps.folder"</span>
+
+<span class="c1">#: Metadata fields fetched by default: enough to decide whether a download is worth making.</span>
+<span class="n">DEFAULT_METADATA_FIELDS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"id"</span><span class="p">,</span>
+    <span class="s2">"title"</span><span class="p">,</span>
+    <span class="s2">"mimeType"</span><span class="p">,</span>
+    <span class="s2">"fileSize"</span><span class="p">,</span>
+    <span class="s2">"modifiedDate"</span><span class="p">,</span>
+    <span class="s2">"alternateLink"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">#: Metadata the Drive API returns as decimal strings but that are natural numbers.</span>
+<span class="n">_INTEGER_METADATA_FIELDS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"fileSize"</span><span class="p">,</span> <span class="s2">"quotaBytesUsed"</span><span class="p">,</span> <span class="s2">"version"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_download_via_api</span><span class="p">(</span><span class="n">drive</span><span class="p">,</span> <span class="n">file_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Download a file's content through the authenticated Drive API.</span>
+
+<span class="sd">    Streams the content chunk by chunk into memory via PyDrive2's ``GetContentIOBuffer`` --</span>
+<span class="sd">    byte-exact (no text decode/encode round trip, which corrupts binaries) and with no</span>
+<span class="sd">    temporary file on disk.</span>
+
+<span class="sd">    ``drive`` is injected (a PyDrive2 ``GoogleDrive``) so this stays pure and unit-testable.</span>
+<span class="sd">    """</span>
+    <span class="n">gfile</span> <span class="o">=</span> <span class="n">drive</span><span class="o">.</span><span class="n">CreateFile</span><span class="p">({</span><span class="s2">"id"</span><span class="p">:</span> <span class="n">file_id</span><span class="p">})</span>
+    <span class="k">return</span> <span class="sa">b</span><span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">chunk</span> <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">gfile</span><span class="o">.</span><span class="n">GetContentIOBuffer</span><span class="p">()</span> <span class="k">if</span> <span class="n">chunk</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalized_metadata</span><span class="p">(</span><span class="n">gfile</span><span class="p">,</span> <span class="n">fields</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Pick ``fields`` out of a fetched PyDrive2 file, coercing numeric strings to ``int``."""</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="n">field</span><span class="p">:</span> <span class="n">gfile</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span> <span class="k">if</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">gfile</span><span class="p">}</span>
+    <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">_INTEGER_METADATA_FIELDS</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+            <span class="n">metadata</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">metadata</span>
+
+
+<div class="viewcode-block" id="get_metadata">
+<a class="viewcode-back" href="../../module_docs/pydrivedol/base.html#pydrivedol.base.get_metadata">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_metadata</span><span class="p">(</span><span class="n">url_or_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">drive</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="n">DEFAULT_METADATA_FIELDS</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Fetch a Drive file's metadata **without downloading its content**.</span>
+
+<span class="sd">    The cheap half of :func:`get_bytes`: use it to decide *whether* to download -- an 18MB</span>
+<span class="sd">    spreadsheet is not something you fetch just to learn its name.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        url_or_id: a Drive file URL or a bare file id.</span>
+<span class="sd">        drive: an authenticated PyDrive2 ``GoogleDrive`` (see</span>
+<span class="sd">            :func:`drive_from_service_account`).</span>
+<span class="sd">        fields: which metadata fields to request; ``None`` fetches everything Drive offers.</span>
+<span class="sd">            The default, :data:`DEFAULT_METADATA_FIELDS`, covers name (``title``), ``fileSize``,</span>
+<span class="sd">            ``mimeType`` and ``modifiedDate``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A plain ``dict`` of the requested fields that the file actually has. ``fileSize`` is</span>
+<span class="sd">        returned as an ``int`` (Drive sends it as a string), and is **absent** for</span>
+<span class="sd">        Google-native files -- Sheets/Docs/Slides have no stored byte size.</span>
+
+<span class="sd">    &gt;&gt;&gt; drive = drive_from_service_account('service-account-key.json')  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; info = get_metadata(url, drive=drive)  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; info['title'], info['fileSize']  # doctest: +SKIP</span>
+<span class="sd">    ('client_export.xlsx', 18512345)</span>
+<span class="sd">    """</span>
+    <span class="n">file_id</span> <span class="o">=</span> <span class="n">_resolve_file_id</span><span class="p">(</span><span class="n">url_or_id</span><span class="p">)</span>
+    <span class="n">gfile</span> <span class="o">=</span> <span class="n">drive</span><span class="o">.</span><span class="n">CreateFile</span><span class="p">({</span><span class="s2">"id"</span><span class="p">:</span> <span class="n">file_id</span><span class="p">})</span>
+    <span class="k">if</span> <span class="n">fields</span><span class="p">:</span>
+        <span class="n">gfile</span><span class="o">.</span><span class="n">FetchMetadata</span><span class="p">(</span><span class="n">fields</span><span class="o">=</span><span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fields</span><span class="p">))</span>
+        <span class="n">wanted</span> <span class="o">=</span> <span class="n">fields</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">gfile</span><span class="o">.</span><span class="n">FetchMetadata</span><span class="p">(</span><span class="n">fetch_all</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">wanted</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">gfile</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">_normalized_metadata</span><span class="p">(</span><span class="n">gfile</span><span class="p">,</span> <span class="n">wanted</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_iter_folder_files</span><span class="p">(</span>
+    <span class="n">drive</span><span class="p">,</span>
+    <span class="n">folder_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">max_levels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">include_hidden</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+    <span class="n">level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Yield ``(relative_path, file_id)`` for every file under ``folder_id``.</span>
+
+<span class="sd">    Recurses into subfolders up to ``max_levels`` (``None`` = unlimited, ``0`` = this folder</span>
+<span class="sd">    only). ``drive`` is injected so the traversal is shared by :class:`GDFiles` and</span>
+<span class="sd">    :class:`GDReader` rather than duplicated in each.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">max_levels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">level</span> <span class="o">&gt;</span> <span class="n">max_levels</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">folder_id</span><span class="si">}</span><span class="s2">' in parents and trashed=false"</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">drive</span><span class="o">.</span><span class="n">ListFile</span><span class="p">({</span><span class="s2">"q"</span><span class="p">:</span> <span class="n">query</span><span class="p">})</span><span class="o">.</span><span class="n">GetList</span><span class="p">():</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">"title"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">include_hidden</span> <span class="ow">and</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"."</span><span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="n">item_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="k">if</span> <span class="n">prefix</span> <span class="k">else</span> <span class="n">name</span>
+
+        <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s2">"mimeType"</span><span class="p">]</span> <span class="o">==</span> <span class="n">_FOLDER_MIMETYPE</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">max_levels</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">level</span> <span class="o">&lt;</span> <span class="n">max_levels</span><span class="p">:</span>
+                <span class="k">yield from</span> <span class="n">_iter_folder_files</span><span class="p">(</span>
+                    <span class="n">drive</span><span class="p">,</span>
+                    <span class="n">item</span><span class="p">[</span><span class="s2">"id"</span><span class="p">],</span>
+                    <span class="n">max_levels</span><span class="o">=</span><span class="n">max_levels</span><span class="p">,</span>
+                    <span class="n">include_hidden</span><span class="o">=</span><span class="n">include_hidden</span><span class="p">,</span>
+                    <span class="n">prefix</span><span class="o">=</span><span class="n">item_path</span><span class="p">,</span>
+                    <span class="n">level</span><span class="o">=</span><span class="n">level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="n">item_path</span><span class="p">,</span> <span class="n">item</span><span class="p">[</span><span class="s2">"id"</span><span class="p">])</span>
+
+
 <span class="c1"># Office → Google-native editor MIME types (the target when ``convert=True``).</span>
 <span class="n">GOOGLE_MIME</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;.xlsx&#39;</span><span class="p">:</span> <span class="s1">&#39;application/vnd.google-apps.spreadsheet&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;.xls&#39;</span><span class="p">:</span> <span class="s1">&#39;application/vnd.google-apps.spreadsheet&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;.csv&#39;</span><span class="p">:</span> <span class="s1">&#39;application/vnd.google-apps.spreadsheet&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;.docx&#39;</span><span class="p">:</span> <span class="s1">&#39;application/vnd.google-apps.document&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;.doc&#39;</span><span class="p">:</span> <span class="s1">&#39;application/vnd.google-apps.document&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;.pptx&#39;</span><span class="p">:</span> <span class="s1">&#39;application/vnd.google-apps.presentation&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;.ppt&#39;</span><span class="p">:</span> <span class="s1">&#39;application/vnd.google-apps.presentation&#39;</span><span class="p">,</span>
+    <span class="s2">".xlsx"</span><span class="p">:</span> <span class="s2">"application/vnd.google-apps.spreadsheet"</span><span class="p">,</span>
+    <span class="s2">".xls"</span><span class="p">:</span> <span class="s2">"application/vnd.google-apps.spreadsheet"</span><span class="p">,</span>
+    <span class="s2">".csv"</span><span class="p">:</span> <span class="s2">"application/vnd.google-apps.spreadsheet"</span><span class="p">,</span>
+    <span class="s2">".docx"</span><span class="p">:</span> <span class="s2">"application/vnd.google-apps.document"</span><span class="p">,</span>
+    <span class="s2">".doc"</span><span class="p">:</span> <span class="s2">"application/vnd.google-apps.document"</span><span class="p">,</span>
+    <span class="s2">".pptx"</span><span class="p">:</span> <span class="s2">"application/vnd.google-apps.presentation"</span><span class="p">,</span>
+    <span class="s2">".ppt"</span><span class="p">:</span> <span class="s2">"application/vnd.google-apps.presentation"</span><span class="p">,</span>
 <span class="p">}</span>
 
 
@@ -340,7 +613,7 @@
     <span class="n">google_mimetype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">file_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create/update a Drive file from ``content`` (bytes) or a ``path``, optionally converting.</span>
+<span class="w">    </span><span class="sd">"""Create/update a Drive file from ``content`` (bytes) or a ``path``, optionally converting.</span>
 
 <span class="sd">    When ``convert`` is True the uploaded office file is converted to the corresponding **Google</span>
 <span class="sd">    editor format** — ``.xlsx`` → a *native Google Sheet*, ``.docx`` → Doc, ``.pptx`` → Slides —</span>
@@ -350,66 +623,200 @@
 
 <span class="sd">    ``drive`` is injected (a PyDrive2 ``GoogleDrive``) so this stays pure and unit-testable.</span>
 <span class="sd">    Returns the uploaded PyDrive2 ``GoogleFile``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">content</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;provide either content (bytes) or path&quot;</span><span class="p">)</span>
-    <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="n">title</span><span class="p">}</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"provide either content (bytes) or path"</span><span class="p">)</span>
+    <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"title"</span><span class="p">:</span> <span class="n">title</span><span class="p">}</span>
     <span class="k">if</span> <span class="n">file_id</span><span class="p">:</span>
-        <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_id</span>
+        <span class="n">meta</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_id</span>
     <span class="k">elif</span> <span class="n">parent_id</span><span class="p">:</span>
-        <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;parents&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">parent_id</span><span class="p">}]</span>
+        <span class="n">meta</span><span class="p">[</span><span class="s2">"parents"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">"id"</span><span class="p">:</span> <span class="n">parent_id</span><span class="p">}]</span>
     <span class="k">if</span> <span class="n">convert</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">google_mimetype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">path</span> <span class="ow">or</span> <span class="n">title</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
             <span class="n">google_mimetype</span> <span class="o">=</span> <span class="n">GOOGLE_MIME</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">google_mimetype</span><span class="p">:</span>
-            <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;mimeType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">google_mimetype</span>
+            <span class="n">meta</span><span class="p">[</span><span class="s2">"mimeType"</span><span class="p">]</span> <span class="o">=</span> <span class="n">google_mimetype</span>
     <span class="n">gfile</span> <span class="o">=</span> <span class="n">drive</span><span class="o">.</span><span class="n">CreateFile</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
     <span class="n">tmp_to_clean</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">gfile</span><span class="o">.</span><span class="n">SetContentFile</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">suffix</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">title</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span>
+            <span class="n">suffix</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">title</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">or</span> <span class="s2">""</span>
             <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="n">suffix</span><span class="p">)</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
                 <span class="n">tmp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
                 <span class="n">tmp_to_clean</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">name</span>
             <span class="n">gfile</span><span class="o">.</span><span class="n">SetContentFile</span><span class="p">(</span><span class="n">tmp_to_clean</span><span class="p">)</span>
-        <span class="c1"># In Drive v2, param={&#39;convert&#39;: True} converts the uploaded media to the Google type.</span>
-        <span class="n">gfile</span><span class="o">.</span><span class="n">Upload</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;convert&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span> <span class="k">if</span> <span class="n">convert</span> <span class="k">else</span> <span class="p">{})</span>
+        <span class="c1"># In Drive v2, param={'convert': True} converts the uploaded media to the Google type.</span>
+        <span class="n">gfile</span><span class="o">.</span><span class="n">Upload</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="p">{</span><span class="s2">"convert"</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span> <span class="k">if</span> <span class="n">convert</span> <span class="k">else</span> <span class="p">{})</span>
     <span class="k">finally</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">tmp_to_clean</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">tmp_to_clean</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">tmp_to_clean</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">gfile</span>
 
 
+<span class="n">_UNSCOPED_ITERATION_MESSAGE</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"GDFiles has no folder scope, so it cannot be listed: an unscoped instance addresses the "</span>
+    <span class="s2">"whole Drive, which is unbounded and paginated. Lookup (files[key], key in files, "</span>
+    <span class="s2">"files.get(key)) works without a scope; to iterate, construct with "</span>
+    <span class="s2">"GDFiles(drive, folder_url='https://drive.google.com/drive/folders/&lt;id&gt;')."</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="GDFiles">
+<a class="viewcode-back" href="../../module_docs/pydrivedol/base.html#pydrivedol.base.GDFiles">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GDFiles</span><span class="p">(</span><span class="n">Mapping</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Read-only Mapping of Google Drive **files**, keyed by file id or file URL.</span>
+
+<span class="sd">    The file-level sibling of :class:`GDReader`. Where ``GDReader`` is scoped to a folder and</span>
+<span class="sd">    keyed by relative path, ``GDFiles`` is keyed by whatever identifies a single file: a bare</span>
+<span class="sd">    file id, or any Drive file URL -- both normalise to the same key through</span>
+<span class="sd">    :func:`_extract_file_id`, so ``files[url]`` and ``files[file_id]`` are one entry. Values</span>
+<span class="sd">    are ``bytes``, fetched over the authenticated API, so **private** files work as long as</span>
+<span class="sd">    they are shared with the authenticated identity.</span>
+
+<span class="sd">    That is the shape a caller has when files arrive as *links* -- the usual Drive sharing</span>
+<span class="sd">    idiom -- rather than as a folder listing.</span>
+
+<span class="sd">    ``drive`` is required and injected: a file-level view is pointless without auth, since its</span>
+<span class="sd">    whole reason to exist is reaching files the public endpoint cannot.</span>
+
+<span class="sd">    **Iteration requires a scope.** Unscoped, this mapping covers the entire Drive, which is</span>
+<span class="sd">    unbounded and paginated; enumerating it is never what a caller wants, so offering it would</span>
+<span class="sd">    be a trap. ``__iter__``/``__len__`` therefore raise ``NotImplementedError`` unless</span>
+<span class="sd">    ``folder_url`` is given, in which case they yield that folder's file **ids** (honouring</span>
+<span class="sd">    ``max_levels`` and ``include_hidden``, the same traversal :class:`GDReader` uses). Lookup</span>
+<span class="sd">    always works, scoped or not -- it is the primary use case and needs no listing.</span>
+
+<span class="sd">    &gt;&gt;&gt; drive = drive_from_service_account('service-account-key.json')  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; files = GDFiles(drive)  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; files.metadata(url)['fileSize']  # cheap: no download  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; content = files[url]  # or files[file_id]  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; url in files  # metadata probe, not a download  # doctest: +SKIP</span>
+<span class="sd">    True</span>
+
+<span class="sd">    Scoped, so it can be listed:</span>
+
+<span class="sd">    &gt;&gt;&gt; scoped = GDFiles(drive, folder_url=folder_url)  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; list(scoped)  # file ids  # doctest: +SKIP</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">drive</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">folder_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_levels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">include_hidden</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Initialize a file-level mapping.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            drive: an authenticated PyDrive2 ``GoogleDrive`` (see</span>
+<span class="sd">                :func:`drive_from_service_account`). Required.</span>
+<span class="sd">            folder_url: optional Drive folder URL scoping ``__iter__``/``__len__``. Without it</span>
+<span class="sd">                those raise; lookup is unaffected.</span>
+<span class="sd">            max_levels: recursion depth for the scope (None=infinite, 0=files only)</span>
+<span class="sd">            include_hidden: include files starting with '.'</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span> <span class="o">=</span> <span class="n">drive</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">folder_url</span> <span class="o">=</span> <span class="n">folder_url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">folder_id</span> <span class="o">=</span> <span class="n">_extract_folder_id</span><span class="p">(</span><span class="n">folder_url</span><span class="p">)</span> <span class="k">if</span> <span class="n">folder_url</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">folder_url</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder_id</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid folder URL: </span><span class="si">{</span><span class="n">folder_url</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_levels</span> <span class="o">=</span> <span class="n">max_levels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">include_hidden</span> <span class="o">=</span> <span class="n">include_hidden</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file_cache</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_file_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Cached file ids of the scoping folder; raises if there is no scope."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">_UNSCOPED_ITERATION_MESSAGE</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_cache</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">listing</span> <span class="o">=</span> <span class="n">_iter_folder_files</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">folder_id</span><span class="p">,</span>
+                <span class="n">max_levels</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_levels</span><span class="p">,</span>
+                <span class="n">include_hidden</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">include_hidden</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="c1"># dict.fromkeys: dedupe (Drive files can have several parents) keeping order</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_file_cache</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">file_id</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">file_id</span> <span class="ow">in</span> <span class="n">listing</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_cache</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_refresh_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Forget the cached folder listing; the next iteration re-lists."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file_cache</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_file_ids</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_file_ids</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Whether the file exists and is reachable -- a metadata probe, never a download."""</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="p">(</span><span class="s2">"id"</span><span class="p">,))</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># not a usable file key at all</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_is_not_found</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">raise</span>  <span class="c1"># auth / network / server failures are not "absent"</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The file's content as bytes, downloaded over the authenticated API."""</span>
+        <span class="n">file_id</span> <span class="o">=</span> <span class="n">_resolve_file_id</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_download_via_api</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="p">,</span> <span class="n">file_id</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_is_not_found</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"File not found or not accessible: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">error</span>
+            <span class="k">raise</span>
+
+<div class="viewcode-block" id="GDFiles.metadata">
+<a class="viewcode-back" href="../../module_docs/pydrivedol/base.html#pydrivedol.base.GDFiles.metadata">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="n">DEFAULT_METADATA_FIELDS</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Metadata (name, size, mimeType, modifiedDate) for ``key``, without downloading it.</span>
+
+<span class="sd">        Thin method form of :func:`get_metadata` -- see it for the field semantics.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="n">get_metadata</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">drive</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="n">fields</span><span class="p">)</span></div>
+</div>
+
+
+
 <div class="viewcode-block" id="GDReader">
 <a class="viewcode-back" href="../../module_docs/pydrivedol/base.html#pydrivedol.base.GDReader">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">GDReader</span><span class="p">(</span><span class="n">Mapping</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Read-only Mapping to Google Drive folder.</span>
 
 <span class="sd">    Keys are relative file paths, values are file contents as bytes.</span>
 
 <span class="sd">    &gt;&gt;&gt; reader = GDReader(folder_url)  # doctest: +SKIP</span>
 <span class="sd">    &gt;&gt;&gt; list(reader)[:3]  # doctest: +SKIP</span>
-<span class="sd">    &gt;&gt;&gt; content = reader[&#39;path/to/file.txt&#39;]  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; content = reader['path/to/file.txt']  # doctest: +SKIP</span>
 <span class="sd">    &gt;&gt;&gt; len(reader)  # doctest: +SKIP</span>
-<span class="sd">    &gt;&gt;&gt; &#39;file.txt&#39; in reader  # doctest: +SKIP</span>
-<span class="sd">    &gt;&gt;&gt; url = reader.get_url(&#39;file.txt&#39;)  # doctest: +SKIP</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; 'file.txt' in reader  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; url = reader.get_url('file.txt')  # doctest: +SKIP</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">folder_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">max_levels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">credentials_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;client_secrets.json&quot;</span><span class="p">,</span>
-        <span class="n">settings_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;settings.yaml&quot;</span><span class="p">,</span>
+        <span class="n">credentials_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"client_secrets.json"</span><span class="p">,</span>
+        <span class="n">settings_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"settings.yaml"</span><span class="p">,</span>
         <span class="n">include_hidden</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">drive</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize reader.</span>
 
 <span class="sd">        Args:</span>
@@ -417,17 +824,17 @@
 <span class="sd">            max_levels: Recursion depth (None=infinite, 0=files only)</span>
 <span class="sd">            credentials_file: OAuth2 credentials path</span>
 <span class="sd">            settings_file: Auth settings path</span>
-<span class="sd">            include_hidden: Include files starting with &#39;.&#39;</span>
+<span class="sd">            include_hidden: Include files starting with '.'</span>
 <span class="sd">            drive: a pre-authenticated ``GoogleDrive`` (e.g. from</span>
 <span class="sd">                ``drive_from_service_account``). When given, the OAuth</span>
 <span class="sd">                ``credentials_file``/``settings_file`` flow is skipped.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">_require_pydrive2</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">folder_url</span> <span class="o">=</span> <span class="n">folder_url</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">folder_id</span> <span class="o">=</span> <span class="n">_extract_folder_id</span><span class="p">(</span><span class="n">folder_url</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder_id</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid folder URL: </span><span class="si">{</span><span class="n">folder_url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid folder URL: </span><span class="si">{</span><span class="n">folder_url</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">max_levels</span> <span class="o">=</span> <span class="n">max_levels</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">include_hidden</span> <span class="o">=</span> <span class="n">include_hidden</span>
@@ -441,36 +848,26 @@
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_file_cache</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_list_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Recursively list files in folder.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_levels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">level</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_levels</span><span class="p">:</span>
-            <span class="k">return</span>
-
-        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">folder_id</span><span class="si">}</span><span class="s2">&#39; in parents and trashed=false&quot;</span>
-        <span class="n">file_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">ListFile</span><span class="p">({</span><span class="s2">&quot;q&quot;</span><span class="p">:</span> <span class="n">query</span><span class="p">})</span><span class="o">.</span><span class="n">GetList</span><span class="p">()</span>
-
-        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">file_list</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_hidden</span> <span class="ow">and</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
-                <span class="k">continue</span>
-
-            <span class="n">item_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="k">if</span> <span class="n">prefix</span> <span class="k">else</span> <span class="n">name</span>
-
-            <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;mimeType&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;application/vnd.google-apps.folder&quot;</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_levels</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">level</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_levels</span><span class="p">:</span>
-                    <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list_files</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">item_path</span><span class="p">,</span> <span class="n">level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">yield</span> <span class="p">(</span><span class="n">item_path</span><span class="p">,</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_list_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Recursively list ``(relative_path, file_id)`` pairs under ``folder_id``."""</span>
+        <span class="k">yield from</span> <span class="n">_iter_folder_files</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="p">,</span>
+            <span class="n">folder_id</span><span class="p">,</span>
+            <span class="n">max_levels</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_levels</span><span class="p">,</span>
+            <span class="n">include_hidden</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">include_hidden</span><span class="p">,</span>
+            <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">,</span>
+            <span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cached file listing.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Cached file listing."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_cache</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_file_cache</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_list_files</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folder_id</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_cache</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_refresh_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clear file cache.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Clear file cache."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_file_cache</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -483,19 +880,16 @@
         <span class="k">return</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get file content as bytes.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Get file content as bytes.</span>
+
+<span class="sd">        Goes through :func:`_download_via_api`, which is byte-exact: the previous</span>
+<span class="sd">        ``GetContentString(...).encode('latin-1')`` route decoded as utf-8 first, so it</span>
+<span class="sd">        corrupted (or raised on) every real binary -- xlsx, pdf, images.</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File not found: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"File not found: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-        <span class="n">file_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-        <span class="n">gfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">CreateFile</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">file_id</span><span class="p">})</span>
-
-        <span class="c1"># Download as bytes</span>
-        <span class="n">content</span> <span class="o">=</span> <span class="n">gfile</span><span class="o">.</span><span class="n">GetContentString</span><span class="p">(</span><span class="n">mimetype</span><span class="o">=</span><span class="s2">&quot;application/octet-stream&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">content</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;latin-1&quot;</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">content</span>
+        <span class="k">return</span> <span class="n">_download_via_api</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
 
 <div class="viewcode-block" id="GDReader.get_url">
 <a class="viewcode-back" href="../../module_docs/pydrivedol/base.html#pydrivedol.base.GDReader.get_url">[docs]</a>
@@ -503,35 +897,35 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">permission_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;anyone&quot;</span><span class="p">,</span>
-        <span class="n">permission_role</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;reader&quot;</span><span class="p">,</span>
+        <span class="n">permission_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"anyone"</span><span class="p">,</span>
+        <span class="n">permission_role</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"reader"</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get shareable URL for file.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            key: File path</span>
-<span class="sd">            permission_type: &#39;anyone&#39;, &#39;user&#39;, &#39;group&#39;, &#39;domain&#39;</span>
-<span class="sd">            permission_role: &#39;reader&#39;, &#39;writer&#39;, &#39;commenter&#39;</span>
+<span class="sd">            permission_type: 'anyone', 'user', 'group', 'domain'</span>
+<span class="sd">            permission_role: 'reader', 'writer', 'commenter'</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Shareable URL</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File not found: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"File not found: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="n">file_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-        <span class="n">gfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">CreateFile</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">file_id</span><span class="p">})</span>
+        <span class="n">gfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">CreateFile</span><span class="p">({</span><span class="s2">"id"</span><span class="p">:</span> <span class="n">file_id</span><span class="p">})</span>
 
         <span class="n">gfile</span><span class="o">.</span><span class="n">InsertPermission</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">permission_type</span><span class="p">,</span>
-                <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">permission_type</span> <span class="k">if</span> <span class="n">permission_type</span> <span class="o">==</span> <span class="s2">&quot;anyone&quot;</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="n">permission_role</span><span class="p">,</span>
+                <span class="s2">"type"</span><span class="p">:</span> <span class="n">permission_type</span><span class="p">,</span>
+                <span class="s2">"value"</span><span class="p">:</span> <span class="n">permission_type</span> <span class="k">if</span> <span class="n">permission_type</span> <span class="o">==</span> <span class="s2">"anyone"</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">"role"</span><span class="p">:</span> <span class="n">permission_role</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">gfile</span><span class="p">[</span><span class="s2">&quot;alternateLink&quot;</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="n">gfile</span><span class="p">[</span><span class="s2">"alternateLink"</span><span class="p">]</span></div>
 </div>
 
 
@@ -539,24 +933,24 @@
 <div class="viewcode-block" id="GDStore">
 <a class="viewcode-back" href="../../module_docs/pydrivedol/base.html#pydrivedol.base.GDStore">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">GDStore</span><span class="p">(</span><span class="n">GDReader</span><span class="p">,</span> <span class="n">MutableMapping</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Read-write MutableMapping to Google Drive folder.</span>
 
 <span class="sd">    Extends GDReader with write and delete operations.</span>
 
 <span class="sd">    &gt;&gt;&gt; store = GDStore(folder_url)  # doctest: +SKIP</span>
-<span class="sd">    &gt;&gt;&gt; store[&#39;file.txt&#39;] = b&#39;Hello&#39;  # doctest: +SKIP</span>
-<span class="sd">    &gt;&gt;&gt; store[&#39;dir/file.txt&#39;] = b&#39;Nested&#39;  # doctest: +SKIP</span>
-<span class="sd">    &gt;&gt;&gt; del store[&#39;file.txt&#39;]  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; store['file.txt'] = b'Hello'  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; store['dir/file.txt'] = b'Nested'  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; del store['file.txt']  # doctest: +SKIP</span>
 
-<span class="sd">    Pass ``convert_office=True`` to make ``store[&#39;x.xlsx&#39;] = xlsx_bytes`` create a *native</span>
+<span class="sd">    Pass ``convert_office=True`` to make ``store['x.xlsx'] = xlsx_bytes`` create a *native</span>
 <span class="sd">    Google Sheet* (xlsx → Sheet, docx → Doc, pptx → Slides) instead of an uploaded blob. For</span>
 <span class="sd">    one-off control use :meth:`upload` with ``convert=True``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">convert_office</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Like :class:`GDReader`, plus ``convert_office`` (default off, backward-compatible):</span>
-<span class="sd">        when True, office uploads are converted to their native Google editor type.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Like :class:`GDReader`, plus ``convert_office`` (default off, backward-compatible):</span>
+<span class="sd">        when True, office uploads are converted to their native Google editor type."""</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">folder_url</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">convert_office</span> <span class="o">=</span> <span class="n">convert_office</span>
 
@@ -571,21 +965,19 @@
         <span class="n">convert</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">google_mimetype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Upload ``value`` (bytes) or a file ``path`` to ``key``; return the shareable URL.</span>
+<span class="w">        </span><span class="sd">"""Upload ``value`` (bytes) or a file ``path`` to ``key``; return the shareable URL.</span>
 
-<span class="sd">        With ``convert=True`` (or the store&#39;s ``convert_office`` default) an office file becomes a</span>
-<span class="sd">        native Google doc — e.g. ``store.upload(&#39;schema.xlsx&#39;, xlsx_bytes, convert=True)`` yields a</span>
+<span class="sd">        With ``convert=True`` (or the store's ``convert_office`` default) an office file becomes a</span>
+<span class="sd">        native Google doc — e.g. ``store.upload('schema.xlsx', xlsx_bytes, convert=True)`` yields a</span>
 <span class="sd">        Google Sheet. Updates an existing same-named file in the target folder, else creates it.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">convert</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">convert</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert_office</span>
         <span class="n">parent_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_create_folders</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-        <span class="n">query</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">parent_id</span><span class="si">}</span><span class="s2">&#39; in parents &quot;</span> <span class="sa">f</span><span class="s2">&quot;and title=&#39;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39; &quot;</span> <span class="sa">f</span><span class="s2">&quot;and trashed=false&quot;</span>
-        <span class="p">)</span>
-        <span class="n">existing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">ListFile</span><span class="p">({</span><span class="s1">&#39;q&#39;</span><span class="p">:</span> <span class="n">query</span><span class="p">})</span><span class="o">.</span><span class="n">GetList</span><span class="p">()</span>
-        <span class="n">file_id</span> <span class="o">=</span> <span class="n">existing</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">existing</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">parent_id</span><span class="si">}</span><span class="s2">' in parents and title='</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">' and trashed=false"</span>
+        <span class="n">existing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">ListFile</span><span class="p">({</span><span class="s2">"q"</span><span class="p">:</span> <span class="n">query</span><span class="p">})</span><span class="o">.</span><span class="n">GetList</span><span class="p">()</span>
+        <span class="n">file_id</span> <span class="o">=</span> <span class="n">existing</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"id"</span><span class="p">]</span> <span class="k">if</span> <span class="n">existing</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="n">gfile</span> <span class="o">=</span> <span class="n">_upload_converting</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="p">,</span>
             <span class="n">parent_id</span><span class="o">=</span><span class="n">parent_id</span><span class="p">,</span>
@@ -597,58 +989,58 @@
             <span class="n">file_id</span><span class="o">=</span><span class="n">file_id</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_cache</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">gfile</span><span class="p">[</span><span class="s1">&#39;alternateLink&#39;</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="n">gfile</span><span class="p">[</span><span class="s2">"alternateLink"</span><span class="p">]</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_or_create_folders</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create nested folders as needed, return parent folder ID.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            key: File path like &#39;dir1/dir2/file.txt&#39;</span>
+<span class="sd">            key: File path like 'dir1/dir2/file.txt'</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Parent folder ID</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">parts</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"/"</span><span class="p">)</span>
         <span class="n">folder_parts</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
         <span class="n">current_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder_id</span>
 
         <span class="k">for</span> <span class="n">folder_name</span> <span class="ow">in</span> <span class="n">folder_parts</span><span class="p">:</span>
             <span class="n">query</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">current_id</span><span class="si">}</span><span class="s2">&#39; in parents &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;and title=&#39;</span><span class="si">{</span><span class="n">folder_name</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;and mimeType=&#39;application/vnd.google-apps.folder&#39; &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;and trashed=false&quot;</span>
+                <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">current_id</span><span class="si">}</span><span class="s2">' in parents "</span>
+                <span class="sa">f</span><span class="s2">"and title='</span><span class="si">{</span><span class="n">folder_name</span><span class="si">}</span><span class="s2">' "</span>
+                <span class="sa">f</span><span class="s2">"and mimeType='application/vnd.google-apps.folder' "</span>
+                <span class="sa">f</span><span class="s2">"and trashed=false"</span>
             <span class="p">)</span>
-            <span class="n">folders</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">ListFile</span><span class="p">({</span><span class="s2">&quot;q&quot;</span><span class="p">:</span> <span class="n">query</span><span class="p">})</span><span class="o">.</span><span class="n">GetList</span><span class="p">()</span>
+            <span class="n">folders</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">ListFile</span><span class="p">({</span><span class="s2">"q"</span><span class="p">:</span> <span class="n">query</span><span class="p">})</span><span class="o">.</span><span class="n">GetList</span><span class="p">()</span>
 
             <span class="k">if</span> <span class="n">folders</span><span class="p">:</span>
-                <span class="n">current_id</span> <span class="o">=</span> <span class="n">folders</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+                <span class="n">current_id</span> <span class="o">=</span> <span class="n">folders</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"id"</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">folder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">CreateFile</span><span class="p">(</span>
                     <span class="p">{</span>
-                        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">folder_name</span><span class="p">,</span>
-                        <span class="s2">&quot;parents&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">current_id</span><span class="p">}],</span>
-                        <span class="s2">&quot;mimeType&quot;</span><span class="p">:</span> <span class="s2">&quot;application/vnd.google-apps.folder&quot;</span><span class="p">,</span>
+                        <span class="s2">"title"</span><span class="p">:</span> <span class="n">folder_name</span><span class="p">,</span>
+                        <span class="s2">"parents"</span><span class="p">:</span> <span class="p">[{</span><span class="s2">"id"</span><span class="p">:</span> <span class="n">current_id</span><span class="p">}],</span>
+                        <span class="s2">"mimeType"</span><span class="p">:</span> <span class="s2">"application/vnd.google-apps.folder"</span><span class="p">,</span>
                     <span class="p">}</span>
                 <span class="p">)</span>
                 <span class="n">folder</span><span class="o">.</span><span class="n">Upload</span><span class="p">()</span>
-                <span class="n">current_id</span> <span class="o">=</span> <span class="n">folder</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+                <span class="n">current_id</span> <span class="o">=</span> <span class="n">folder</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">current_id</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write bytes to file, creating folders as needed.</span>
+<span class="w">        </span><span class="sd">"""Write bytes to file, creating folders as needed.</span>
 
 <span class="sd">        If the store was created with ``convert_office=True`` and ``key`` is an office file, it</span>
 <span class="sd">        is uploaded as a native Google doc (see :meth:`upload`); otherwise it is stored as raw bytes.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Value must be bytes, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Value must be bytes, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;convert_office&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"convert_office"</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">convert</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">return</span>
 
@@ -656,8 +1048,8 @@
         <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 
         <span class="c1"># Check if file exists</span>
-        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">parent_id</span><span class="si">}</span><span class="s2">&#39; in parents and title=&#39;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39; and trashed=false&quot;</span>
-        <span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">ListFile</span><span class="p">({</span><span class="s2">&quot;q&quot;</span><span class="p">:</span> <span class="n">query</span><span class="p">})</span><span class="o">.</span><span class="n">GetList</span><span class="p">()</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">parent_id</span><span class="si">}</span><span class="s2">' in parents and title='</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">' and trashed=false"</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">ListFile</span><span class="p">({</span><span class="s2">"q"</span><span class="p">:</span> <span class="n">query</span><span class="p">})</span><span class="o">.</span><span class="n">GetList</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">files</span><span class="p">:</span>
             <span class="c1"># Update existing</span>
@@ -665,21 +1057,21 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Create new</span>
             <span class="n">gfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">CreateFile</span><span class="p">(</span>
-                <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;parents&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">parent_id</span><span class="p">}]}</span>
+                <span class="p">{</span><span class="s2">"title"</span><span class="p">:</span> <span class="n">filename</span><span class="p">,</span> <span class="s2">"parents"</span><span class="p">:</span> <span class="p">[{</span><span class="s2">"id"</span><span class="p">:</span> <span class="n">parent_id</span><span class="p">}]}</span>
             <span class="p">)</span>
 
-        <span class="n">gfile</span><span class="o">.</span><span class="n">SetContentString</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;latin-1&quot;</span><span class="p">))</span>
+        <span class="n">gfile</span><span class="o">.</span><span class="n">SetContentString</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"latin-1"</span><span class="p">))</span>
         <span class="n">gfile</span><span class="o">.</span><span class="n">Upload</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_cache</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete file.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Delete file."""</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File not found: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"File not found: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="n">file_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-        <span class="n">gfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">CreateFile</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">file_id</span><span class="p">})</span>
+        <span class="n">gfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">CreateFile</span><span class="p">({</span><span class="s2">"id"</span><span class="p">:</span> <span class="n">file_id</span><span class="p">})</span>
         <span class="n">gfile</span><span class="o">.</span><span class="n">Delete</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_cache</span><span class="p">()</span></div>
@@ -700,18 +1092,18 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">share_with</span><span class="o">=</span><span class="p">(),</span>
     <span class="n">anyone_reader</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">credentials_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;client_secrets.json&#39;</span><span class="p">,</span>
-    <span class="n">settings_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;settings.yaml&#39;</span><span class="p">,</span>
+    <span class="n">credentials_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"client_secrets.json"</span><span class="p">,</span>
+    <span class="n">settings_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"settings.yaml"</span><span class="p">,</span>
     <span class="n">drive</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Upload an ``.xlsx`` as a **native Google Sheet** and return its shareable URL.</span>
+<span class="w">    </span><span class="sd">"""Upload an ``.xlsx`` as a **native Google Sheet** and return its shareable URL.</span>
 
 <span class="sd">    The whole point: Drive can *convert* an uploaded spreadsheet into an editable Google Sheet</span>
 <span class="sd">    (preserving cell formatting), rather than parking an ``.xlsx`` blob. This wraps that.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        folder_url: destination Drive folder URL (``None`` → the account&#39;s root).</span>
-<span class="sd">        title: the Google Sheet&#39;s name.</span>
+<span class="sd">        folder_url: destination Drive folder URL (``None`` → the account's root).</span>
+<span class="sd">        title: the Google Sheet's name.</span>
 <span class="sd">        xlsx: a path (``str``/``Path``) or raw ``bytes``.</span>
 <span class="sd">        share_with: emails to grant ``writer`` access (no notification email sent).</span>
 <span class="sd">        anyone_reader: also grant anyone-with-link ``reader`` access.</span>
@@ -721,9 +1113,9 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        The Google Sheet URL (``alternateLink``).</span>
 
-<span class="sd">    &gt;&gt;&gt; url = xlsx_to_google_sheet(folder_url, &#39;My Schema&#39;, &#39;/tmp/schema.xlsx&#39;,</span>
+<span class="sd">    &gt;&gt;&gt; url = xlsx_to_google_sheet(folder_url, 'My Schema', '/tmp/schema.xlsx',</span>
 <span class="sd">    ...                            anyone_reader=True)  # doctest: +SKIP</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">drive</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">_require_pydrive2</span><span class="p">()</span>
         <span class="n">drive</span> <span class="o">=</span> <span class="n">_init_google_drive</span><span class="p">(</span><span class="n">credentials_file</span><span class="p">,</span> <span class="n">settings_file</span><span class="p">)</span>
@@ -737,13 +1129,13 @@
         <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
         <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
         <span class="n">convert</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">google_mimetype</span><span class="o">=</span><span class="s1">&#39;application/vnd.google-apps.spreadsheet&#39;</span><span class="p">,</span>
+        <span class="n">google_mimetype</span><span class="o">=</span><span class="s2">"application/vnd.google-apps.spreadsheet"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">for</span> <span class="n">email</span> <span class="ow">in</span> <span class="n">share_with</span><span class="p">:</span>
-        <span class="n">gfile</span><span class="o">.</span><span class="n">InsertPermission</span><span class="p">({</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">email</span><span class="p">,</span> <span class="s1">&#39;role&#39;</span><span class="p">:</span> <span class="s1">&#39;writer&#39;</span><span class="p">})</span>
+        <span class="n">gfile</span><span class="o">.</span><span class="n">InsertPermission</span><span class="p">({</span><span class="s2">"type"</span><span class="p">:</span> <span class="s2">"user"</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">:</span> <span class="n">email</span><span class="p">,</span> <span class="s2">"role"</span><span class="p">:</span> <span class="s2">"writer"</span><span class="p">})</span>
     <span class="k">if</span> <span class="n">anyone_reader</span><span class="p">:</span>
-        <span class="n">gfile</span><span class="o">.</span><span class="n">InsertPermission</span><span class="p">({</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;anyone&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="s1">&#39;anyone&#39;</span><span class="p">,</span> <span class="s1">&#39;role&#39;</span><span class="p">:</span> <span class="s1">&#39;reader&#39;</span><span class="p">})</span>
-    <span class="k">return</span> <span class="n">gfile</span><span class="p">[</span><span class="s1">&#39;alternateLink&#39;</span><span class="p">]</span></div>
+        <span class="n">gfile</span><span class="o">.</span><span class="n">InsertPermission</span><span class="p">({</span><span class="s2">"type"</span><span class="p">:</span> <span class="s2">"anyone"</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">:</span> <span class="s2">"anyone"</span><span class="p">,</span> <span class="s2">"role"</span><span class="p">:</span> <span class="s2">"reader"</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">gfile</span><span class="p">[</span><span class="s2">"alternateLink"</span><span class="p">]</span></div>
 
 </pre></div>
 
