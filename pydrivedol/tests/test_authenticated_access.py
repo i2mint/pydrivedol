@@ -9,6 +9,7 @@ Everything here runs off two fakes: a ``FakeDrive`` implementing the slice of th
 - the file-level ``GDFiles`` mapping.
 """
 
+import os
 import re
 
 import pytest
@@ -459,19 +460,23 @@ def test_gdfiles_needs_no_pydrive2_import(fake_drive, monkeypatch):
 # =============================================================================
 
 
+# GDReader keys are built with os.path.join, so the separator is the platform's.
+NESTED_KEY = os.path.join('sub', 'nested.csv')
+
+
 def test_gdreader_getitem_returns_exact_bytes(fake_drive, monkeypatch):
     """Regression: GetContentString(...).encode('latin-1') mangled every real binary."""
     monkeypatch.setattr(base, '_init_google_drive', _no_oauth)
     reader = GDReader(FOLDER_URL, drive=fake_drive)
     assert reader['client_export.xlsx'] == XLSX_BYTES
-    assert reader['sub/nested.csv'] == b'a,b'
+    assert reader[NESTED_KEY] == b'a,b'
 
 
 def test_gdreader_listing_is_unchanged_by_the_shared_traversal(fake_drive, monkeypatch):
     monkeypatch.setattr(base, '_init_google_drive', _no_oauth)
     assert list(GDReader(FOLDER_URL, drive=fake_drive)) == [
         'client_export.xlsx',
-        'sub/nested.csv',
+        NESTED_KEY,
     ]
     assert list(GDReader(FOLDER_URL, drive=fake_drive, max_levels=0)) == [
         'client_export.xlsx'
