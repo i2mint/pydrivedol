@@ -1,5 +1,15 @@
 """
-Base objects for pydrivedol: simple download function, GDReader, GDStore.
+Base objects for pydrivedol: download functions, GDFiles, GDReader, GDStore.
+
+Two access levels, both returning ``bytes``:
+
+- **Public, no setup**: :func:`get_bytes` against Google's unauthenticated download endpoint.
+  It raises :class:`NotPubliclyShared` rather than handing back the HTML sign-in page Drive
+  serves (with HTTP 200) when the file is not shared publicly.
+- **Authenticated**: pass a PyDrive2 ``GoogleDrive`` -- from :func:`drive_from_service_account`
+  for headless use -- as ``drive=`` to :func:`get_bytes` / :func:`get_metadata`, or build a
+  :class:`GDFiles` (file-level Mapping, keyed by file id or URL), :class:`GDReader` /
+  :class:`GDStore` (folder-level, keyed by relative path).
 
 """
 
@@ -21,6 +31,21 @@ try:
     _PYDRIVE2_AVAILABLE = True
 except ImportError:
     _PYDRIVE2_AVAILABLE = False
+
+
+# =============================================================================
+# Errors
+# =============================================================================
+
+
+class NotPubliclyShared(RuntimeError):
+    """Raised when an unauthenticated download returns a sign-in page instead of file content.
+
+    Google serves its HTML sign-in / permission interstitial with HTTP **200**, so without an
+    explicit check that page body would be returned as if it were the file: plausible-looking
+    bytes that only blow up much later, in whatever tries to parse them. Catch this to fall
+    back to an authenticated fetch (``get_bytes(url, drive=...)``).
+    """
 
 
 # =============================================================================
@@ -59,6 +84,48 @@ def _extract_folder_id(url: str) -> Optional[str]:
     return match.group(1) if match else None
 
 
+#: A bare Drive file id: URL-safe base64-ish, and long enough not to be a typo'd URL.
+_FILE_ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]{10,}$")
+
+
+def _resolve_file_id(url_or_id: str) -> str:
+    """Normalise a file key -- a Drive file URL *or* a bare file id -- to a file id.
+
+    URLs are parsed with :func:`_extract_file_id`; anything else is accepted only if it looks
+    like a Drive id, so that a malformed URL still fails loudly instead of being sent to the
+    API as a nonsense id.
+
+    >>> _resolve_file_id('https://drive.google.com/file/d/1AbCdEfGhIjKlMnOp/view')
+    '1AbCdEfGhIjKlMnOp'
+    >>> _resolve_file_id('1AbCdEfGhIjKlMnOp')
+    '1AbCdEfGhIjKlMnOp'
+    """
+    file_id = _extract_file_id(url_or_id)
+    if file_id:
+        return file_id
+    if _FILE_ID_PATTERN.match(url_or_id):
+        return url_or_id
+    raise ValueError(
+        f"Not a Google Drive file URL or file id: {url_or_id!r}. Expected something like "
+        "'https://drive.google.com/file/d/<id>/view' or the bare '<id>'."
+    )
+
+
+def _is_not_found(error: BaseException) -> bool:
+    """Whether a Drive API error means "no such file" rather than a transient failure.
+
+    Used to keep the Mapping contract honest: a genuinely missing file becomes ``KeyError``,
+    while a 5xx / auth / network failure is left to propagate as itself.
+
+    >>> _is_not_found(Exception('<HttpError 404 ... "File not found: abc">'))
+    True
+    >>> _is_not_found(Exception('<HttpError 500 ... "Backend Error">'))
+    False
+    """
+    text = str(error).lower()
+    return "404" in text or "not found" in text or "notfound" in text
+
+
 def _resolve_cache_dir(use_cache: Union[bool, str]) -> Optional[str]:
     """Get cache directory path, creating if needed."""
     if use_cache is False:
@@ -77,6 +144,55 @@ def _get_cached_path(file_id: str, cache_dir: str) -> str:
 
 
 # =============================================================================
+# HTML-interstitial detection (the "silent success" guard)
+# =============================================================================
+
+#: Content type Drive declares for its sign-in / confirmation pages.
+_HTML_CONTENT_TYPE = "text/html"
+#: Document prefixes that mark a payload as an HTML page rather than file bytes.
+_HTML_BODY_PREFIXES = (b"<!doctype html", b"<html")
+#: How much of the body to sniff for those prefixes.
+_HTML_SNIFF_NBYTES = 64
+
+
+def _looks_like_html(content: bytes, content_type: str = "") -> bool:
+    """Whether a downloaded payload is an HTML page rather than raw file bytes.
+
+    True when the declared content type is HTML, or when the body itself opens with an HTML
+    document prefix. Leading whitespace and a UTF-8 BOM are tolerated; matching is
+    case-insensitive.
+
+    >>> _looks_like_html(b'id,name', 'text/csv')
+    False
+    >>> _looks_like_html(b'  <!DOCTYPE HTML><html><head>...')
+    True
+    >>> _looks_like_html(b'anything at all', 'text/html; charset=utf-8')
+    True
+    """
+    if _HTML_CONTENT_TYPE in content_type.lower():
+        return True
+    head = content[:_HTML_SNIFF_NBYTES].lstrip(b"\xef\xbb\xbf").lstrip().lower()
+    return head.startswith(_HTML_BODY_PREFIXES)
+
+
+def _not_publicly_shared_message(file_id: str) -> str:
+    """Compose the actionable error text for an HTML payload from the public endpoint."""
+    return (
+        f"Google Drive returned an HTML page, not file content, for file id {file_id!r}. "
+        "That page is Google's sign-in / permission interstitial, served with HTTP 200, so the "
+        "download 'succeeded' with the wrong bytes. It means the file is not shared publicly "
+        "and the unauthenticated endpoint cannot reach it (it can also be Drive's large-file "
+        "confirmation page).\n"
+        "Fix -- authenticate and pass a drive= client:\n"
+        "    from pydrivedol import drive_from_service_account, get_bytes\n"
+        "    drive = drive_from_service_account('service-account-key.json')\n"
+        "    content = get_bytes(url, drive=drive)\n"
+        "...having shared the file (or its folder) with the service account's client_email.\n"
+        "If you really are downloading an HTML file, pass allow_html=True."
+    )
+
+
+# =============================================================================
 # Simple Download (No API Required)
 # =============================================================================
 
@@ -86,48 +202,71 @@ def get_bytes(
     *,
     local_path: Union[bool, str] = False,
     use_cache: Union[bool, str] = False,
+    drive=None,
+    allow_html: bool = False,
 ) -> Union[bytes, str]:
     """
-    Download bytes from public Google Drive URL.
+    Download bytes from a Google Drive URL.
 
-    Works with publicly shared files, no API setup required.
+    Without ``drive`` this uses Google's public download endpoint -- no API setup, but it only
+    reaches files shared "anyone with the link", and it raises :class:`NotPubliclyShared` if
+    Drive answers with its sign-in page instead of the file. Pass an authenticated ``drive``
+    (see :func:`drive_from_service_account`) to reach **private** files shared with that
+    identity.
 
     Args:
-        url: Google Drive shared link
+        url: Google Drive file link (a bare file id is accepted too).
         local_path: False (return bytes), True (save to temp), or str (save to path)
         use_cache: False (no cache), True (use ~/.cache/pydrivedol/cached/), or str (use dir)
+        drive: an authenticated PyDrive2 ``GoogleDrive``. When given, the download goes through
+            the API; ``None`` (default) keeps the public, unauthenticated behaviour exactly.
+        allow_html: by default an HTML payload from the *public* endpoint raises, because it is
+            Google's login page masquerading as file content. Set True only when the file you
+            are downloading genuinely is HTML. Ignored on the authenticated path.
 
     Returns:
         bytes if local_path is False or str, filepath str if local_path is True
 
+    Raises:
+        NotPubliclyShared: the public endpoint returned a sign-in page; pass ``drive=``.
+
     >>> content = get_bytes(url)  # doctest: +SKIP
     >>> path = get_bytes(url, local_path=True)  # doctest: +SKIP
     >>> content = get_bytes(url, local_path='/tmp/file.txt')  # doctest: +SKIP
+
+    A private file, shared with a service account:
+
+    >>> drive = drive_from_service_account('service-account-key.json')  # doctest: +SKIP
+    >>> content = get_bytes(private_url, drive=drive)  # doctest: +SKIP
     """
-    file_id = _extract_file_id(url)
-    if not file_id:
-        raise ValueError(f"Could not extract file ID from URL: {url}")
+    file_id = _resolve_file_id(url)
 
     # Check cache
     cache_dir = _resolve_cache_dir(use_cache)
-    if cache_dir:
-        cached_file = _get_cached_path(file_id, cache_dir)
-        if os.path.exists(cached_file):
-            content = Path(cached_file).read_bytes()
-            return _handle_local_path_output(content, local_path, cached_file)
+    cached_file = _get_cached_path(file_id, cache_dir) if cache_dir else None
+    if cached_file and os.path.exists(cached_file):
+        content = Path(cached_file).read_bytes()
+        return _handle_local_path_output(content, local_path, cached_file)
 
     # Download
-    content = _download_from_drive(file_id)
+    if drive is not None:
+        content = _download_via_api(drive, file_id)
+    else:
+        content = _download_from_drive(file_id, allow_html=allow_html)
 
     # Cache if requested
-    if cache_dir:
+    if cached_file:
         Path(cached_file).write_bytes(content)
 
     return _handle_local_path_output(content, local_path, None)
 
 
-def _download_from_drive(file_id: str) -> bytes:
-    """Download file content from Google Drive."""
+def _download_from_drive(file_id: str, *, allow_html: bool = False) -> bytes:
+    """Download file content from Google Drive's public (unauthenticated) endpoint.
+
+    Guards against the silent-success failure: Drive answers an unauthorised request with its
+    HTML sign-in page under HTTP 200, which would otherwise be returned as the file's content.
+    """
     download_url = f"https://drive.google.com/uc?export=download&id={file_id}"
 
     session = requests.Session()
@@ -144,7 +283,13 @@ def _download_from_drive(file_id: str) -> bytes:
     if response.status_code != 200:
         raise RuntimeError(f"Download failed. Status: {response.status_code}")
 
-    return response.content
+    content = response.content
+    if not allow_html and _looks_like_html(
+        content, response.headers.get("Content-Type", "")
+    ):
+        raise NotPubliclyShared(_not_publicly_shared_message(file_id))
+
+    return content
 
 
 def _handle_local_path_output(
@@ -233,6 +378,125 @@ def drive_from_service_account(
     return GoogleDrive(gauth)
 
 
+# =============================================================================
+# Authenticated access (needs a ``drive``)
+# =============================================================================
+
+#: Drive's mimeType for a folder -- the marker that a listing entry should be recursed into.
+_FOLDER_MIMETYPE = "application/vnd.google-apps.folder"
+
+#: Metadata fields fetched by default: enough to decide whether a download is worth making.
+DEFAULT_METADATA_FIELDS = (
+    "id",
+    "title",
+    "mimeType",
+    "fileSize",
+    "modifiedDate",
+    "alternateLink",
+)
+
+#: Metadata the Drive API returns as decimal strings but that are natural numbers.
+_INTEGER_METADATA_FIELDS = ("fileSize", "quotaBytesUsed", "version")
+
+
+def _download_via_api(drive, file_id: str) -> bytes:
+    """Download a file's content through the authenticated Drive API.
+
+    Streams the content chunk by chunk into memory via PyDrive2's ``GetContentIOBuffer`` --
+    byte-exact (no text decode/encode round trip, which corrupts binaries) and with no
+    temporary file on disk.
+
+    ``drive`` is injected (a PyDrive2 ``GoogleDrive``) so this stays pure and unit-testable.
+    """
+    gfile = drive.CreateFile({"id": file_id})
+    return b"".join(chunk for chunk in gfile.GetContentIOBuffer() if chunk)
+
+
+def _normalized_metadata(gfile, fields) -> dict:
+    """Pick ``fields`` out of a fetched PyDrive2 file, coercing numeric strings to ``int``."""
+    metadata = {field: gfile[field] for field in fields if field in gfile}
+    for field in _INTEGER_METADATA_FIELDS:
+        value = metadata.get(field)
+        if isinstance(value, str) and value.isdigit():
+            metadata[field] = int(value)
+    return metadata
+
+
+def get_metadata(url_or_id: str, *, drive, fields=DEFAULT_METADATA_FIELDS) -> dict:
+    """Fetch a Drive file's metadata **without downloading its content**.
+
+    The cheap half of :func:`get_bytes`: use it to decide *whether* to download -- an 18MB
+    spreadsheet is not something you fetch just to learn its name.
+
+    Args:
+        url_or_id: a Drive file URL or a bare file id.
+        drive: an authenticated PyDrive2 ``GoogleDrive`` (see
+            :func:`drive_from_service_account`).
+        fields: which metadata fields to request; ``None`` fetches everything Drive offers.
+            The default, :data:`DEFAULT_METADATA_FIELDS`, covers name (``title``), ``fileSize``,
+            ``mimeType`` and ``modifiedDate``.
+
+    Returns:
+        A plain ``dict`` of the requested fields that the file actually has. ``fileSize`` is
+        returned as an ``int`` (Drive sends it as a string), and is **absent** for
+        Google-native files -- Sheets/Docs/Slides have no stored byte size.
+
+    >>> drive = drive_from_service_account('service-account-key.json')  # doctest: +SKIP
+    >>> info = get_metadata(url, drive=drive)  # doctest: +SKIP
+    >>> info['title'], info['fileSize']  # doctest: +SKIP
+    ('client_export.xlsx', 18512345)
+    """
+    file_id = _resolve_file_id(url_or_id)
+    gfile = drive.CreateFile({"id": file_id})
+    if fields:
+        gfile.FetchMetadata(fields=",".join(fields))
+        wanted = fields
+    else:
+        gfile.FetchMetadata(fetch_all=True)
+        wanted = tuple(gfile.keys())
+    return _normalized_metadata(gfile, wanted)
+
+
+def _iter_folder_files(
+    drive,
+    folder_id: str,
+    *,
+    max_levels: Optional[int] = None,
+    include_hidden: bool = False,
+    prefix: str = "",
+    level: int = 0,
+):
+    """Yield ``(relative_path, file_id)`` for every file under ``folder_id``.
+
+    Recurses into subfolders up to ``max_levels`` (``None`` = unlimited, ``0`` = this folder
+    only). ``drive`` is injected so the traversal is shared by :class:`GDFiles` and
+    :class:`GDReader` rather than duplicated in each.
+    """
+    if max_levels is not None and level > max_levels:
+        return
+
+    query = f"'{folder_id}' in parents and trashed=false"
+    for item in drive.ListFile({"q": query}).GetList():
+        name = item["title"]
+        if not include_hidden and name.startswith("."):
+            continue
+
+        item_path = os.path.join(prefix, name) if prefix else name
+
+        if item["mimeType"] == _FOLDER_MIMETYPE:
+            if max_levels is None or level < max_levels:
+                yield from _iter_folder_files(
+                    drive,
+                    item["id"],
+                    max_levels=max_levels,
+                    include_hidden=include_hidden,
+                    prefix=item_path,
+                    level=level + 1,
+                )
+        else:
+            yield (item_path, item["id"])
+
+
 # Office → Google-native editor MIME types (the target when ``convert=True``).
 GOOGLE_MIME = {
     ".xlsx": "application/vnd.google-apps.spreadsheet",
@@ -299,6 +563,134 @@ def _upload_converting(
     return gfile
 
 
+_UNSCOPED_ITERATION_MESSAGE = (
+    "GDFiles has no folder scope, so it cannot be listed: an unscoped instance addresses the "
+    "whole Drive, which is unbounded and paginated. Lookup (files[key], key in files, "
+    "files.get(key)) works without a scope; to iterate, construct with "
+    "GDFiles(drive, folder_url='https://drive.google.com/drive/folders/<id>')."
+)
+
+
+class GDFiles(Mapping):
+    """Read-only Mapping of Google Drive **files**, keyed by file id or file URL.
+
+    The file-level sibling of :class:`GDReader`. Where ``GDReader`` is scoped to a folder and
+    keyed by relative path, ``GDFiles`` is keyed by whatever identifies a single file: a bare
+    file id, or any Drive file URL -- both normalise to the same key through
+    :func:`_extract_file_id`, so ``files[url]`` and ``files[file_id]`` are one entry. Values
+    are ``bytes``, fetched over the authenticated API, so **private** files work as long as
+    they are shared with the authenticated identity.
+
+    That is the shape a caller has when files arrive as *links* -- the usual Drive sharing
+    idiom -- rather than as a folder listing.
+
+    ``drive`` is required and injected: a file-level view is pointless without auth, since its
+    whole reason to exist is reaching files the public endpoint cannot.
+
+    **Iteration requires a scope.** Unscoped, this mapping covers the entire Drive, which is
+    unbounded and paginated; enumerating it is never what a caller wants, so offering it would
+    be a trap. ``__iter__``/``__len__`` therefore raise ``NotImplementedError`` unless
+    ``folder_url`` is given, in which case they yield that folder's file **ids** (honouring
+    ``max_levels`` and ``include_hidden``, the same traversal :class:`GDReader` uses). Lookup
+    always works, scoped or not -- it is the primary use case and needs no listing.
+
+    >>> drive = drive_from_service_account('service-account-key.json')  # doctest: +SKIP
+    >>> files = GDFiles(drive)  # doctest: +SKIP
+    >>> files.metadata(url)['fileSize']  # cheap: no download  # doctest: +SKIP
+    >>> content = files[url]  # or files[file_id]  # doctest: +SKIP
+    >>> url in files  # metadata probe, not a download  # doctest: +SKIP
+    True
+
+    Scoped, so it can be listed:
+
+    >>> scoped = GDFiles(drive, folder_url=folder_url)  # doctest: +SKIP
+    >>> list(scoped)  # file ids  # doctest: +SKIP
+    """
+
+    def __init__(
+        self,
+        drive,
+        *,
+        folder_url: Optional[str] = None,
+        max_levels: Optional[int] = None,
+        include_hidden: bool = False,
+    ):
+        """
+        Initialize a file-level mapping.
+
+        Args:
+            drive: an authenticated PyDrive2 ``GoogleDrive`` (see
+                :func:`drive_from_service_account`). Required.
+            folder_url: optional Drive folder URL scoping ``__iter__``/``__len__``. Without it
+                those raise; lookup is unaffected.
+            max_levels: recursion depth for the scope (None=infinite, 0=files only)
+            include_hidden: include files starting with '.'
+        """
+        self._drive = drive
+        self.folder_url = folder_url
+        self.folder_id = _extract_folder_id(folder_url) if folder_url else None
+        if folder_url and not self.folder_id:
+            raise ValueError(f"Invalid folder URL: {folder_url}")
+        self.max_levels = max_levels
+        self.include_hidden = include_hidden
+        self._file_cache = None
+
+    @property
+    def _file_ids(self):
+        """Cached file ids of the scoping folder; raises if there is no scope."""
+        if self.folder_id is None:
+            raise NotImplementedError(_UNSCOPED_ITERATION_MESSAGE)
+        if self._file_cache is None:
+            listing = _iter_folder_files(
+                self._drive,
+                self.folder_id,
+                max_levels=self.max_levels,
+                include_hidden=self.include_hidden,
+            )
+            # dict.fromkeys: dedupe (Drive files can have several parents) keeping order
+            self._file_cache = list(dict.fromkeys(file_id for _, file_id in listing))
+        return self._file_cache
+
+    def _refresh_cache(self):
+        """Forget the cached folder listing; the next iteration re-lists."""
+        self._file_cache = None
+
+    def __iter__(self):
+        return iter(self._file_ids)
+
+    def __len__(self):
+        return len(self._file_ids)
+
+    def __contains__(self, key: str) -> bool:
+        """Whether the file exists and is reachable -- a metadata probe, never a download."""
+        try:
+            self.metadata(key, fields=("id",))
+        except ValueError:
+            return False  # not a usable file key at all
+        except Exception as error:
+            if _is_not_found(error):
+                return False
+            raise  # auth / network / server failures are not "absent"
+        return True
+
+    def __getitem__(self, key: str) -> bytes:
+        """The file's content as bytes, downloaded over the authenticated API."""
+        file_id = _resolve_file_id(key)
+        try:
+            return _download_via_api(self._drive, file_id)
+        except Exception as error:
+            if _is_not_found(error):
+                raise KeyError(f"File not found or not accessible: {key}") from error
+            raise
+
+    def metadata(self, key: str, *, fields=DEFAULT_METADATA_FIELDS) -> dict:
+        """Metadata (name, size, mimeType, modifiedDate) for ``key``, without downloading it.
+
+        Thin method form of :func:`get_metadata` -- see it for the field semantics.
+        """
+        return get_metadata(key, drive=self._drive, fields=fields)
+
+
 class GDReader(Mapping):
     """
     Read-only Mapping to Google Drive folder.
@@ -356,25 +748,15 @@ class GDReader(Mapping):
         self._file_cache = None
 
     def _list_files(self, folder_id: str, prefix: str = "", level: int = 0):
-        """Recursively list files in folder."""
-        if self.max_levels is not None and level > self.max_levels:
-            return
-
-        query = f"'{folder_id}' in parents and trashed=false"
-        file_list = self._drive.ListFile({"q": query}).GetList()
-
-        for item in file_list:
-            name = item["title"]
-            if not self.include_hidden and name.startswith("."):
-                continue
-
-            item_path = os.path.join(prefix, name) if prefix else name
-
-            if item["mimeType"] == "application/vnd.google-apps.folder":
-                if self.max_levels is None or level < self.max_levels:
-                    yield from self._list_files(item["id"], item_path, level + 1)
-            else:
-                yield (item_path, item["id"])
+        """Recursively list ``(relative_path, file_id)`` pairs under ``folder_id``."""
+        yield from _iter_folder_files(
+            self._drive,
+            folder_id,
+            max_levels=self.max_levels,
+            include_hidden=self.include_hidden,
+            prefix=prefix,
+            level=level,
+        )
 
     @property
     def _files(self):
@@ -397,19 +779,16 @@ class GDReader(Mapping):
         return key in self._files
 
     def __getitem__(self, key: str) -> bytes:
-        """Get file content as bytes."""
+        """Get file content as bytes.
+
+        Goes through :func:`_download_via_api`, which is byte-exact: the previous
+        ``GetContentString(...).encode('latin-1')`` route decoded as utf-8 first, so it
+        corrupted (or raised on) every real binary -- xlsx, pdf, images.
+        """
         if key not in self._files:
             raise KeyError(f"File not found: {key}")
 
-        file_id = self._files[key]
-        gfile = self._drive.CreateFile({"id": file_id})
-
-        # Download as bytes
-        content = gfile.GetContentString(mimetype="application/octet-stream")
-        if isinstance(content, str):
-            content = content.encode("latin-1")
-
-        return content
+        return _download_via_api(self._drive, self._files[key])
 
     def get_url(
         self,
