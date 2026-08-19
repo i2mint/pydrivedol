@@ -100,14 +100,14 @@ When files arrive as *links* rather than as a folder listing, key by the link:
 ```python
 files = GDFiles(drive)
 
-content = files[url]            # a Drive file URL...
-content = files[file_id]        # ...or the bare id: same entry
-url in files                    # metadata probe, never a download
-files.metadata(url)             # name / size / mimeType / modifiedDate
+content = files[url]  # a Drive file URL...
+content = files[file_id]  # ...or the bare id: same entry
+url in files  # metadata probe, never a download
+files.metadata(url)  # name / size / mimeType / modifiedDate
 
 # Iteration needs a scope — an unscoped GDFiles addresses the whole Drive
 scoped = GDFiles(drive, folder_url=folder_url)
-list(scoped)                    # file ids
+list(scoped)  # file ids
 ```
 
 Unscoped, `iter()` and `len()` raise `NotImplementedError` (with a message naming
