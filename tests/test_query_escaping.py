@@ -36,7 +36,9 @@ class _Drive:
         return _List()
 
     def CreateFile(self, meta=None):
-        return _File(meta or {}, id="new-id")
+        return _File(
+            meta or {}, id="new-id", alternateLink="https://drive.example/new-id"
+        )
 
 
 def _store():
@@ -68,7 +70,12 @@ def test_hostile_folder_name_stays_one_literal():
 
 @pytest.mark.parametrize(
     "value, literal",
-    [("plain", "'plain'"), ("it's", "'it\\'s'"), ("a\\b", "'a\\\\b'"), ("\\'", "'\\\\\\''")],
+    [
+        ("plain", "'plain'"),
+        ("it's", "'it\\'s'"),
+        ("a\\b", "'a\\\\b'"),
+        ("\\'", "'\\\\\\''"),
+    ],
 )
 def test_q(value, literal):
     assert _q(value) == literal
@@ -89,7 +96,9 @@ def test_file_ids_are_confined_to_the_id_alphabet(url, expected):
 
 
 def test_folder_id_stops_at_the_id():
-    assert _extract_folder_id("https://drive.google.com/drive/folders/AbC123/") == "AbC123"
+    assert (
+        _extract_folder_id("https://drive.google.com/drive/folders/AbC123/") == "AbC123"
+    )
 
 
 def test_bare_id_with_trailing_newline_is_refused():
