@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "built_at": "2026-09-22T15:28:19Z",
+  "package": {
+    "name": "pydrivedol",
+    "version": "0.0.7",
+    "display_name": "pydrivedol",
+    "source": "pyproject.toml"
+  },
+  "git": {
+    "available": true,
+    "commit": "14764ec279a7ebf51edbf53b2fea4b85f54db1dc",
+    "short_commit": "14764ec",
+    "branch": "master",
+    "tags": [],
+    "dirty": false,
+    "remote_url": "https://github.com/i2mint/pydrivedol",
+    "commit_url": "https://github.com/i2mint/pydrivedol/commit/14764ec279a7ebf51edbf53b2fea4b85f54db1dc",
+    "error": null
+  },
+  "ci": {
+    "provider": "github",
+    "repository": "i2mint/pydrivedol",
+    "sha": "14764ec279a7ebf51edbf53b2fea4b85f54db1dc",
+    "sha_in_history": true,
+    "ref": "refs/heads/master",
+    "ref_name": "master",
+    "run_id": "35747365412",
+    "run_url": "https://github.com/i2mint/pydrivedol/actions/runs/35747365412",
+    "server_url": "https://github.com"
+  },
+  "tools": {
+    "epythet": "0.2.12",
+    "sphinx": "9.1.0",
+    "docutils": "0.22.4",
+    "python": "3.12.14"
+  },
+  "config": {
+    "theme": "auto",
+    "html_theme": "sphinxawesome_theme",
+    "accent": "#91380e",
+    "mode": "auto",
+    "api_generator": "autosummary",
+    "ignore": [
+      "tests/",
+      "scrap/",
+      "examples/"
+    ],
+    "agent_outputs": true,
+    "aggregates": [
+      "md"
+    ],
+    "ai_artifacts": true,
+    "provenance": true,
+    "docs_dir": "docsrc"
+  },
+  "site": {
+    "modules_documented": 2,
+    "objects_documented": 12
+  },
+  "pypi": {
+    "checked": true,
+    "latest": "0.0.8",
+    "relation": "behind",
+    "error": null
+  },
+  "reproduce": "git clone https://github.com/i2mint/pydrivedol && cd pydrivedol\ngit checkout 14764ec279a7ebf51edbf53b2fea4b85f54db1dc\npip install \"epythet==0.2.12\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "warnings": [],
+  "alignment": {
+    "aligned": false,
+    "notes": [
+      "The documented version (0.0.7) is behind the latest release on PyPI (0.0.8): `pip install pydrivedol` gives newer code than these docs describe."
+    ]
+  }
+}

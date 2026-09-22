@@ -1,4 +1,0 @@
-pydrivedol.tests.test_authenticated_access
-==========================================
-.. automodule:: pydrivedol.tests.test_authenticated_access
-   :members:

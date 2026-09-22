@@ -1,0 +1,20 @@
+# pydrivedol
+
+> pydrive (googledrive) with a simple (dict-like or list-like) interface
+
+
+## Pages
+
+- [pydrivedol](index.html.md): &gt; Google Drive Data Object Layer - Pythonic mapping interfaces to Google Drive
+- [API reference](api.html.md): | &#96;pydrivedol&#96;   | Google Drive Data Object Layer   |
+- [pydrivedol](_autosummary/pydrivedol.html.md): Google Drive Data Object Layer
+- [pydrivedol.base](_autosummary/pydrivedol.base.html.md): Base objects for pydrivedol: download functions, GDFiles, GDReader, GDStore.
+- [About this build](about-this-build.html.md): This documentation was built on &#42;&#42;2026-09-22 15:28 UTC&#42;&#42; from commit &lt;a href="https://github.com/i2m...
+
+## Optional
+
+- [pydrivedol.md](pydrivedol.md): Complete documentation in a single file.
+
+## Build
+
+- [build_info.json](build_info.json): build provenance (commit, version, tool versions, whether the docs match the package)

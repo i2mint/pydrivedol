@@ -1,0 +1,35 @@
+pydrivedol.base
+===============
+
+.. automodule:: pydrivedol.base
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      DEFAULT_METADATA_FIELDS
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      drive_from_service_account
+      get_bytes
+      get_metadata
+      xlsx_to_google_sheet
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      GDFiles
+      GDReader
+      GDStore
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+   
+      NotPubliclyShared
+   

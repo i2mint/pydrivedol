@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+
+<html :class="{ 'dark' : darkMode === true }" data-content_root="../" lang="en" x-data="{ darkMode: $persist(window.matchMedia('(prefers-color-scheme: dark)').matches), activeSection: ''}">
+<head>
+<script>
+    (function () {
+      // Set initial color scheme
+      if ((localStorage.getItem("_x_darkMode") === "true") || (window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+        document.documentElement.classList.add("dark");
+      }
+
+      // Watch for media preference changes
+      window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (event) => {
+        localStorage.setItem("_x_darkMode", event.matches);
+        document.documentElement.classList.toggle("dark", event.matches);
+      });
+    })();
+  </script>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta charset="utf-8"/>
+<meta content="#ffffff" media="(prefers-color-scheme: light)" name="theme-color"/>
+<meta content="#030711" media="(prefers-color-scheme: dark)" name="theme-color"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<link href="pydrivedol.base.html.md" rel="alternate" type="text/markdown"/>
+<link href="../llms.txt" rel="describedby" type="text/markdown"/>
+<link href="pydrivedol.base.html.md" rel="alternate" type="text/markdown"/>
+<link href="llms.txt" rel="describedby"/>
+<title>pydrivedol.base | pydrivedol</title>
+<meta content="pydrivedol.base | pydrivedol" property="og:title"/>
+<meta content="pydrivedol.base | pydrivedol" name="twitter:title"/>
+<link href="../_static/pygments.css?v=d75fae25" rel="stylesheet" type="text/css"/>
+<link href="../_static/theme.css?v=d6d7c91b" rel="stylesheet" type="text/css"/>
+<link href="../_static/copybutton.css?v=76b2166b" rel="stylesheet" type="text/css"/>
+<link href="../_static/epythet.css?v=518c29d0" rel="stylesheet" type="text/css"/>
+<link href="../search.html" rel="search" title="Search"/>
+<link href="../genindex.html" rel="index" title="Index"/>
+<link href="pydrivedol.html" rel="prev" title="pydrivedol"/>
+</head>
+<body :class="{ 'overflow-hidden': showSidebar }" class="min-h-screen font-sans antialiased bg-background text-foreground" x-data="{ showSidebar: false, showScrollTop: false }">
+<div @click.self="showSidebar = false" class="fixed inset-0 z-50 overflow-hidden bg-background/80 backdrop-blur-sm md:hidden" x-cloak="" x-show="showSidebar"></div><div class="relative flex flex-col min-h-screen" id="page"><a class="absolute top-0 left-0 z-[100] block bg-background p-4 text-xl transition -translate-x-full opacity-0 focus:translate-x-0 focus:opacity-100" href="#content">
+      Skip to content
+    </a><header class="sticky top-0 z-40 w-full border-b shadow-xs border-border bg-background/90 backdrop-blur"><div class="container flex items-center h-14">
+<div class="hidden mr-4 md:flex">
+<a class="flex items-center mr-6" href="../index.html"><span class="hidden font-bold sm:inline-block text-clip whitespace-nowrap">pydrivedol</span>
+</a><nav class="flex items-center gap-6 text-sm font-medium">
+<a class="transition-colors hover:text-foreground/80 text-foreground/60" href="https://github.com/i2mint/pydrivedol" rel="noopener nofollow">GitHub</a>
+</nav></div><button @click="showSidebar = true" class="inline-flex items-center justify-center h-10 px-0 py-2 mr-2 text-base font-medium transition-colors rounded-md hover:text-accent-foreground hover:bg-transparent md:hidden" type="button">
+<svg aria-hidden="true" fill="currentColor" height="24" viewbox="0 96 960 960" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M152.587 825.087q-19.152 0-32.326-13.174t-13.174-32.326q0-19.152 13.174-32.326t32.326-13.174h440q19.152 0 32.326 13.174t13.174 32.326q0 19.152-13.174 32.326t-32.326 13.174h-440Zm0-203.587q-19.152 0-32.326-13.174T107.087 576q0-19.152 13.174-32.326t32.326-13.174h320q19.152 0 32.326 13.174T518.087 576q0 19.152-13.174 32.326T472.587 621.5h-320Zm0-203.587q-19.152 0-32.326-13.174t-13.174-32.326q0-19.152 13.174-32.326t32.326-13.174h440q19.152 0 32.326 13.174t13.174 32.326q0 19.152-13.174 32.326t-32.326 13.174h-440ZM708.913 576l112.174 112.174q12.674 12.674 12.674 31.826t-12.674 31.826Q808.413 764.5 789.261 764.5t-31.826-12.674l-144-144Q600 594.391 600 576t13.435-31.826l144-144q12.674-12.674 31.826-12.674t31.826 12.674q12.674 12.674 12.674 31.826t-12.674 31.826L708.913 576Z"></path>
+</svg>
+<span class="sr-only">Toggle navigation menu</span>
+</button>
+<div class="flex items-center justify-between flex-1 gap-2 sm:gap-4 md:justify-end">
+<div class="flex-1 w-full md:w-auto md:flex-none"><form @keydown.k.window.meta="$refs.search.focus()" action="../search.html" class="relative flex items-center group" id="searchbox" method="get">
+<input aria-label="Search the docs" class="inline-flex items-center font-medium transition-colors bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background border border-input hover:bg-accent focus:bg-accent hover:text-accent-foreground focus:text-accent-foreground hover:placeholder-accent-foreground py-2 px-4 relative h-9 w-full justify-start rounded-[0.5rem] text-sm text-muted-foreground sm:pr-12 md:w-40 lg:w-64" id="search-input" name="q" placeholder="Search ..." type="search" x-ref="search"/>
+<kbd class="pointer-events-none absolute right-1.5 top-2 hidden h-5 select-none text-muted-foreground items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex group-hover:bg-accent group-hover:text-accent-foreground">
+<span class="text-xs">⌘</span>
+    K
+  </kbd>
+</form>
+</div>
+<nav class="flex items-center gap-1">
+<button @click="darkMode = !darkMode" class="relative inline-flex items-center justify-center px-0 text-sm font-medium transition-colors rounded-md hover:bg-accent hover:text-accent-foreground h-9 w-9" title="Toggle color scheme" type="button">
+<svg class="absolute transition-all scale-100 rotate-0 dark:-rotate-90 dark:scale-0" fill="currentColor" height="16" viewbox="0 96 960 960" width="16" xmlns="http://www.w3.org/2000/svg">
+<path d="M480 685q45.456 0 77.228-31.772Q589 621.456 589 576q0-45.456-31.772-77.228Q525.456 467 480 467q-45.456 0-77.228 31.772Q371 530.544 371 576q0 45.456 31.772 77.228Q434.544 685 480 685Zm0 91q-83 0-141.5-58.5T280 576q0-83 58.5-141.5T480 376q83 0 141.5 58.5T680 576q0 83-58.5 141.5T480 776ZM80 621.5q-19.152 0-32.326-13.174T34.5 576q0-19.152 13.174-32.326T80 530.5h80q19.152 0 32.326 13.174T205.5 576q0 19.152-13.174 32.326T160 621.5H80Zm720 0q-19.152 0-32.326-13.174T754.5 576q0-19.152 13.174-32.326T800 530.5h80q19.152 0 32.326 13.174T925.5 576q0 19.152-13.174 32.326T880 621.5h-80Zm-320-320q-19.152 0-32.326-13.174T434.5 256v-80q0-19.152 13.174-32.326T480 130.5q19.152 0 32.326 13.174T525.5 176v80q0 19.152-13.174 32.326T480 301.5Zm0 720q-19.152 0-32.326-13.17Q434.5 995.152 434.5 976v-80q0-19.152 13.174-32.326T480 850.5q19.152 0 32.326 13.174T525.5 896v80q0 19.152-13.174 32.33-13.174 13.17-32.326 13.17ZM222.174 382.065l-43-42Q165.5 327.391 166 308.239t13.174-33.065q13.435-13.674 32.587-13.674t32.065 13.674l42.239 43q12.674 13.435 12.555 31.706-.12 18.272-12.555 31.946-12.674 13.674-31.445 13.413-18.772-.261-32.446-13.174Zm494 494.761-42.239-43q-12.674-13.435-12.674-32.087t12.674-31.565Q686.609 756.5 705.38 757q18.772.5 32.446 13.174l43 41.761Q794.5 824.609 794 843.761t-13.174 33.065Q767.391 890.5 748.239 890.5t-32.065-13.674Zm-42-494.761Q660.5 369.391 661 350.62q.5-18.772 13.174-32.446l41.761-43Q728.609 261.5 747.761 262t33.065 13.174q13.674 13.435 13.674 32.587t-13.674 32.065l-43 42.239q-13.435 12.674-31.706 12.555-18.272-.12-31.946-12.555Zm-495 494.761Q165.5 863.391 165.5 844.239t13.674-32.065l43-42.239q13.435-12.674 32.087-12.674t31.565 12.674Q299.5 782.609 299 801.38q-.5 18.772-13.174 32.446l-41.761 43Q231.391 890.5 212.239 890t-33.065-13.174ZM480 576Z"></path>
+</svg>
+<svg class="absolute transition-all scale-0 rotate-90 dark:rotate-0 dark:scale-100" fill="currentColor" height="16" viewbox="0 96 960 960" width="16" xmlns="http://www.w3.org/2000/svg">
+<path d="M480 936q-151 0-255.5-104.5T120 576q0-138 90-239.5T440 218q25-3 39 18t-1 44q-17 26-25.5 55t-8.5 61q0 90 63 153t153 63q31 0 61.5-9t54.5-25q21-14 43-1.5t19 39.5q-14 138-117.5 229T480 936Zm0-80q88 0 158-48.5T740 681q-20 5-40 8t-40 3q-123 0-209.5-86.5T364 396q0-20 3-40t8-40q-78 32-126.5 102T200 576q0 116 82 198t198 82Zm-10-270Z"></path>
+</svg>
+</button>
+</nav>
+</div>
+</div>
+</header>
+<div class="flex-1"><div class="container md:grid md:grid-cols-[220px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10"><aside :aria-hidden="!showSidebar" :class="{ 'translate-x-0': showSidebar }" class="fixed inset-y-0 left-0 md:top-14 z-50 md:z-30 bg-background md:bg-transparent transition-all duration-100 -translate-x-full md:translate-x-0 ml-0 p-6 md:p-0 md:-ml-2 md:h-[calc(100vh-3.5rem)] w-5/6 md:w-full overflow-y-auto border-r border-border md:sticky" id="left-sidebar">
+<a class="justify-start text-sm md:!hidden bg-background" href="../index.html"><span class="font-bold text-clip whitespace-nowrap">pydrivedol</span>
+</a>
+<div class="relative overflow-hidden md:overflow-auto my-4 md:my-0">
+<div class="overflow-y-auto h-full w-full relative pr-6"><nav class="flex md:hidden flex-col font-medium mt-4">
+<a href="https://github.com/i2mint/pydrivedol" rel="nofollow noopener">GitHub</a>
+</nav><nav class="table w-full min-w-full my-6 lg:my-8">
+<ul class="current">
+<li class="toctree-l1 current" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="../api.html">API reference<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul class="current" x-show="expanded">
+<li class="toctree-l2 current" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="pydrivedol.html">pydrivedol<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul class="current" x-show="expanded">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pydrivedol.base</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+<button @click="showSidebar = false" class="absolute md:hidden right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100" type="button">
+<svg class="h-4 w-4" fill="currentColor" height="24" stroke="none" viewbox="0 96 960 960" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M480 632 284 828q-11 11-28 11t-28-11q-11-11-11-28t11-28l196-196-196-196q-11-11-11-28t11-28q11-11 28-11t28 11l196 196 196-196q11-11 28-11t28 11q11 11 11 28t-11 28L536 576l196 196q11 11 11 28t-11 28q-11 11-28 11t-28-11L480 632Z"></path>
+</svg>
+</button>
+</aside>
+<main class="relative py-6 lg:gap-10 lg:py-8 xl:grid xl:grid-cols-[1fr_300px]">
+<div class="w-full min-w-0 mx-auto">
+<nav aria-label="breadcrumbs" class="flex items-center mb-4 space-x-1 text-sm text-muted-foreground">
+<a class="overflow-hidden text-ellipsis whitespace-nowrap hover:text-foreground" href="../index.html">
+<span class="hidden md:inline">pydrivedol</span>
+<svg aria-label="Home" class="md:hidden" fill="currentColor" height="18" stroke="none" viewbox="0 96 960 960" width="18" xmlns="http://www.w3.org/2000/svg">
+<path d="M240 856h120V616h240v240h120V496L480 316 240 496v360Zm-80 80V456l320-240 320 240v480H520V696h-80v240H160Zm320-350Z"></path>
+</svg>
+</a>
+<div class="mr-1">/</div><a class="hover:text-foreground overflow-hidden text-ellipsis whitespace-nowrap" href="../api.html">API reference</a>
+<div class="mr-1">/</div><a class="hover:text-foreground overflow-hidden text-ellipsis whitespace-nowrap" href="pydrivedol.html">pydrivedol</a>
+<div class="mr-1">/</div><span aria-current="page" class="font-medium text-foreground overflow-hidden text-ellipsis whitespace-nowrap">pydrivedol.base</span>
+</nav>
+<div id="content" role="main">
+<section id="module-pydrivedol.base">
+<span id="pydrivedol-base"></span><h1>pydrivedol.base<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#module-pydrivedol.base">¶</a></h1>
+<p>Base objects for pydrivedol: download functions, GDFiles, GDReader, GDStore.</p>
+<p>Two access levels, both returning <code class="docutils literal notranslate"><span class="pre">bytes</span></code>:</p>
+<ul class="simple">
+<li><p><strong>Public, no setup</strong>: <a class="reference internal" href="#pydrivedol.base.get_bytes" title="pydrivedol.base.get_bytes"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_bytes()</span></code></a> against Google’s unauthenticated download endpoint.
+It raises <a class="reference internal" href="#pydrivedol.base.NotPubliclyShared" title="pydrivedol.base.NotPubliclyShared"><code class="xref py py-class docutils literal notranslate"><span class="pre">NotPubliclyShared</span></code></a> rather than handing back the HTML sign-in page Drive
+serves (with HTTP 200) when the file is not shared publicly.</p></li>
+<li><p><strong>Authenticated</strong>: pass a PyDrive2 <code class="docutils literal notranslate"><span class="pre">GoogleDrive</span></code> – from <a class="reference internal" href="#pydrivedol.base.drive_from_service_account" title="pydrivedol.base.drive_from_service_account"><code class="xref py py-func docutils literal notranslate"><span class="pre">drive_from_service_account()</span></code></a>
+for headless use – as <code class="docutils literal notranslate"><span class="pre">drive=</span></code> to <a class="reference internal" href="#pydrivedol.base.get_bytes" title="pydrivedol.base.get_bytes"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_bytes()</span></code></a> / <a class="reference internal" href="#pydrivedol.base.get_metadata" title="pydrivedol.base.get_metadata"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_metadata()</span></code></a>, or build a
+<a class="reference internal" href="#pydrivedol.base.GDFiles" title="pydrivedol.base.GDFiles"><code class="xref py py-class docutils literal notranslate"><span class="pre">GDFiles</span></code></a> (file-level Mapping, keyed by file id or URL), <a class="reference internal" href="#pydrivedol.base.GDReader" title="pydrivedol.base.GDReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">GDReader</span></code></a> /
+<a class="reference internal" href="#pydrivedol.base.GDStore" title="pydrivedol.base.GDStore"><code class="xref py py-class docutils literal notranslate"><span class="pre">GDStore</span></code></a> (folder-level, keyed by relative path).</p></li>
+</ul>
+<p class="rubric">Module Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pydrivedol.base.DEFAULT_METADATA_FIELDS" title="pydrivedol.base.DEFAULT_METADATA_FIELDS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEFAULT_METADATA_FIELDS</span></code></a></p></td>
+<td><p>enough to decide whether a download is worth making.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pydrivedol.base.drive_from_service_account" title="pydrivedol.base.drive_from_service_account"><code class="xref py py-obj docutils literal notranslate"><span class="pre">drive_from_service_account</span></code></a>(key_file, *[, ...])</p></td>
+<td><p>Build an authenticated <code class="docutils literal notranslate"><span class="pre">GoogleDrive</span></code> from a service-account key file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pydrivedol.base.get_bytes" title="pydrivedol.base.get_bytes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_bytes</span></code></a>(url, *[, local_path, use_cache, ...])</p></td>
+<td><p>Download bytes from a Google Drive URL.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pydrivedol.base.get_metadata" title="pydrivedol.base.get_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_metadata</span></code></a>(url_or_id, *, drive[, fields])</p></td>
+<td><p>Fetch a Drive file's metadata <strong>without downloading its content</strong>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pydrivedol.base.xlsx_to_google_sheet" title="pydrivedol.base.xlsx_to_google_sheet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">xlsx_to_google_sheet</span></code></a>(folder_url, title, xlsx, *)</p></td>
+<td><p>Upload an <code class="docutils literal notranslate"><span class="pre">.xlsx</span></code> as a <strong>native Google Sheet</strong> and return its shareable URL.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pydrivedol.base.GDFiles" title="pydrivedol.base.GDFiles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GDFiles</span></code></a>(drive, *[, folder_url, max_levels, ...])</p></td>
+<td><p>Read-only Mapping of Google Drive <strong>files</strong>, keyed by file id or file URL.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pydrivedol.base.GDReader" title="pydrivedol.base.GDReader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GDReader</span></code></a>(folder_url, *[, max_levels, ...])</p></td>
+<td><p>Read-only Mapping to Google Drive folder.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pydrivedol.base.GDStore" title="pydrivedol.base.GDStore"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GDStore</span></code></a>(folder_url, *[, convert_office])</p></td>
+<td><p>Read-write MutableMapping to Google Drive folder.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Exceptions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pydrivedol.base.NotPubliclyShared" title="pydrivedol.base.NotPubliclyShared"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NotPubliclyShared</span></code></a></p></td>
+<td><p>Raised when an unauthenticated download returns a sign-in page instead of file content.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py data">
+<dt class="sig sig-object py" id="pydrivedol.base.DEFAULT_METADATA_FIELDS">
+<span class="sig-prename descclassname"><span class="pre">pydrivedol.base.</span></span><span class="sig-name descname"><span class="pre">DEFAULT_METADATA_FIELDS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('id',</span> <span class="pre">'title',</span> <span class="pre">'mimeType',</span> <span class="pre">'fileSize',</span> <span class="pre">'modifiedDate',</span> <span class="pre">'alternateLink')</span></span><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.base.DEFAULT_METADATA_FIELDS" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.base.DEFAULT_METADATA_FIELDS'">¶</a></dt>
+<dd><p>enough to decide whether a download is worth making.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Metadata fields fetched by default</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="pydrivedol.base.GDFiles">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pydrivedol.base.</span></span><span class="sig-name descname"><span class="pre">GDFiles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">drive</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder_url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_hidden</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydrivedol/base.html#GDFiles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.base.GDFiles" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.base.GDFiles'">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mapping</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></p>
+<p>Read-only Mapping of Google Drive <strong>files</strong>, keyed by file id or file URL.</p>
+<p>The file-level sibling of <a class="reference internal" href="#pydrivedol.base.GDReader" title="pydrivedol.base.GDReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">GDReader</span></code></a>. Where <code class="docutils literal notranslate"><span class="pre">GDReader</span></code> is scoped to a folder and
+keyed by relative path, <code class="docutils literal notranslate"><span class="pre">GDFiles</span></code> is keyed by whatever identifies a single file: a bare
+file id, or any Drive file URL – both normalise to the same key through
+<code class="xref py py-func docutils literal notranslate"><span class="pre">_extract_file_id()</span></code>, so <code class="docutils literal notranslate"><span class="pre">files[url]</span></code> and <code class="docutils literal notranslate"><span class="pre">files[file_id]</span></code> are one entry. Values
+are <code class="docutils literal notranslate"><span class="pre">bytes</span></code>, fetched over the authenticated API, so <strong>private</strong> files work as long as
+they are shared with the authenticated identity.</p>
+<p>That is the shape a caller has when files arrive as <em>links</em> – the usual Drive sharing
+idiom – rather than as a folder listing.</p>
+<p><code class="docutils literal notranslate"><span class="pre">drive</span></code> is required and injected: a file-level view is pointless without auth, since its
+whole reason to exist is reaching files the public endpoint cannot.</p>
+<p><strong>Iteration requires a scope.</strong> Unscoped, this mapping covers the entire Drive, which is
+unbounded and paginated; enumerating it is never what a caller wants, so offering it would
+be a trap. <code class="docutils literal notranslate"><span class="pre">__iter__</span></code>/<code class="docutils literal notranslate"><span class="pre">__len__</span></code> therefore raise <code class="docutils literal notranslate"><span class="pre">NotImplementedError</span></code> unless
+<code class="docutils literal notranslate"><span class="pre">folder_url</span></code> is given, in which case they yield that folder’s file <strong>ids</strong> (honouring
+<code class="docutils literal notranslate"><span class="pre">max_levels</span></code> and <code class="docutils literal notranslate"><span class="pre">include_hidden</span></code>, the same traversal <a class="reference internal" href="#pydrivedol.base.GDReader" title="pydrivedol.base.GDReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">GDReader</span></code></a> uses). Lookup
+always works, scoped or not – it is the primary use case and needs no listing.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="gp">&gt;&gt;&gt; </span><span class="n">drive</span> <span class="o">=</span> <span class="n">drive_from_service_account</span><span class="p">(</span><span class="s1">'service-account-key.json'</span><span class="p">)</span>
+</span><span id="line-2"><span class="gp">&gt;&gt;&gt; </span><span class="n">files</span> <span class="o">=</span> <span class="n">GDFiles</span><span class="p">(</span><span class="n">drive</span><span class="p">)</span>
+</span><span id="line-3"><span class="gp">&gt;&gt;&gt; </span><span class="n">files</span><span class="o">.</span><span class="n">metadata</span><span class="p">(</span><span class="n">url</span><span class="p">)[</span><span class="s1">'fileSize'</span><span class="p">]</span>  <span class="c1"># cheap: no download</span>
+</span><span id="line-4"><span class="gp">&gt;&gt;&gt; </span><span class="n">content</span> <span class="o">=</span> <span class="n">files</span><span class="p">[</span><span class="n">url</span><span class="p">]</span>  <span class="c1"># or files[file_id]</span>
+</span><span id="line-5"><span class="gp">&gt;&gt;&gt; </span><span class="n">url</span> <span class="ow">in</span> <span class="n">files</span>  <span class="c1"># metadata probe, not a download</span>
+</span><span id="line-6"><span class="go">True</span>
+</span></code></pre></div>
+</div>
+<p>Scoped, so it can be listed:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="gp">&gt;&gt;&gt; </span><span class="n">scoped</span> <span class="o">=</span> <span class="n">GDFiles</span><span class="p">(</span><span class="n">drive</span><span class="p">,</span> <span class="n">folder_url</span><span class="o">=</span><span class="n">folder_url</span><span class="p">)</span>
+</span><span id="line-2"><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">scoped</span><span class="p">)</span>  <span class="c1"># file ids</span>
+</span></code></pre></div>
+</div>
+<dl class="field-list simple">
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pydrivedol.base.GDFiles.metadata">
+<span class="sig-name descname"><span class="pre">metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('id',</span> <span class="pre">'title',</span> <span class="pre">'mimeType',</span> <span class="pre">'fileSize',</span> <span class="pre">'modifiedDate',</span> <span class="pre">'alternateLink')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydrivedol/base.html#GDFiles.metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.base.GDFiles.metadata" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.base.GDFiles.metadata'">¶</a></dt>
+<dd><p>Metadata (name, size, mimeType, modifiedDate) for <code class="docutils literal notranslate"><span class="pre">key</span></code>, without downloading it.</p>
+<p>Thin method form of <a class="reference internal" href="#pydrivedol.base.get_metadata" title="pydrivedol.base.get_metadata"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_metadata()</span></code></a> – see it for the field semantics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="pydrivedol.base.GDReader">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pydrivedol.base.</span></span><span class="sig-name descname"><span class="pre">GDReader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_url</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">credentials_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'client_secrets.json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'settings.yaml'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_hidden</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydrivedol/base.html#GDReader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.base.GDReader" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.base.GDReader'">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mapping</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></p>
+<p>Read-only Mapping to Google Drive folder.</p>
+<p>Keys are relative file paths, values are file contents as bytes.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="gp">&gt;&gt;&gt; </span><span class="n">reader</span> <span class="o">=</span> <span class="n">GDReader</span><span class="p">(</span><span class="n">folder_url</span><span class="p">)</span>
+</span><span id="line-2"><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">reader</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span>
+</span><span id="line-3"><span class="gp">&gt;&gt;&gt; </span><span class="n">content</span> <span class="o">=</span> <span class="n">reader</span><span class="p">[</span><span class="s1">'path/to/file.txt'</span><span class="p">]</span>
+</span><span id="line-4"><span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">reader</span><span class="p">)</span>
+</span><span id="line-5"><span class="gp">&gt;&gt;&gt; </span><span class="s1">'file.txt'</span> <span class="ow">in</span> <span class="n">reader</span>
+</span><span id="line-6"><span class="gp">&gt;&gt;&gt; </span><span class="n">url</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">get_url</span><span class="p">(</span><span class="s1">'file.txt'</span><span class="p">)</span>
+</span></code></pre></div>
+</div>
+<dl class="field-list simple">
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pydrivedol.base.GDReader.get_url">
+<span class="sig-name descname"><span class="pre">get_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">permission_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'anyone'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permission_role</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'reader'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydrivedol/base.html#GDReader.get_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.base.GDReader.get_url" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.base.GDReader.get_url'">¶</a></dt>
+<dd><p>Get shareable URL for file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></span>) – File path</p></li>
+<li><p><strong>permission_type</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></span>) – ‘anyone’, ‘user’, ‘group’, ‘domain’</p></li>
+<li><p><strong>permission_role</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></span>) – ‘reader’, ‘writer’, ‘commenter’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Shareable URL</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="pydrivedol.base.GDStore">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pydrivedol.base.</span></span><span class="sig-name descname"><span class="pre">GDStore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_url</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">convert_office</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydrivedol/base.html#GDStore"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.base.GDStore" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.base.GDStore'">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pydrivedol.base.GDReader" title="pydrivedol.base.GDReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">GDReader</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MutableMapping</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></p>
+<p>Read-write MutableMapping to Google Drive folder.</p>
+<p>Extends GDReader with write and delete operations.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="gp">&gt;&gt;&gt; </span><span class="n">store</span> <span class="o">=</span> <span class="n">GDStore</span><span class="p">(</span><span class="n">folder_url</span><span class="p">)</span>
+</span><span id="line-2"><span class="gp">&gt;&gt;&gt; </span><span class="n">store</span><span class="p">[</span><span class="s1">'file.txt'</span><span class="p">]</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">'Hello'</span>
+</span><span id="line-3"><span class="gp">&gt;&gt;&gt; </span><span class="n">store</span><span class="p">[</span><span class="s1">'dir/file.txt'</span><span class="p">]</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">'Nested'</span>
+</span><span id="line-4"><span class="gp">&gt;&gt;&gt; </span><span class="k">del</span> <span class="n">store</span><span class="p">[</span><span class="s1">'file.txt'</span><span class="p">]</span>
+</span></code></pre></div>
+</div>
+<p>Pass <code class="docutils literal notranslate"><span class="pre">convert_office=True</span></code> to make <code class="docutils literal notranslate"><span class="pre">store['x.xlsx']</span> <span class="pre">=</span> <span class="pre">xlsx_bytes</span></code> create a *native
+Google Sheet* (xlsx → Sheet, docx → Doc, pptx → Slides) instead of an uploaded blob. For
+one-off control use <a class="reference internal" href="#pydrivedol.base.GDStore.upload" title="pydrivedol.base.GDStore.upload"><code class="xref py py-meth docutils literal notranslate"><span class="pre">upload()</span></code></a> with <code class="docutils literal notranslate"><span class="pre">convert=True</span></code>.</p>
+<dl class="field-list simple">
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pydrivedol.base.GDStore.upload">
+<span class="sig-name descname"><span class="pre">upload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">google_mimetype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydrivedol/base.html#GDStore.upload"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.base.GDStore.upload" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.base.GDStore.upload'">¶</a></dt>
+<dd><p>Upload <code class="docutils literal notranslate"><span class="pre">value</span></code> (bytes) or a file <code class="docutils literal notranslate"><span class="pre">path</span></code> to <code class="docutils literal notranslate"><span class="pre">key</span></code>; return the shareable URL.</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">convert=True</span></code> (or the store’s <code class="docutils literal notranslate"><span class="pre">convert_office</span></code> default) an office file becomes a
+native Google doc — e.g. <code class="docutils literal notranslate"><span class="pre">store.upload('schema.xlsx',</span> <span class="pre">xlsx_bytes,</span> <span class="pre">convert=True)</span></code> yields a
+Google Sheet. Updates an existing same-named file in the target folder, else creates it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py exception">
+<dt class="sig sig-object py" id="pydrivedol.base.NotPubliclyShared">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pydrivedol.base.</span></span><span class="sig-name descname"><span class="pre">NotPubliclyShared</span></span><a class="reference internal" href="../_modules/pydrivedol/base.html#NotPubliclyShared"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.base.NotPubliclyShared" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.base.NotPubliclyShared'">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeError" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">RuntimeError</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></p>
+<p>Raised when an unauthenticated download returns a sign-in page instead of file content.</p>
+<p>Google serves its HTML sign-in / permission interstitial with HTTP <strong>200</strong>, so without an
+explicit check that page body would be returned as if it were the file: plausible-looking
+bytes that only blow up much later, in whatever tries to parse them. Catch this to fall
+back to an authenticated fetch (<code class="docutils literal notranslate"><span class="pre">get_bytes(url,</span> <span class="pre">drive=...)</span></code>).</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="pydrivedol.base.drive_from_service_account">
+<span class="sig-prename descclassname"><span class="pre">pydrivedol.base.</span></span><span class="sig-name descname"><span class="pre">drive_from_service_account</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key_file</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">scopes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('https://www.googleapis.com/auth/drive',)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydrivedol/base.html#drive_from_service_account"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.base.drive_from_service_account" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.base.drive_from_service_account'">¶</a></dt>
+<dd><p>Build an authenticated <code class="docutils literal notranslate"><span class="pre">GoogleDrive</span></code> from a service-account key file.</p>
+<p>For headless / server use — no browser OAuth flow. Share the target Drive folder
+with the service account’s <code class="docutils literal notranslate"><span class="pre">client_email</span></code> (Viewer for read, Editor for write).
+Pass the resulting drive to <code class="docutils literal notranslate"><span class="pre">GDReader</span></code>/<code class="docutils literal notranslate"><span class="pre">GDStore</span></code> via their <code class="docutils literal notranslate"><span class="pre">drive=</span></code> argument.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key_file</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></span>) – path to the service-account JSON key.</p></li>
+<li><p><strong>scopes</strong> – OAuth scopes; default is full Drive (use <code class="docutils literal notranslate"><span class="pre">.../auth/drive.readonly</span></code>
+to enforce read-only at the token level).</p></li>
+<li><p><strong>subject</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>]</span>) – optional user email to impersonate (domain-wide delegation).</p></li>
+</ul>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="gp">&gt;&gt;&gt; </span><span class="n">drive</span> <span class="o">=</span> <span class="n">drive_from_service_account</span><span class="p">(</span><span class="s1">'sa-key.json'</span><span class="p">)</span>
+</span><span id="line-2"><span class="gp">&gt;&gt;&gt; </span><span class="n">reader</span> <span class="o">=</span> <span class="n">GDReader</span><span class="p">(</span><span class="n">folder_url</span><span class="p">,</span> <span class="n">drive</span><span class="o">=</span><span class="n">drive</span><span class="p">)</span>
+</span></code></pre></div>
+</div>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="pydrivedol.base.get_bytes">
+<span class="sig-prename descclassname"><span class="pre">pydrivedol.base.</span></span><span class="sig-name descname"><span class="pre">get_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_html</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydrivedol/base.html#get_bytes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.base.get_bytes" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.base.get_bytes'">¶</a></dt>
+<dd><p>Download bytes from a Google Drive URL.</p>
+<p>Without <code class="docutils literal notranslate"><span class="pre">drive</span></code> this uses Google’s public download endpoint – no API setup, but it only
+reaches files shared “anyone with the link”, and it raises <a class="reference internal" href="#pydrivedol.base.NotPubliclyShared" title="pydrivedol.base.NotPubliclyShared"><code class="xref py py-class docutils literal notranslate"><span class="pre">NotPubliclyShared</span></code></a> if
+Drive answers with its sign-in page instead of the file. Pass an authenticated <code class="docutils literal notranslate"><span class="pre">drive</span></code>
+(see <a class="reference internal" href="#pydrivedol.base.drive_from_service_account" title="pydrivedol.base.drive_from_service_account"><code class="xref py py-func docutils literal notranslate"><span class="pre">drive_from_service_account()</span></code></a>) to reach <strong>private</strong> files shared with that
+identity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>url</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></span>) – Google Drive file link (a bare file id is accepted too).</p></li>
+<li><p><strong>local_path</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>]</span>) – False (return bytes), True (save to temp), or str (save to path)</p></li>
+<li><p><strong>use_cache</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>]</span>) – False (no cache), True (use ~/.cache/pydrivedol/cached/), or str (use dir)</p></li>
+<li><p><strong>drive</strong> – an authenticated PyDrive2 <code class="docutils literal notranslate"><span class="pre">GoogleDrive</span></code>. When given, the download goes through
+the API; <code class="docutils literal notranslate"><span class="pre">None</span></code> (default) keeps the public, unauthenticated behaviour exactly.</p></li>
+<li><p><strong>allow_html</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></span>) – by default an HTML payload from the <em>public</em> endpoint raises, because it is
+Google’s login page masquerading as file content. Set True only when the file you
+are downloading genuinely is HTML. Ignored on the authenticated path.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bytes if local_path is False or str, filepath str if local_path is True</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pydrivedol.base.NotPubliclyShared" title="pydrivedol.base.NotPubliclyShared"><strong>NotPubliclyShared</strong></a> – the public endpoint returned a sign-in page; pass <code class="docutils literal notranslate"><span class="pre">drive=</span></code>.</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="gp">&gt;&gt;&gt; </span><span class="n">content</span> <span class="o">=</span> <span class="n">get_bytes</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+</span><span id="line-2"><span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="n">get_bytes</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">local_path</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="line-3"><span class="gp">&gt;&gt;&gt; </span><span class="n">content</span> <span class="o">=</span> <span class="n">get_bytes</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">local_path</span><span class="o">=</span><span class="s1">'/tmp/file.txt'</span><span class="p">)</span>
+</span></code></pre></div>
+</div>
+<p>A private file, shared with a service account:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="gp">&gt;&gt;&gt; </span><span class="n">drive</span> <span class="o">=</span> <span class="n">drive_from_service_account</span><span class="p">(</span><span class="s1">'service-account-key.json'</span><span class="p">)</span>
+</span><span id="line-2"><span class="gp">&gt;&gt;&gt; </span><span class="n">content</span> <span class="o">=</span> <span class="n">get_bytes</span><span class="p">(</span><span class="n">private_url</span><span class="p">,</span> <span class="n">drive</span><span class="o">=</span><span class="n">drive</span><span class="p">)</span>
+</span></code></pre></div>
+</div>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="pydrivedol.base.get_metadata">
+<span class="sig-prename descclassname"><span class="pre">pydrivedol.base.</span></span><span class="sig-name descname"><span class="pre">get_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url_or_id</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">drive</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('id',</span> <span class="pre">'title',</span> <span class="pre">'mimeType',</span> <span class="pre">'fileSize',</span> <span class="pre">'modifiedDate',</span> <span class="pre">'alternateLink')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydrivedol/base.html#get_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.base.get_metadata" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.base.get_metadata'">¶</a></dt>
+<dd><p>Fetch a Drive file’s metadata <strong>without downloading its content</strong>.</p>
+<p>The cheap half of <a class="reference internal" href="#pydrivedol.base.get_bytes" title="pydrivedol.base.get_bytes"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_bytes()</span></code></a>: use it to decide <em>whether</em> to download – an 18MB
+spreadsheet is not something you fetch just to learn its name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>url_or_id</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></span>) – a Drive file URL or a bare file id.</p></li>
+<li><p><strong>drive</strong> – an authenticated PyDrive2 <code class="docutils literal notranslate"><span class="pre">GoogleDrive</span></code> (see
+<a class="reference internal" href="#pydrivedol.base.drive_from_service_account" title="pydrivedol.base.drive_from_service_account"><code class="xref py py-func docutils literal notranslate"><span class="pre">drive_from_service_account()</span></code></a>).</p></li>
+<li><p><strong>fields</strong> – which metadata fields to request; <code class="docutils literal notranslate"><span class="pre">None</span></code> fetches everything Drive offers.
+The default, <a class="reference internal" href="#pydrivedol.base.DEFAULT_METADATA_FIELDS" title="pydrivedol.base.DEFAULT_METADATA_FIELDS"><code class="xref py py-data docutils literal notranslate"><span class="pre">DEFAULT_METADATA_FIELDS</span></code></a>, covers name (<code class="docutils literal notranslate"><span class="pre">title</span></code>), <code class="docutils literal notranslate"><span class="pre">fileSize</span></code>,
+<code class="docutils literal notranslate"><span class="pre">mimeType</span></code> and <code class="docutils literal notranslate"><span class="pre">modifiedDate</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A plain <code class="docutils literal notranslate"><span class="pre">dict</span></code> of the requested fields that the file actually has. <code class="docutils literal notranslate"><span class="pre">fileSize</span></code> is
+returned as an <code class="docutils literal notranslate"><span class="pre">int</span></code> (Drive sends it as a string), and is <strong>absent</strong> for
+Google-native files – Sheets/Docs/Slides have no stored byte size.</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="gp">&gt;&gt;&gt; </span><span class="n">drive</span> <span class="o">=</span> <span class="n">drive_from_service_account</span><span class="p">(</span><span class="s1">'service-account-key.json'</span><span class="p">)</span>
+</span><span id="line-2"><span class="gp">&gt;&gt;&gt; </span><span class="n">info</span> <span class="o">=</span> <span class="n">get_metadata</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">drive</span><span class="o">=</span><span class="n">drive</span><span class="p">)</span>
+</span><span id="line-3"><span class="gp">&gt;&gt;&gt; </span><span class="n">info</span><span class="p">[</span><span class="s1">'title'</span><span class="p">],</span> <span class="n">info</span><span class="p">[</span><span class="s1">'fileSize'</span><span class="p">]</span>
+</span><span id="line-4"><span class="go">('client_export.xlsx', 18512345)</span>
+</span></code></pre></div>
+</div>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="pydrivedol.base.xlsx_to_google_sheet">
+<span class="sig-prename descclassname"><span class="pre">pydrivedol.base.</span></span><span class="sig-name descname"><span class="pre">xlsx_to_google_sheet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlsx</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">share_with</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anyone_reader</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">credentials_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'client_secrets.json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'settings.yaml'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydrivedol/base.html#xlsx_to_google_sheet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.base.xlsx_to_google_sheet" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.base.xlsx_to_google_sheet'">¶</a></dt>
+<dd><p>Upload an <code class="docutils literal notranslate"><span class="pre">.xlsx</span></code> as a <strong>native Google Sheet</strong> and return its shareable URL.</p>
+<p>The whole point: Drive can <em>convert</em> an uploaded spreadsheet into an editable Google Sheet
+(preserving cell formatting), rather than parking an <code class="docutils literal notranslate"><span class="pre">.xlsx</span></code> blob. This wraps that.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>folder_url</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>]</span>) – destination Drive folder URL (<code class="docutils literal notranslate"><span class="pre">None</span></code> → the account’s root).</p></li>
+<li><p><strong>title</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></span>) – the Google Sheet’s name.</p></li>
+<li><p><strong>xlsx</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>, <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>]</span>) – a path (<code class="docutils literal notranslate"><span class="pre">str</span></code>/<code class="docutils literal notranslate"><span class="pre">Path</span></code>) or raw <code class="docutils literal notranslate"><span class="pre">bytes</span></code>.</p></li>
+<li><p><strong>share_with</strong> – emails to grant <code class="docutils literal notranslate"><span class="pre">writer</span></code> access (no notification email sent).</p></li>
+<li><p><strong>anyone_reader</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></span>) – also grant anyone-with-link <code class="docutils literal notranslate"><span class="pre">reader</span></code> access.</p></li>
+<li><p><strong>settings_file</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></span>) – PyDrive2 auth (ignored if <code class="docutils literal notranslate"><span class="pre">drive</span></code> is given).</p></li>
+<li><p><strong>drive</strong> – an existing PyDrive2 <code class="docutils literal notranslate"><span class="pre">GoogleDrive</span></code> (skips auth).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" rel="nofollow noopener" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The Google Sheet URL (<code class="docutils literal notranslate"><span class="pre">alternateLink</span></code>).</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="gp">&gt;&gt;&gt; </span><span class="n">url</span> <span class="o">=</span> <span class="n">xlsx_to_google_sheet</span><span class="p">(</span><span class="n">folder_url</span><span class="p">,</span> <span class="s1">'My Schema'</span><span class="p">,</span> <span class="s1">'/tmp/schema.xlsx'</span><span class="p">,</span>
+</span><span id="line-2"><span class="gp">... </span>                           <span class="n">anyone_reader</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></code></pre></div>
+</div>
+</dd></dl>
+</section>
+</div></div><aside class="hidden text-sm xl:block" id="right-sidebar">
+<div class="sticky top-16 -mt-10 max-h-[calc(100vh-5rem)] h-full overflow-y-auto pt-6 space-y-2"><p class="font-medium">On this page</p>
+<ul>
+<li><a :data-current="activeSection === '#pydrivedol.base.DEFAULT_METADATA_FIELDS'" class="reference internal" href="#pydrivedol.base.DEFAULT_METADATA_FIELDS"><code class="docutils literal notranslate"><span class="pre">DEFAULT_METADATA_FIELDS</span></code></a></li>
+<li><a :data-current="activeSection === '#pydrivedol.base.GDFiles'" class="reference internal" href="#pydrivedol.base.GDFiles"><code class="docutils literal notranslate"><span class="pre">GDFiles</span></code></a><ul>
+<li><a :data-current="activeSection === '#pydrivedol.base.GDFiles.metadata'" class="reference internal" href="#pydrivedol.base.GDFiles.metadata"><code class="docutils literal notranslate"><span class="pre">GDFiles.metadata()</span></code></a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#pydrivedol.base.GDReader'" class="reference internal" href="#pydrivedol.base.GDReader"><code class="docutils literal notranslate"><span class="pre">GDReader</span></code></a><ul>
+<li><a :data-current="activeSection === '#pydrivedol.base.GDReader.get_url'" class="reference internal" href="#pydrivedol.base.GDReader.get_url"><code class="docutils literal notranslate"><span class="pre">GDReader.get_url()</span></code></a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#pydrivedol.base.GDStore'" class="reference internal" href="#pydrivedol.base.GDStore"><code class="docutils literal notranslate"><span class="pre">GDStore</span></code></a><ul>
+<li><a :data-current="activeSection === '#pydrivedol.base.GDStore.upload'" class="reference internal" href="#pydrivedol.base.GDStore.upload"><code class="docutils literal notranslate"><span class="pre">GDStore.upload()</span></code></a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#pydrivedol.base.NotPubliclyShared'" class="reference internal" href="#pydrivedol.base.NotPubliclyShared"><code class="docutils literal notranslate"><span class="pre">NotPubliclyShared</span></code></a></li>
+<li><a :data-current="activeSection === '#pydrivedol.base.drive_from_service_account'" class="reference internal" href="#pydrivedol.base.drive_from_service_account"><code class="docutils literal notranslate"><span class="pre">drive_from_service_account()</span></code></a></li>
+<li><a :data-current="activeSection === '#pydrivedol.base.get_bytes'" class="reference internal" href="#pydrivedol.base.get_bytes"><code class="docutils literal notranslate"><span class="pre">get_bytes()</span></code></a></li>
+<li><a :data-current="activeSection === '#pydrivedol.base.get_metadata'" class="reference internal" href="#pydrivedol.base.get_metadata"><code class="docutils literal notranslate"><span class="pre">get_metadata()</span></code></a></li>
+<li><a :data-current="activeSection === '#pydrivedol.base.xlsx_to_google_sheet'" class="reference internal" href="#pydrivedol.base.xlsx_to_google_sheet"><code class="docutils literal notranslate"><span class="pre">xlsx_to_google_sheet()</span></code></a></li>
+</ul>
+</div>
+</aside>
+</main>
+</div>
+</div><footer class="py-6 border-t border-border md:py-0">
+<div class="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
+<div class="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
+<p class="text-sm leading-loose text-center text-muted-foreground md:text-left"></p>
+</div>
+</div>
+</footer>
+</div>
+<script src="../_static/documentation_options.js?v=bbaf98b3"></script>
+<script src="../_static/doctools.js?v=fd6eb6e6"></script>
+<script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+<script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+<script src="../_static/copybutton.js?v=fd10adb8"></script>
+<script defer="defer" src="../_static/theme.js?v=5db23cf8"></script>
+</body>
+</html>

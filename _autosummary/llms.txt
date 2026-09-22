@@ -1,0 +1,13 @@
+# pydrivedol
+
+> pydrive (googledrive) with a simple (dict-like or list-like) interface
+
+
+## Pages in this subsection
+
+- [pydrivedol](pydrivedol.html.md): Google Drive Data Object Layer
+- [pydrivedol.base](pydrivedol.base.html.md): Base objects for pydrivedol: download functions, GDFiles, GDReader, GDStore.
+
+## Optional
+
+- [Top-level llms.txt](../llms.txt): Complete documentation index.

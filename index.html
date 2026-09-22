@@ -1,149 +1,748 @@
-
-
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="./">
+
+<html :class="{ 'dark' : darkMode === true }" data-content_root="./" lang="en" x-data="{ darkMode: $persist(window.matchMedia('(prefers-color-scheme: dark)').matches), activeSection: ''}">
 <head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<script>
+    (function () {
+      // Set initial color scheme
+      if ((localStorage.getItem("_x_darkMode") === "true") || (window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+        document.documentElement.classList.add("dark");
+      }
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to pydrivedol’s documentation! &mdash; pydrivedol 0.0.6 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
-      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
-
-  
-      <script src="_static/jquery.js?v=5d32c60e"></script>
-      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=1fd71caa"></script>
-      <script src="_static/doctools.js?v=fd6eb6e6"></script>
-      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
-      <script src="_static/toggleprompt.js?v=d7ede5d2"></script>
-      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
-      <script src="_static/copybutton.js?v=f281be69"></script>
-    <script src="_static/js/theme.js"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="pydrivedol" href="module_docs/pydrivedol.html" /> 
+      // Watch for media preference changes
+      window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (event) => {
+        localStorage.setItem("_x_darkMode", event.matches);
+        document.documentElement.classList.toggle("dark", event.matches);
+      });
+    })();
+  </script>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta charset="utf-8"/>
+<meta content="#ffffff" media="(prefers-color-scheme: light)" name="theme-color"/>
+<meta content="#030711" media="(prefers-color-scheme: dark)" name="theme-color"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<link href="index.html.md" rel="alternate" type="text/markdown"/>
+<link href="llms.txt" rel="describedby" type="text/markdown"/>
+<link href="index.html.md" rel="alternate" type="text/markdown"/>
+<link href="llms.txt" rel="describedby"/>
+<title>pydrivedol</title>
+<meta content="pydrivedol" property="og:title"/>
+<meta content="pydrivedol" name="twitter:title"/>
+<link href="_static/pygments.css?v=d75fae25" rel="stylesheet" type="text/css"/>
+<link href="_static/theme.css?v=d6d7c91b" rel="stylesheet" type="text/css"/>
+<link href="_static/copybutton.css?v=76b2166b" rel="stylesheet" type="text/css"/>
+<link href="_static/epythet.css?v=518c29d0" rel="stylesheet" type="text/css"/>
+<link href="search.html" rel="search" title="Search"/>
+<link href="genindex.html" rel="index" title="Index"/>
+<link href="api.html" rel="next" title="API reference"/>
 </head>
-
-<body class="wy-body-for-nav"> 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
-
-          
-          
-          <a href="#" class="icon icon-home">
-            pydrivedol
-          </a>
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
+<body :class="{ 'overflow-hidden': showSidebar }" class="min-h-screen font-sans antialiased bg-background text-foreground" x-data="{ showSidebar: false, showScrollTop: false }">
+<div @click.self="showSidebar = false" class="fixed inset-0 z-50 overflow-hidden bg-background/80 backdrop-blur-sm md:hidden" x-cloak="" x-show="showSidebar"></div><div class="relative flex flex-col min-h-screen" id="page"><a class="absolute top-0 left-0 z-[100] block bg-background p-4 text-xl transition -translate-x-full opacity-0 focus:translate-x-0 focus:opacity-100" href="#content">
+      Skip to content
+    </a><header class="sticky top-0 z-40 w-full border-b shadow-xs border-border bg-background/90 backdrop-blur"><div class="container flex items-center h-14">
+<div class="hidden mr-4 md:flex">
+<a class="flex items-center mr-6" href="#"><span class="hidden font-bold sm:inline-block text-clip whitespace-nowrap">pydrivedol</span>
+</a><nav class="flex items-center gap-6 text-sm font-medium">
+<a class="transition-colors hover:text-foreground/80 text-foreground/60" href="https://github.com/i2mint/pydrivedol" rel="noopener nofollow">GitHub</a>
+</nav></div><button @click="showSidebar = true" class="inline-flex items-center justify-center h-10 px-0 py-2 mr-2 text-base font-medium transition-colors rounded-md hover:text-accent-foreground hover:bg-transparent md:hidden" type="button">
+<svg aria-hidden="true" fill="currentColor" height="24" viewbox="0 96 960 960" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M152.587 825.087q-19.152 0-32.326-13.174t-13.174-32.326q0-19.152 13.174-32.326t32.326-13.174h440q19.152 0 32.326 13.174t13.174 32.326q0 19.152-13.174 32.326t-32.326 13.174h-440Zm0-203.587q-19.152 0-32.326-13.174T107.087 576q0-19.152 13.174-32.326t32.326-13.174h320q19.152 0 32.326 13.174T518.087 576q0 19.152-13.174 32.326T472.587 621.5h-320Zm0-203.587q-19.152 0-32.326-13.174t-13.174-32.326q0-19.152 13.174-32.326t32.326-13.174h440q19.152 0 32.326 13.174t13.174 32.326q0 19.152-13.174 32.326t-32.326 13.174h-440ZM708.913 576l112.174 112.174q12.674 12.674 12.674 31.826t-12.674 31.826Q808.413 764.5 789.261 764.5t-31.826-12.674l-144-144Q600 594.391 600 576t13.435-31.826l144-144q12.674-12.674 31.826-12.674t31.826 12.674q12.674 12.674 12.674 31.826t-12.674 31.826L708.913 576Z"></path>
+</svg>
+<span class="sr-only">Toggle navigation menu</span>
+</button>
+<div class="flex items-center justify-between flex-1 gap-2 sm:gap-4 md:justify-end">
+<div class="flex-1 w-full md:w-auto md:flex-none"><form @keydown.k.window.meta="$refs.search.focus()" action="search.html" class="relative flex items-center group" id="searchbox" method="get">
+<input aria-label="Search the docs" class="inline-flex items-center font-medium transition-colors bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background border border-input hover:bg-accent focus:bg-accent hover:text-accent-foreground focus:text-accent-foreground hover:placeholder-accent-foreground py-2 px-4 relative h-9 w-full justify-start rounded-[0.5rem] text-sm text-muted-foreground sm:pr-12 md:w-40 lg:w-64" id="search-input" name="q" placeholder="Search ..." type="search" x-ref="search"/>
+<kbd class="pointer-events-none absolute right-1.5 top-2 hidden h-5 select-none text-muted-foreground items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex group-hover:bg-accent group-hover:text-accent-foreground">
+<span class="text-xs">⌘</span>
+    K
+  </kbd>
+</form>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/pydrivedol.html">pydrivedol</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/pydrivedol/base.html">pydrivedol.base</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/pydrivedol/tests.html">pydrivedol.tests</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/pydrivedol/tests/test_authenticated_access.html">pydrivedol.tests.test_authenticated_access</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/pydrivedol/tests/test_base.html">pydrivedol.tests.test_base</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/pydrivedol/tests/test_service_account.html">pydrivedol.tests.test_service_account</a></li>
-</ul>
-
-        </div>
-      </div>
-    </nav>
-
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">pydrivedol</a>
-      </nav>
-
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
-  <ul class="wy-breadcrumbs">
-      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Welcome to pydrivedol’s documentation!</li>
-      <li class="wy-breadcrumbs-aside">
-            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
-      </li>
-  </ul>
-  <hr/>
+<nav class="flex items-center gap-1">
+<button @click="darkMode = !darkMode" class="relative inline-flex items-center justify-center px-0 text-sm font-medium transition-colors rounded-md hover:bg-accent hover:text-accent-foreground h-9 w-9" title="Toggle color scheme" type="button">
+<svg class="absolute transition-all scale-100 rotate-0 dark:-rotate-90 dark:scale-0" fill="currentColor" height="16" viewbox="0 96 960 960" width="16" xmlns="http://www.w3.org/2000/svg">
+<path d="M480 685q45.456 0 77.228-31.772Q589 621.456 589 576q0-45.456-31.772-77.228Q525.456 467 480 467q-45.456 0-77.228 31.772Q371 530.544 371 576q0 45.456 31.772 77.228Q434.544 685 480 685Zm0 91q-83 0-141.5-58.5T280 576q0-83 58.5-141.5T480 376q83 0 141.5 58.5T680 576q0 83-58.5 141.5T480 776ZM80 621.5q-19.152 0-32.326-13.174T34.5 576q0-19.152 13.174-32.326T80 530.5h80q19.152 0 32.326 13.174T205.5 576q0 19.152-13.174 32.326T160 621.5H80Zm720 0q-19.152 0-32.326-13.174T754.5 576q0-19.152 13.174-32.326T800 530.5h80q19.152 0 32.326 13.174T925.5 576q0 19.152-13.174 32.326T880 621.5h-80Zm-320-320q-19.152 0-32.326-13.174T434.5 256v-80q0-19.152 13.174-32.326T480 130.5q19.152 0 32.326 13.174T525.5 176v80q0 19.152-13.174 32.326T480 301.5Zm0 720q-19.152 0-32.326-13.17Q434.5 995.152 434.5 976v-80q0-19.152 13.174-32.326T480 850.5q19.152 0 32.326 13.174T525.5 896v80q0 19.152-13.174 32.33-13.174 13.17-32.326 13.17ZM222.174 382.065l-43-42Q165.5 327.391 166 308.239t13.174-33.065q13.435-13.674 32.587-13.674t32.065 13.674l42.239 43q12.674 13.435 12.555 31.706-.12 18.272-12.555 31.946-12.674 13.674-31.445 13.413-18.772-.261-32.446-13.174Zm494 494.761-42.239-43q-12.674-13.435-12.674-32.087t12.674-31.565Q686.609 756.5 705.38 757q18.772.5 32.446 13.174l43 41.761Q794.5 824.609 794 843.761t-13.174 33.065Q767.391 890.5 748.239 890.5t-32.065-13.674Zm-42-494.761Q660.5 369.391 661 350.62q.5-18.772 13.174-32.446l41.761-43Q728.609 261.5 747.761 262t33.065 13.174q13.674 13.435 13.674 32.587t-13.674 32.065l-43 42.239q-13.435 12.674-31.706 12.555-18.272-.12-31.946-12.555Zm-495 494.761Q165.5 863.391 165.5 844.239t13.674-32.065l43-42.239q13.435-12.674 32.087-12.674t31.565 12.674Q299.5 782.609 299 801.38q-.5 18.772-13.174 32.446l-41.761 43Q231.391 890.5 212.239 890t-33.065-13.174ZM480 576Z"></path>
+</svg>
+<svg class="absolute transition-all scale-0 rotate-90 dark:rotate-0 dark:scale-100" fill="currentColor" height="16" viewbox="0 96 960 960" width="16" xmlns="http://www.w3.org/2000/svg">
+<path d="M480 936q-151 0-255.5-104.5T120 576q0-138 90-239.5T440 218q25-3 39 18t-1 44q-17 26-25.5 55t-8.5 61q0 90 63 153t153 63q31 0 61.5-9t54.5-25q21-14 43-1.5t19 39.5q-14 138-117.5 229T480 936Zm0-80q88 0 158-48.5T740 681q-20 5-40 8t-40 3q-123 0-209.5-86.5T364 396q0-20 3-40t8-40q-78 32-126.5 102T200 576q0 116 82 198t198 82Zm-10-270Z"></path>
+</svg>
+</button>
+</nav>
 </div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-             
-  <section id="welcome-to-pydrivedol-s-documentation">
-<h1>Welcome to pydrivedol’s documentation!<a class="headerlink" href="#welcome-to-pydrivedol-s-documentation" title="Link to this heading"></a></h1>
-<div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+</div>
+</header>
+<div class="flex-1"><div class="container md:grid md:grid-cols-[220px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10"><aside :aria-hidden="!showSidebar" :class="{ 'translate-x-0': showSidebar }" class="fixed inset-y-0 left-0 md:top-14 z-50 md:z-30 bg-background md:bg-transparent transition-all duration-100 -translate-x-full md:translate-x-0 ml-0 p-6 md:p-0 md:-ml-2 md:h-[calc(100vh-3.5rem)] w-5/6 md:w-full overflow-y-auto border-r border-border md:sticky" id="left-sidebar">
+<a class="justify-start text-sm md:!hidden bg-background" href="#"><span class="font-bold text-clip whitespace-nowrap">pydrivedol</span>
+</a>
+<div class="relative overflow-hidden md:overflow-auto my-4 md:my-0">
+<div class="overflow-y-auto h-full w-full relative pr-6"><nav class="flex md:hidden flex-col font-medium mt-4">
+<a href="https://github.com/i2mint/pydrivedol" rel="nofollow noopener">GitHub</a>
+</nav><nav class="table w-full min-w-full my-6 lg:my-8">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/pydrivedol.html">pydrivedol</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/pydrivedol/base.html">pydrivedol.base</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/pydrivedol/base.html#pydrivedol.base.DEFAULT_METADATA_FIELDS"><code class="docutils literal notranslate"><span class="pre">DEFAULT_METADATA_FIELDS</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/pydrivedol/base.html#pydrivedol.base.GDFiles"><code class="docutils literal notranslate"><span class="pre">GDFiles</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/pydrivedol/base.html#pydrivedol.base.GDReader"><code class="docutils literal notranslate"><span class="pre">GDReader</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/pydrivedol/base.html#pydrivedol.base.GDStore"><code class="docutils literal notranslate"><span class="pre">GDStore</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/pydrivedol/base.html#pydrivedol.base.NotPubliclyShared"><code class="docutils literal notranslate"><span class="pre">NotPubliclyShared</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/pydrivedol/base.html#pydrivedol.base.drive_from_service_account"><code class="docutils literal notranslate"><span class="pre">drive_from_service_account()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/pydrivedol/base.html#pydrivedol.base.get_bytes"><code class="docutils literal notranslate"><span class="pre">get_bytes()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/pydrivedol/base.html#pydrivedol.base.get_metadata"><code class="docutils literal notranslate"><span class="pre">get_metadata()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/pydrivedol/base.html#pydrivedol.base.xlsx_to_google_sheet"><code class="docutils literal notranslate"><span class="pre">xlsx_to_google_sheet()</span></code></a></li>
+<li class="toctree-l1" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="api.html">API reference<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
+<li class="toctree-l2" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="_autosummary/pydrivedol.html">pydrivedol<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/pydrivedol.base.html">pydrivedol.base</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/pydrivedol/tests.html">pydrivedol.tests</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/pydrivedol/tests/test_authenticated_access.html">pydrivedol.tests.test_authenticated_access</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/pydrivedol/tests/test_base.html">pydrivedol.tests.test_base</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/pydrivedol/tests/test_service_account.html">pydrivedol.tests.test_service_account</a></li>
 </ul>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+<button @click="showSidebar = false" class="absolute md:hidden right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100" type="button">
+<svg class="h-4 w-4" fill="currentColor" height="24" stroke="none" viewbox="0 96 960 960" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M480 632 284 828q-11 11-28 11t-28-11q-11-11-11-28t11-28l196-196-196-196q-11-11-11-28t11-28q11-11 28-11t28 11l196 196 196-196q11-11 28-11t28 11q11 11 11 28t-11 28L536 576l196 196q11 11 11 28t-11 28q-11 11-28 11t-28-11L480 632Z"></path>
+</svg>
+</button>
+</aside>
+<main class="relative py-6 lg:gap-10 lg:py-8 xl:grid xl:grid-cols-[1fr_300px]">
+<div class="w-full min-w-0 mx-auto">
+<div id="content" role="main">
+
+<section id="pydrivedol">
+<h1>pydrivedol<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol">¶</a></h1>
+<blockquote>
+<div><p>Google Drive Data Object Layer - Pythonic mapping interfaces to Google Drive</p>
+</div></blockquote>
+<p><a class="reference external" href="https://www.python.org/downloads/" rel="nofollow noopener"><img alt="Python" src="https://img.shields.io/badge/python-3.7+-blue.svg"/><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>
+<a class="reference internal" href="#LICENSE"><span class="xref myst"><img alt="License" src="https://img.shields.io/badge/license-MIT-green.svg"/></span></a></p>
+<p><strong>pydrivedol</strong> provides clean, Pythonic <code class="docutils literal notranslate"><span class="pre">Mapping</span></code> and <code class="docutils literal notranslate"><span class="pre">MutableMapping</span></code> interfaces to Google Drive, following the design patterns of the <a class="reference external" href="https://github.com/i2mint/dol" rel="nofollow noopener"><code class="docutils literal notranslate"><span class="pre">dol</span></code> package<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>. Access Google Drive files and folders as if they were dictionaries!</p>
+<section id="features">
+<h2>Features<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#features" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#features'">¶</a></h2>
+<ul class="simple">
+<li><p>🚀 <strong>Simple public downloads</strong> - No API setup required for public files</p></li>
+<li><p>🔒 <strong>Private files too</strong> - Pass an authenticated <code class="docutils literal notranslate"><span class="pre">drive=</span></code> to reach files shared only with you</p></li>
+<li><p>🗂️ <strong>Files as dict</strong> - <code class="docutils literal notranslate"><span class="pre">GDFiles</span></code> keyed by file id <em>or</em> Drive URL</p></li>
+<li><p>📂 <strong>Folder as dict</strong> - Browse folders with <code class="docutils literal notranslate"><span class="pre">dict</span></code>-like interface</p></li>
+<li><p>💾 <strong>Read/write operations</strong> - Full CRUD support through mapping protocol</p></li>
+<li><p>🔄 <strong>Recursive traversal</strong> - Control depth with <code class="docutils literal notranslate"><span class="pre">max_levels</span></code></p></li>
+<li><p>🎯 <strong>Minimal boilerplate</strong> - Follows <code class="docutils literal notranslate"><span class="pre">dol</span></code> patterns you already know</p></li>
+<li><p>🔐 <strong>OAuth2 handled</strong> - Simple authentication flow</p></li>
+</ul>
+</section>
+<section id="installation">
+<h2>Installation<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#installation" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#installation'">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">pip<span class="w"> </span>install<span class="w"> </span>pydrive2<span class="w"> </span>requests
+</span></code></pre></div>
+</div>
+<p>Then install pydrivedol:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">pip<span class="w"> </span>install<span class="w"> </span>pydrivedol<span class="w">  </span><span class="c1"># When published to PyPI</span>
+</span><span id="line-2"><span class="c1"># OR for development:</span>
+</span><span id="line-3">git<span class="w"> </span>clone<span class="w"> </span>https://github.com/i2mint/pydrivedol.git
+</span><span id="line-4"><span class="nb">cd</span><span class="w"> </span>pydrivedol
+</span><span id="line-5">pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</span></code></pre></div>
 </div>
 </section>
-<section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading"></a></h1>
-<ul class="simple">
-<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
-<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
-<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
-</ul>
-<p>Release: 0.0.6</p>
-<p>Last change: Aug 19, 2026</p>
+<section id="quick-start">
+<h2>Quick Start<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#quick-start" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#quick-start'">¶</a></h2>
+<section id="simple-downloads-no-setup-required">
+<h3>Simple Downloads (No Setup Required!)<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#simple-downloads-no-setup-required" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#simple-downloads-no-setup-required'">¶</a></h3>
+<p>Download from public Google Drive URLs without any API configuration:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="kn">from</span><span class="w"> </span><span class="nn">pydrivedol</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_bytes</span>
+</span><span id="line-2">
+</span><span id="line-3"><span class="c1"># Download public file</span>
+</span><span id="line-4"><span class="n">url</span> <span class="o">=</span> <span class="s2">"https://drive.google.com/file/d/YOUR_FILE_ID/view"</span>
+</span><span id="line-5"><span class="n">content</span> <span class="o">=</span> <span class="n">get_bytes</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+</span><span id="line-6">
+</span><span id="line-7"><span class="c1"># Save to temp file</span>
+</span><span id="line-8"><span class="n">temp_path</span> <span class="o">=</span> <span class="n">get_bytes</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">local_path</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="line-9">
+</span><span id="line-10"><span class="c1"># Save to specific path</span>
+</span><span id="line-11"><span class="n">get_bytes</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">local_path</span><span class="o">=</span><span class="s2">"/path/to/save.pdf"</span><span class="p">)</span>
+</span><span id="line-12">
+</span><span id="line-13"><span class="c1"># With caching</span>
+</span><span id="line-14"><span class="n">get_bytes</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">use_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Uses ~/.cache/pydrivedol/cached/</span>
+</span></code></pre></div>
+</div>
+<p>If the file is <strong>not</strong> publicly shared, Google answers with its HTML sign-in page — under
+HTTP 200, so it looks like a successful download. pydrivedol refuses to hand that back as
+file content and raises <code class="docutils literal notranslate"><span class="pre">NotPubliclyShared</span></code> instead, telling you to authenticate:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="kn">from</span><span class="w"> </span><span class="nn">pydrivedol</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_bytes</span><span class="p">,</span> <span class="n">NotPubliclyShared</span>
+</span><span id="line-2">
+</span><span id="line-3"><span class="k">try</span><span class="p">:</span>
+</span><span id="line-4">    <span class="n">content</span> <span class="o">=</span> <span class="n">get_bytes</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+</span><span id="line-5"><span class="k">except</span> <span class="n">NotPubliclyShared</span><span class="p">:</span>
+</span><span id="line-6">    <span class="n">content</span> <span class="o">=</span> <span class="n">get_bytes</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">drive</span><span class="o">=</span><span class="n">drive</span><span class="p">)</span>  <span class="c1"># see below</span>
+</span></code></pre></div>
+</div>
+<p>(If you really are downloading an HTML file, pass <code class="docutils literal notranslate"><span class="pre">allow_html=True</span></code>.)</p>
 </section>
+<section id="private-files-requires-api-setup">
+<h3>Private Files (Requires API Setup)<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#private-files-requires-api-setup" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#private-files-requires-api-setup'">¶</a></h3>
+<p>Authenticate once, then pass the <code class="docutils literal notranslate"><span class="pre">drive</span></code> wherever bytes are needed:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="kn">from</span><span class="w"> </span><span class="nn">pydrivedol</span><span class="w"> </span><span class="kn">import</span> <span class="n">drive_from_service_account</span><span class="p">,</span> <span class="n">get_bytes</span><span class="p">,</span> <span class="n">get_metadata</span><span class="p">,</span> <span class="n">GDFiles</span>
+</span><span id="line-2">
+</span><span id="line-3"><span class="n">drive</span> <span class="o">=</span> <span class="n">drive_from_service_account</span><span class="p">(</span><span class="s2">"service-account-key.json"</span><span class="p">)</span>
+</span><span id="line-4">
+</span><span id="line-5"><span class="c1"># Is it worth downloading? Metadata is cheap — it fetches no content.</span>
+</span><span id="line-6"><span class="n">info</span> <span class="o">=</span> <span class="n">get_metadata</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">drive</span><span class="o">=</span><span class="n">drive</span><span class="p">)</span>
+</span><span id="line-7"><span class="n">info</span><span class="p">[</span><span class="s2">"title"</span><span class="p">],</span> <span class="n">info</span><span class="p">[</span><span class="s2">"fileSize"</span><span class="p">],</span> <span class="n">info</span><span class="p">[</span><span class="s2">"mimeType"</span><span class="p">],</span> <span class="n">info</span><span class="p">[</span><span class="s2">"modifiedDate"</span><span class="p">]</span>
+</span><span id="line-8"><span class="c1"># ('client_export.xlsx', 18512345, 'application/vnd...sheet', '2026-08-01T12:00:00.000Z')</span>
+</span><span id="line-9">
+</span><span id="line-10"><span class="c1"># Same get_bytes, now authenticated — local_path= and use_cache= work as before</span>
+</span><span id="line-11"><span class="n">content</span> <span class="o">=</span> <span class="n">get_bytes</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">drive</span><span class="o">=</span><span class="n">drive</span><span class="p">)</span>
+</span></code></pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">fileSize</span></code> comes back as an <code class="docutils literal notranslate"><span class="pre">int</span></code> (Drive sends it as a string), and is <strong>absent</strong> for
+Google-native files — Sheets/Docs/Slides have no stored byte size.</p>
+</section>
+<section id="files-as-a-mapping-gdfiles">
+<h3>Files as a Mapping: <code class="docutils literal notranslate"><span class="pre">GDFiles</span></code><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#files-as-a-mapping-gdfiles" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#files-as-a-mapping-gdfiles'">¶</a></h3>
+<p>When files arrive as <em>links</em> rather than as a folder listing, key by the link:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">files</span> <span class="o">=</span> <span class="n">GDFiles</span><span class="p">(</span><span class="n">drive</span><span class="p">)</span>
+</span><span id="line-2">
+</span><span id="line-3"><span class="n">content</span> <span class="o">=</span> <span class="n">files</span><span class="p">[</span><span class="n">url</span><span class="p">]</span>  <span class="c1"># a Drive file URL...</span>
+</span><span id="line-4"><span class="n">content</span> <span class="o">=</span> <span class="n">files</span><span class="p">[</span><span class="n">file_id</span><span class="p">]</span>  <span class="c1"># ...or the bare id: same entry</span>
+</span><span id="line-5"><span class="n">url</span> <span class="ow">in</span> <span class="n">files</span>  <span class="c1"># metadata probe, never a download</span>
+</span><span id="line-6"><span class="n">files</span><span class="o">.</span><span class="n">metadata</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>  <span class="c1"># name / size / mimeType / modifiedDate</span>
+</span><span id="line-7">
+</span><span id="line-8"><span class="c1"># Iteration needs a scope — an unscoped GDFiles addresses the whole Drive</span>
+</span><span id="line-9"><span class="n">scoped</span> <span class="o">=</span> <span class="n">GDFiles</span><span class="p">(</span><span class="n">drive</span><span class="p">,</span> <span class="n">folder_url</span><span class="o">=</span><span class="n">folder_url</span><span class="p">)</span>
+</span><span id="line-10"><span class="nb">list</span><span class="p">(</span><span class="n">scoped</span><span class="p">)</span>  <span class="c1"># file ids</span>
+</span></code></pre></div>
+</div>
+<p>Unscoped, <code class="docutils literal notranslate"><span class="pre">iter()</span></code> and <code class="docutils literal notranslate"><span class="pre">len()</span></code> raise <code class="docutils literal notranslate"><span class="pre">NotImplementedError</span></code> (with a message naming
+<code class="docutils literal notranslate"><span class="pre">folder_url=</span></code>) rather than silently paginating your entire Drive. Lookup works either way.</p>
+</section>
+<section id="working-with-folders-requires-api-setup">
+<h3>Working with Folders (Requires API Setup)<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#working-with-folders-requires-api-setup" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#working-with-folders-requires-api-setup'">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="kn">from</span><span class="w"> </span><span class="nn">pydrivedol</span><span class="w"> </span><span class="kn">import</span> <span class="n">GDReader</span><span class="p">,</span> <span class="n">GDStore</span>
+</span><span id="line-2">
+</span><span id="line-3"><span class="c1"># Read-only access</span>
+</span><span id="line-4"><span class="n">folder_url</span> <span class="o">=</span> <span class="s2">"https://drive.google.com/drive/folders/YOUR_FOLDER_ID"</span>
+</span><span id="line-5"><span class="n">reader</span> <span class="o">=</span> <span class="n">GDReader</span><span class="p">(</span><span class="n">folder_url</span><span class="p">)</span>
+</span><span id="line-6">
+</span><span id="line-7"><span class="c1"># List all files (keys are relative paths with extensions)</span>
+</span><span id="line-8"><span class="k">for</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
+</span><span id="line-9">    <span class="nb">print</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+</span><span id="line-10"><span class="c1"># Output:</span>
+</span><span id="line-11"><span class="c1"># file.txt</span>
+</span><span id="line-12"><span class="c1"># folder/nested.pdf</span>
+</span><span id="line-13"><span class="c1"># data/report.xlsx</span>
+</span><span id="line-14">
+</span><span id="line-15"><span class="c1"># Get file contents (values are bytes)</span>
+</span><span id="line-16"><span class="n">content</span> <span class="o">=</span> <span class="n">reader</span><span class="p">[</span><span class="s2">"file.txt"</span><span class="p">]</span>
+</span><span id="line-17"><span class="n">pdf_bytes</span> <span class="o">=</span> <span class="n">reader</span><span class="p">[</span><span class="s2">"folder/nested.pdf"</span><span class="p">]</span>
+</span><span id="line-18">
+</span><span id="line-19"><span class="c1"># Check if file exists</span>
+</span><span id="line-20"><span class="k">if</span> <span class="s2">"data/report.xlsx"</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
+</span><span id="line-21">    <span class="nb">print</span><span class="p">(</span><span class="s2">"Found report!"</span><span class="p">)</span>
+</span><span id="line-22">
+</span><span id="line-23"><span class="c1"># Get number of files</span>
+</span><span id="line-24"><span class="n">num_files</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">reader</span><span class="p">)</span>
+</span><span id="line-25">
+</span><span id="line-26"><span class="c1"># Get shareable URL</span>
+</span><span id="line-27"><span class="n">url</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">get_url</span><span class="p">(</span><span class="s2">"file.txt"</span><span class="p">)</span>
+</span></code></pre></div>
+</div>
+</section>
+<section id="read-write-operations">
+<h3>Read-Write Operations<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#read-write-operations" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#read-write-operations'">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="kn">from</span><span class="w"> </span><span class="nn">pydrivedol</span><span class="w"> </span><span class="kn">import</span> <span class="n">GDStore</span>
+</span><span id="line-2">
+</span><span id="line-3"><span class="c1"># Read-write access</span>
+</span><span id="line-4"><span class="n">store</span> <span class="o">=</span> <span class="n">GDStore</span><span class="p">(</span><span class="n">folder_url</span><span class="p">)</span>
+</span><span id="line-5">
+</span><span id="line-6"><span class="c1"># Write a file</span>
+</span><span id="line-7"><span class="n">store</span><span class="p">[</span><span class="s2">"newfile.txt"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">"Hello, World!"</span>
+</span><span id="line-8">
+</span><span id="line-9"><span class="c1"># Write to nested folder (creates folders automatically)</span>
+</span><span id="line-10"><span class="n">store</span><span class="p">[</span><span class="s2">"reports/2024/summary.txt"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">"Q1 results..."</span>
+</span><span id="line-11">
+</span><span id="line-12"><span class="c1"># Update existing file</span>
+</span><span id="line-13"><span class="n">store</span><span class="p">[</span><span class="s2">"newfile.txt"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">"Updated content"</span>
+</span><span id="line-14">
+</span><span id="line-15"><span class="c1"># Delete file</span>
+</span><span id="line-16"><span class="k">del</span> <span class="n">store</span><span class="p">[</span><span class="s2">"newfile.txt"</span><span class="p">]</span>
+</span><span id="line-17">
+</span><span id="line-18"><span class="c1"># Full CRUD operations</span>
+</span><span id="line-19"><span class="n">store</span><span class="p">[</span><span class="s2">"data.json"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">'{"key": "value"}'</span>
+</span><span id="line-20"><span class="n">data</span> <span class="o">=</span> <span class="n">store</span><span class="p">[</span><span class="s2">"data.json"</span><span class="p">]</span>  <span class="c1"># Read</span>
+</span><span id="line-21"><span class="n">store</span><span class="p">[</span><span class="s2">"data.json"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">'{"key": "new"}'</span>  <span class="c1"># Update</span>
+</span><span id="line-22"><span class="k">del</span> <span class="n">store</span><span class="p">[</span><span class="s2">"data.json"</span><span class="p">]</span>  <span class="c1"># Delete</span>
+</span></code></pre></div>
+</div>
+</section>
+</section>
+<section id="api-setup-for-gdreader-gdstore">
+<h2>API Setup (for GDReader/GDStore)<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#api-setup-for-gdreader-gdstore" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#api-setup-for-gdreader-gdstore'">¶</a></h2>
+<section id="create-google-cloud-project">
+<h3>1. Create Google Cloud Project<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#create-google-cloud-project" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#create-google-cloud-project'">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Go to <a class="reference external" href="https://console.cloud.google.com/" rel="nofollow noopener">Google Cloud Console<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></p></li>
+<li><p>Create a new project</p></li>
+<li><p>Enable <strong>Google Drive API</strong>:</p>
+<ul class="simple">
+<li><p>Navigate to “APIs &amp; Services” → “Library”</p></li>
+<li><p>Search for “Google Drive API”</p></li>
+<li><p>Click “Enable”</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="create-oauth2-credentials">
+<h3>2. Create OAuth2 Credentials<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#create-oauth2-credentials" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#create-oauth2-credentials'">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Go to “APIs &amp; Services” → “Credentials”</p></li>
+<li><p>Click “Create Credentials” → “OAuth client ID”</p></li>
+<li><p>Choose “Desktop app” as application type</p></li>
+<li><p>Download the JSON file</p></li>
+<li><p>Rename it to <code class="docutils literal notranslate"><span class="pre">client_secrets.json</span></code></p></li>
+<li><p>Place it in your working directory</p></li>
+</ol>
+</section>
+<section id="first-time-authentication">
+<h3>3. First-Time Authentication<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#first-time-authentication" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#first-time-authentication'">¶</a></h3>
+<p>On first use, a browser window will open for authentication:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="kn">from</span><span class="w"> </span><span class="nn">pydrivedol</span><span class="w"> </span><span class="kn">import</span> <span class="n">GDReader</span>
+</span><span id="line-2">
+</span><span id="line-3"><span class="c1"># This will open browser for authentication</span>
+</span><span id="line-4"><span class="n">reader</span> <span class="o">=</span> <span class="n">GDReader</span><span class="p">(</span><span class="n">folder_url</span><span class="p">)</span>
+</span></code></pre></div>
+</div>
+<ol class="arabic simple">
+<li><p>Sign in with your Google account</p></li>
+<li><p>Grant permissions</p></li>
+<li><p>Credentials are saved for future use</p></li>
+</ol>
+<p>That’s it! You only need to authenticate once.</p>
+</section>
+<section id="headless-server-use-a-service-account-instead">
+<h3>Headless / server: use a service account instead<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#headless-server-use-a-service-account-instead" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#headless-server-use-a-service-account-instead'">¶</a></h3>
+<p>The browser flow above is unusable from a script, a server, or an agent. For those, create a
+<strong>service account</strong> — a robot identity with its own key file and no interactive login:</p>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://console.cloud.google.com/" rel="nofollow noopener">Google Cloud Console<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a> → your project →
+“APIs &amp; Services” → “Credentials”</p></li>
+<li><p>“Create Credentials” → <strong>Service account</strong>. Any name; no roles needed.</p></li>
+<li><p>Open the new service account → “Keys” → “Add key” → “Create new key” → <strong>JSON</strong>. The key
+file downloads once and cannot be re-downloaded.</p></li>
+<li><p>Copy the service account’s <strong><code class="docutils literal notranslate"><span class="pre">client_email</span></code></strong> (it looks like
+<code class="docutils literal notranslate"><span class="pre">something@your-project.iam.gserviceaccount.com</span></code>).</p></li>
+<li><p>In Google Drive, <strong>share the file or folder with that <code class="docutils literal notranslate"><span class="pre">client_email</span></code></strong> — Viewer to read,
+Editor to write. This is the step people forget: the service account is a separate
+identity, and a file shared with <em>you</em> is not shared with <em>it</em>.</p></li>
+<li><p>Point pydrivedol at the key file:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="kn">from</span><span class="w"> </span><span class="nn">pydrivedol</span><span class="w"> </span><span class="kn">import</span> <span class="n">drive_from_service_account</span>
+</span><span id="line-2">
+</span><span id="line-3"><span class="n">drive</span> <span class="o">=</span> <span class="n">drive_from_service_account</span><span class="p">(</span><span class="s2">"service-account-key.json"</span><span class="p">)</span>
+</span></code></pre></div>
+</div>
+<p>Keep the key file out of version control (this repo’s <code class="docutils literal notranslate"><span class="pre">.gitignore</span></code> covers the usual names) and
+out of the repo entirely if you can — read its path from an environment variable.</p>
+<p>Read-only by token, if you want the extra guarantee:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">drive</span> <span class="o">=</span> <span class="n">drive_from_service_account</span><span class="p">(</span>
+</span><span id="line-2">    <span class="n">key_file</span><span class="p">,</span> <span class="n">scopes</span><span class="o">=</span><span class="p">(</span><span class="s2">"https://www.googleapis.com/auth/drive.readonly"</span><span class="p">,)</span>
+</span><span id="line-3"><span class="p">)</span>
+</span></code></pre></div>
+</div>
+</section>
+</section>
+<section id="advanced-usage">
+<h2>Advanced Usage<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#advanced-usage" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#advanced-usage'">¶</a></h2>
+<section id="control-recursion-depth">
+<h3>Control Recursion Depth<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#control-recursion-depth" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#control-recursion-depth'">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="kn">from</span><span class="w"> </span><span class="nn">pydrivedol</span><span class="w"> </span><span class="kn">import</span> <span class="n">GDReader</span>
+</span><span id="line-2">
+</span><span id="line-3"><span class="c1"># Only files in the root folder</span>
+</span><span id="line-4"><span class="n">reader</span> <span class="o">=</span> <span class="n">GDReader</span><span class="p">(</span><span class="n">folder_url</span><span class="p">,</span> <span class="n">max_levels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="line-5">
+</span><span id="line-6"><span class="c1"># One level deep</span>
+</span><span id="line-7"><span class="n">reader</span> <span class="o">=</span> <span class="n">GDReader</span><span class="p">(</span><span class="n">folder_url</span><span class="p">,</span> <span class="n">max_levels</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="line-8">
+</span><span id="line-9"><span class="c1"># Fully recursive (default)</span>
+</span><span id="line-10"><span class="n">reader</span> <span class="o">=</span> <span class="n">GDReader</span><span class="p">(</span><span class="n">folder_url</span><span class="p">,</span> <span class="n">max_levels</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span></code></pre></div>
+</div>
+</section>
+<section id="include-hidden-files">
+<h3>Include Hidden Files<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#include-hidden-files" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#include-hidden-files'">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">reader</span> <span class="o">=</span> <span class="n">GDReader</span><span class="p">(</span><span class="n">folder_url</span><span class="p">,</span> <span class="n">include_hidden</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></code></pre></div>
+</div>
+</section>
+<section id="custom-credentials-location">
+<h3>Custom Credentials Location<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#custom-credentials-location" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#custom-credentials-location'">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">reader</span> <span class="o">=</span> <span class="n">GDReader</span><span class="p">(</span>
+</span><span id="line-2">    <span class="n">folder_url</span><span class="p">,</span>
+</span><span id="line-3">    <span class="n">credentials_file</span><span class="o">=</span><span class="s2">"/path/to/client_secrets.json"</span><span class="p">,</span>
+</span><span id="line-4">    <span class="n">settings_file</span><span class="o">=</span><span class="s2">"/path/to/settings.yaml"</span><span class="p">,</span>
+</span><span id="line-5"><span class="p">)</span>
+</span></code></pre></div>
+</div>
+</section>
+<section id="generate-shareable-urls">
+<h3>Generate Shareable URLs<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#generate-shareable-urls" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#generate-shareable-urls'">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="c1"># Get public URL for a file</span>
+</span><span id="line-2"><span class="n">url</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">get_url</span><span class="p">(</span><span class="s2">"file.txt"</span><span class="p">)</span>
+</span><span id="line-3">
+</span><span id="line-4"><span class="c1"># With specific permissions</span>
+</span><span id="line-5"><span class="n">url</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">get_url</span><span class="p">(</span>
+</span><span id="line-6">    <span class="s2">"file.txt"</span><span class="p">,</span>
+</span><span id="line-7">    <span class="n">permission_type</span><span class="o">=</span><span class="s2">"anyone"</span><span class="p">,</span>  <span class="c1"># 'anyone', 'user', 'group', 'domain'</span>
+</span><span id="line-8">    <span class="n">permission_role</span><span class="o">=</span><span class="s2">"reader"</span><span class="p">,</span>  <span class="c1"># 'reader', 'writer', 'commenter'</span>
+</span><span id="line-9"><span class="p">)</span>
+</span></code></pre></div>
+</div>
+</section>
+<section id="caching-downloads">
+<h3>Caching Downloads<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#caching-downloads" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#caching-downloads'">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="kn">from</span><span class="w"> </span><span class="nn">pydrivedol</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_bytes</span>
+</span><span id="line-2">
+</span><span id="line-3"><span class="c1"># Use default cache directory (~/.cache/pydrivedol/cached/)</span>
+</span><span id="line-4"><span class="n">content</span> <span class="o">=</span> <span class="n">get_bytes</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">use_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="line-5">
+</span><span id="line-6"><span class="c1"># Use custom cache directory</span>
+</span><span id="line-7"><span class="n">content</span> <span class="o">=</span> <span class="n">get_bytes</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">use_cache</span><span class="o">=</span><span class="s2">"/path/to/cache/"</span><span class="p">)</span>
+</span><span id="line-8">
+</span><span id="line-9"><span class="c1"># Files are cached by ID, subsequent calls are instant</span>
+</span><span id="line-10"><span class="n">content</span> <span class="o">=</span> <span class="n">get_bytes</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">use_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># From cache!</span>
+</span></code></pre></div>
+</div>
+</section>
+</section>
+<section id="examples">
+<h2>Examples<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#examples" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#examples'">¶</a></h2>
+<section id="backup-local-files-to-google-drive">
+<h3>Backup Local Files to Google Drive<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#backup-local-files-to-google-drive" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#backup-local-files-to-google-drive'">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="kn">from</span><span class="w"> </span><span class="nn">pydrivedol</span><span class="w"> </span><span class="kn">import</span> <span class="n">GDStore</span>
+</span><span id="line-2"><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+</span><span id="line-3">
+</span><span id="line-4"><span class="n">store</span> <span class="o">=</span> <span class="n">GDStore</span><span class="p">(</span><span class="n">folder_url</span><span class="p">)</span>
+</span><span id="line-5">
+</span><span id="line-6"><span class="c1"># Backup all .py files</span>
+</span><span id="line-7"><span class="k">for</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"."</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">"**/*.py"</span><span class="p">):</span>
+</span><span id="line-8">    <span class="n">store</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">filepath</span><span class="p">)]</span> <span class="o">=</span> <span class="n">filepath</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">()</span>
+</span></code></pre></div>
+</div>
+</section>
+<section id="download-all-files-from-a-folder">
+<h3>Download All Files from a Folder<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#download-all-files-from-a-folder" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#download-all-files-from-a-folder'">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="kn">from</span><span class="w"> </span><span class="nn">pydrivedol</span><span class="w"> </span><span class="kn">import</span> <span class="n">GDReader</span>
+</span><span id="line-2"><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+</span><span id="line-3">
+</span><span id="line-4"><span class="n">reader</span> <span class="o">=</span> <span class="n">GDReader</span><span class="p">(</span><span class="n">folder_url</span><span class="p">)</span>
+</span><span id="line-5">
+</span><span id="line-6"><span class="k">for</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
+</span><span id="line-7">    <span class="c1"># Preserve folder structure</span>
+</span><span id="line-8">    <span class="n">local_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+</span><span id="line-9">    <span class="n">local_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="line-10">    <span class="n">local_path</span><span class="o">.</span><span class="n">write_bytes</span><span class="p">(</span><span class="n">reader</span><span class="p">[</span><span class="n">filepath</span><span class="p">])</span>
+</span></code></pre></div>
+</div>
+</section>
+<section id="sync-between-two-folders">
+<h3>Sync Between Two Folders<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#sync-between-two-folders" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#sync-between-two-folders'">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="kn">from</span><span class="w"> </span><span class="nn">pydrivedol</span><span class="w"> </span><span class="kn">import</span> <span class="n">GDReader</span><span class="p">,</span> <span class="n">GDStore</span>
+</span><span id="line-2">
+</span><span id="line-3"><span class="n">source</span> <span class="o">=</span> <span class="n">GDReader</span><span class="p">(</span><span class="n">source_folder_url</span><span class="p">)</span>
+</span><span id="line-4"><span class="n">target</span> <span class="o">=</span> <span class="n">GDStore</span><span class="p">(</span><span class="n">target_folder_url</span><span class="p">)</span>
+</span><span id="line-5">
+</span><span id="line-6"><span class="c1"># Copy missing files</span>
+</span><span id="line-7"><span class="k">for</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="n">source</span><span class="p">:</span>
+</span><span id="line-8">    <span class="k">if</span> <span class="n">filepath</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">target</span><span class="p">:</span>
+</span><span id="line-9">        <span class="n">target</span><span class="p">[</span><span class="n">filepath</span><span class="p">]</span> <span class="o">=</span> <span class="n">source</span><span class="p">[</span><span class="n">filepath</span><span class="p">]</span>
+</span><span id="line-10">        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Copied: </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span></code></pre></div>
+</div>
+</section>
+<section id="process-csv-files-in-drive">
+<h3>Process CSV Files in Drive<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#process-csv-files-in-drive" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#process-csv-files-in-drive'">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="kn">from</span><span class="w"> </span><span class="nn">pydrivedol</span><span class="w"> </span><span class="kn">import</span> <span class="n">GDReader</span>
+</span><span id="line-2"><span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
+</span><span id="line-3"><span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringIO</span>
+</span><span id="line-4">
+</span><span id="line-5"><span class="n">reader</span> <span class="o">=</span> <span class="n">GDReader</span><span class="p">(</span><span class="n">folder_url</span><span class="p">)</span>
+</span><span id="line-6">
+</span><span id="line-7"><span class="k">for</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
+</span><span id="line-8">    <span class="k">if</span> <span class="n">filepath</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">".csv"</span><span class="p">):</span>
+</span><span id="line-9">        <span class="n">content</span> <span class="o">=</span> <span class="n">reader</span><span class="p">[</span><span class="n">filepath</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">)</span>
+</span><span id="line-10">        <span class="n">csv_reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">content</span><span class="p">))</span>
+</span><span id="line-11">        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">csv_reader</span><span class="p">:</span>
+</span><span id="line-12">            <span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+</span></code></pre></div>
+</div>
+</section>
+</section>
+<section id="architecture">
+<h2>Architecture<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#architecture" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#architecture'">¶</a></h2>
+<p>pydrivedol follows the <code class="docutils literal notranslate"><span class="pre">dol</span></code> package patterns:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">Helper Functions
+</span><span id="line-2">  └─ get_bytes(url)                    # Simple public downloads (no API)
+</span><span id="line-3">  └─ get_bytes(url, drive=...)         # Authenticated: reaches private files
+</span><span id="line-4">  └─ get_metadata(url, drive=...)      # Name/size/mimeType/date, no download
+</span><span id="line-5">
+</span><span id="line-6">API-Based Classes
+</span><span id="line-7">  └─ GDFiles (Mapping)                 # Files, keyed by file id or file URL
+</span><span id="line-8">  └─ GDReader (Mapping)                # Read-only folder access, keyed by path
+</span><span id="line-9">      └─ GDStore (MutableMapping)      # Read-write folder access
+</span></code></pre></div>
+</div>
+<p><strong>Design Principles:</strong></p>
+<ul class="simple">
+<li><p>Collections as Mappings</p></li>
+<li><p>Minimal boilerplate</p></li>
+<li><p>Familiar dict-like interface</p></li>
+<li><p>Lazy evaluation where possible</p></li>
+<li><p>Clear separation of concerns</p></li>
+</ul>
+</section>
+<section id="comparison-with-other-tools">
+<h2>Comparison with Other Tools<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#comparison-with-other-tools" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#comparison-with-other-tools'">¶</a></h2>
+<section id="vs-pydrive2-directly">
+<h3>vs. PyDrive2 directly<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#vs-pydrive2-directly" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#vs-pydrive2-directly'">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="c1"># PyDrive2</span>
+</span><span id="line-2"><span class="kn">from</span><span class="w"> </span><span class="nn">pydrive2.auth</span><span class="w"> </span><span class="kn">import</span> <span class="n">GoogleAuth</span>
+</span><span id="line-3"><span class="kn">from</span><span class="w"> </span><span class="nn">pydrive2.drive</span><span class="w"> </span><span class="kn">import</span> <span class="n">GoogleDrive</span>
+</span><span id="line-4">
+</span><span id="line-5"><span class="n">gauth</span> <span class="o">=</span> <span class="n">GoogleAuth</span><span class="p">()</span>
+</span><span id="line-6"><span class="n">gauth</span><span class="o">.</span><span class="n">LocalWebserverAuth</span><span class="p">()</span>
+</span><span id="line-7"><span class="n">drive</span> <span class="o">=</span> <span class="n">GoogleDrive</span><span class="p">(</span><span class="n">gauth</span><span class="p">)</span>
+</span><span id="line-8">
+</span><span id="line-9"><span class="n">folder_id</span> <span class="o">=</span> <span class="s2">"YOUR_FOLDER_ID"</span>  <span class="c1"># a Drive id: [A-Za-z0-9_-]; quote any other value</span>
+</span><span id="line-10"><span class="n">file_list</span> <span class="o">=</span> <span class="n">drive</span><span class="o">.</span><span class="n">ListFile</span><span class="p">({</span><span class="s2">"q"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">folder_id</span><span class="si">}</span><span class="s2">' in parents"</span><span class="p">})</span><span class="o">.</span><span class="n">GetList</span><span class="p">()</span>
+</span><span id="line-11"><span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">file_list</span><span class="p">:</span>
+</span><span id="line-12">    <span class="n">content</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">GetContentString</span><span class="p">()</span>
+</span><span id="line-13">
+</span><span id="line-14"><span class="c1"># pydrivedol</span>
+</span><span id="line-15"><span class="kn">from</span><span class="w"> </span><span class="nn">pydrivedol</span><span class="w"> </span><span class="kn">import</span> <span class="n">GDReader</span>
+</span><span id="line-16">
+</span><span id="line-17"><span class="n">reader</span> <span class="o">=</span> <span class="n">GDReader</span><span class="p">(</span><span class="n">folder_url</span><span class="p">)</span>
+</span><span id="line-18"><span class="k">for</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">content</span> <span class="ow">in</span> <span class="n">reader</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+</span><span id="line-19">    <span class="k">pass</span>  <span class="c1"># content is already bytes!</span>
+</span></code></pre></div>
+</div>
+</section>
+<section id="vs-google-api-python-client">
+<h3>vs. google-api-python-client<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#vs-google-api-python-client" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#vs-google-api-python-client'">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="c1"># google-api-python-client</span>
+</span><span id="line-2"><span class="kn">from</span><span class="w"> </span><span class="nn">googleapiclient.discovery</span><span class="w"> </span><span class="kn">import</span> <span class="n">build</span>
+</span><span id="line-3"><span class="kn">from</span><span class="w"> </span><span class="nn">google.oauth2.credentials</span><span class="w"> </span><span class="kn">import</span> <span class="n">Credentials</span>
+</span><span id="line-4">
+</span><span id="line-5"><span class="n">creds</span> <span class="o">=</span> <span class="n">Credentials</span><span class="o">.</span><span class="n">from_authorized_user_file</span><span class="p">(</span><span class="s2">"token.json"</span><span class="p">,</span> <span class="n">SCOPES</span><span class="p">)</span>
+</span><span id="line-6"><span class="n">service</span> <span class="o">=</span> <span class="n">build</span><span class="p">(</span><span class="s2">"drive"</span><span class="p">,</span> <span class="s2">"v3"</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="n">creds</span><span class="p">)</span>
+</span><span id="line-7"><span class="n">results</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">files</span><span class="p">()</span><span class="o">.</span><span class="n">list</span><span class="p">()</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+</span><span id="line-8"><span class="n">items</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"files"</span><span class="p">,</span> <span class="p">[])</span>
+</span><span id="line-9">
+</span><span id="line-10"><span class="c1"># pydrivedol</span>
+</span><span id="line-11"><span class="kn">from</span><span class="w"> </span><span class="nn">pydrivedol</span><span class="w"> </span><span class="kn">import</span> <span class="n">GDReader</span>
+</span><span id="line-12">
+</span><span id="line-13"><span class="n">reader</span> <span class="o">=</span> <span class="n">GDReader</span><span class="p">(</span><span class="n">folder_url</span><span class="p">)</span>
+</span><span id="line-14"><span class="n">items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">reader</span><span class="p">)</span>  <span class="c1"># Just keys!</span>
+</span></code></pre></div>
+</div>
+<p><strong>pydrivedol advantages:</strong></p>
+<ul class="simple">
+<li><p>✅ Dict-like interface</p></li>
+<li><p>✅ Less boilerplate</p></li>
+<li><p>✅ Follows familiar patterns</p></li>
+<li><p>✅ Recursive traversal built-in</p></li>
+<li><p>✅ Public file downloads without API</p></li>
+</ul>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#testing" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#testing'">¶</a></h2>
+<section id="quick-test-no-setup">
+<h3>Quick Test (No Setup)<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#quick-test-no-setup" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#quick-test-no-setup'">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">pytest<span class="w"> </span>test_pydrivedol.py<span class="w"> </span>-v
+</span><span id="line-2"><span class="c1"># Runs helper function tests, skips API tests</span>
+</span></code></pre></div>
+</div>
+</section>
+<section id="full-test-setup">
+<h3>Full Test Setup<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#full-test-setup" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#full-test-setup'">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="c1"># 1. Set environment variables</span>
+</span><span id="line-2"><span class="nb">export</span><span class="w"> </span><span class="nv">PYDRIVEDOL_TEST_FOLDER_URL</span><span class="o">=</span><span class="s2">"https://drive.google.com/drive/folders/YOUR_ID"</span>
+</span><span id="line-3"><span class="nb">export</span><span class="w"> </span><span class="nv">PYDRIVEDOL_TEST_PUBLIC_FILE_URL</span><span class="o">=</span><span class="s2">"https://drive.google.com/file/d/YOUR_ID/view"</span>
+</span><span id="line-4">
+</span><span id="line-5"><span class="c1"># 2. Ensure client_secrets.json is in place</span>
+</span><span id="line-6">
+</span><span id="line-7"><span class="c1"># 3. Run tests</span>
+</span><span id="line-8">pytest<span class="w"> </span>test_pydrivedol.py<span class="w"> </span>-v
+</span></code></pre></div>
+</div>
+<p>See <a class="reference internal" href="#TEST_SETUP.md"><span class="xref myst">TEST_SETUP.md</span></a> for detailed instructions.</p>
+</section>
+</section>
+<section id="faq">
+<h2>FAQ<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#faq" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#faq'">¶</a></h2>
+<p><strong>Q: Do I need a Google Cloud project for <code class="docutils literal notranslate"><span class="pre">get_bytes()</span></code>?</strong><br/>
+A: No! <code class="docutils literal notranslate"><span class="pre">get_bytes()</span></code> works with public URLs without any API setup.</p>
+<p><strong>Q: Can I use this in production?</strong><br/>
+A: Yes, but be aware of <a class="reference external" href="https://developers.google.com/drive/api/guides/limits" rel="nofollow noopener">Google Drive API quotas<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>.</p>
+<p><strong>Q: How do I handle large files?</strong><br/>
+A: Files are loaded into memory as bytes. For very large files, consider streaming or using the PyDrive2 API directly.</p>
+<p><strong>Q: Can I use service accounts?</strong><br/>
+A: Currently pydrivedol uses OAuth2 for user accounts. Service account support is planned.</p>
+<p><strong>Q: What about Google Workspace files (Docs, Sheets)?</strong><br/>
+A: These need to be exported first. Currently pydrivedol focuses on regular files.</p>
+<p><strong>Q: Is this thread-safe?</strong><br/>
+A: File operations are atomic, but concurrent modifications to the same file may conflict.</p>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#troubleshooting" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#troubleshooting'">¶</a></h2>
+<section id="no-module-named-pydrive2">
+<h3>“No module named ‘pydrive2’”<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#no-module-named-pydrive2" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#no-module-named-pydrive2'">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">pip<span class="w"> </span>install<span class="w"> </span>pydrive2
+</span></code></pre></div>
+</div>
+</section>
+<section id="invalid-client-secrets-file">
+<h3>“Invalid client secrets file”<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#invalid-client-secrets-file" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#invalid-client-secrets-file'">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Ensure <code class="docutils literal notranslate"><span class="pre">client_secrets.json</span></code> is in your working directory</p></li>
+<li><p>Verify it’s the correct OAuth2 credentials JSON</p></li>
+<li><p>Try creating new credentials in Google Cloud Console</p></li>
+</ol>
+</section>
+<section id="permission-denied">
+<h3>“Permission denied”<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#permission-denied" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#permission-denied'">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Check that your Google account has access to the folder</p></li>
+<li><p>Verify folder sharing settings</p></li>
+<li><p>Re-authenticate: delete saved credentials and run again</p></li>
+</ol>
+</section>
+<section id="notpubliclyshared-from-get-bytes">
+<h3><code class="docutils literal notranslate"><span class="pre">NotPubliclyShared</span></code> from <code class="docutils literal notranslate"><span class="pre">get_bytes</span></code><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#notpubliclyshared-from-get-bytes" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#notpubliclyshared-from-get-bytes'">¶</a></h3>
+<p>The file is not shared “anyone with the link”, so the unauthenticated endpoint cannot reach
+it. Either make it public, or authenticate and pass <code class="docutils literal notranslate"><span class="pre">drive=</span></code> (see <em>Private Files</em> above). For
+a service account, remember the file/folder must be shared with the account’s <code class="docutils literal notranslate"><span class="pre">client_email</span></code>.</p>
+</section>
+<section id="downloaded-file-won-t-open-badzipfile-on-an-xlsx">
+<h3>Downloaded file won’t open / <code class="docutils literal notranslate"><span class="pre">BadZipFile</span></code> on an xlsx<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#downloaded-file-won-t-open-badzipfile-on-an-xlsx" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#downloaded-file-won-t-open-badzipfile-on-an-xlsx'">¶</a></h3>
+<p>You are almost certainly holding Google’s sign-in page rather than the file. Recent versions
+raise <code class="docutils literal notranslate"><span class="pre">NotPubliclyShared</span></code> for exactly this; if you are pinned to an older one, upgrade.</p>
+</section>
+<section id="tests-are-skipped">
+<h3>Tests are skipped<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#tests-are-skipped" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#tests-are-skipped'">¶</a></h3>
+<p>Check environment variables:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">python<span class="w"> </span>test_pydrivedol.py<span class="w">  </span><span class="c1"># Shows configuration status</span>
+</span></code></pre></div>
+</div>
+</section>
+</section>
+<section id="contributing">
+<h2>Contributing<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#contributing" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#contributing'">¶</a></h2>
+<p>Contributions welcome! Please:</p>
+<ol class="arabic simple">
+<li><p>Fork the repository</p></li>
+<li><p>Create a feature branch</p></li>
+<li><p>Add tests for new functionality</p></li>
+<li><p>Ensure all tests pass</p></li>
+<li><p>Submit a pull request</p></li>
+</ol>
+</section>
+<section id="related-projects">
+<h2>Related Projects<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#related-projects" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#related-projects'">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/i2mint/dol" rel="nofollow noopener">dol<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a> - The underlying data object layer framework</p></li>
+<li><p><a class="reference external" href="https://github.com/i2mint/s3dol" rel="nofollow noopener">s3dol<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a> - Similar interface for AWS S3</p></li>
+<li><p><a class="reference external" href="https://github.com/iterative/PyDrive2" rel="nofollow noopener">PyDrive2<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a> - Google Drive API wrapper (used by pydrivedol)</p></li>
+</ul>
+</section>
+<section id="license">
+<h2>License<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#license" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#license'">¶</a></h2>
+<p>MIT License - see <a class="reference internal" href="#LICENSE"><span class="xref myst">LICENSE</span></a> file for details.</p>
+</section>
+<section id="credits">
+<h2>Credits<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#credits" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#credits'">¶</a></h2>
+<p>Built with ❤️ using:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/iterative/PyDrive2" rel="nofollow noopener">PyDrive2<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a> for Google Drive API</p></li>
+<li><p><a class="reference external" href="https://github.com/i2mint/dol" rel="nofollow noopener">dol<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a> patterns for clean interfaces</p></li>
+<li><p><a class="reference external" href="https://requests.readthedocs.io/" rel="nofollow noopener">requests<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a> for HTTP operations</p></li>
+</ul>
+<hr class="docutils"/>
+<p><strong>Part of the <a class="reference external" href="https://github.com/i2mint" rel="nofollow noopener">i2mint<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a> ecosystem of data access tools.</strong></p>
+<p class="epythet-aggregates">This documentation as a single file: <a href="pydrivedol.md">pydrivedol.md</a> (Markdown, for agents).</p>
 
-
-           </div>
-          </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="module_docs/pydrivedol.html" class="btn btn-neutral float-right" title="pydrivedol" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
-
-  <hr/>
-
-  <div role="contentinfo">
-    <p></p>
-  </div>
-
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
-
+</section>
+</section>
+<p class="epythet-provenance" style="font-size:.8em;opacity:.65;margin-top:2.5em;text-align:right">built 2026-09-22 15:28 UTC from <a href="https://github.com/i2mint/pydrivedol/commit/14764ec279a7ebf51edbf53b2fea4b85f54db1dc">14764ec</a> (master) · pydrivedol 0.0.7 · <a href="about-this-build.html">about this build</a></p>
+</div></div><aside class="hidden text-sm xl:block" id="right-sidebar">
+<div class="sticky top-16 -mt-10 max-h-[calc(100vh-5rem)] h-full overflow-y-auto pt-6 space-y-2"><p class="font-medium">On this page</p>
+<ul>
+<li><a :data-current="activeSection === '#features'" class="reference internal" href="#features">Features</a></li>
+<li><a :data-current="activeSection === '#installation'" class="reference internal" href="#installation">Installation</a></li>
+<li><a :data-current="activeSection === '#quick-start'" class="reference internal" href="#quick-start">Quick Start</a><ul>
+<li><a :data-current="activeSection === '#simple-downloads-no-setup-required'" class="reference internal" href="#simple-downloads-no-setup-required">Simple Downloads (No Setup Required!)</a></li>
+<li><a :data-current="activeSection === '#private-files-requires-api-setup'" class="reference internal" href="#private-files-requires-api-setup">Private Files (Requires API Setup)</a></li>
+<li><a :data-current="activeSection === '#files-as-a-mapping-gdfiles'" class="reference internal" href="#files-as-a-mapping-gdfiles">Files as a Mapping: <code class="docutils literal notranslate"><span class="pre">GDFiles</span></code></a></li>
+<li><a :data-current="activeSection === '#working-with-folders-requires-api-setup'" class="reference internal" href="#working-with-folders-requires-api-setup">Working with Folders (Requires API Setup)</a></li>
+<li><a :data-current="activeSection === '#read-write-operations'" class="reference internal" href="#read-write-operations">Read-Write Operations</a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#api-setup-for-gdreader-gdstore'" class="reference internal" href="#api-setup-for-gdreader-gdstore">API Setup (for GDReader/GDStore)</a><ul>
+<li><a :data-current="activeSection === '#create-google-cloud-project'" class="reference internal" href="#create-google-cloud-project">1. Create Google Cloud Project</a></li>
+<li><a :data-current="activeSection === '#create-oauth2-credentials'" class="reference internal" href="#create-oauth2-credentials">2. Create OAuth2 Credentials</a></li>
+<li><a :data-current="activeSection === '#first-time-authentication'" class="reference internal" href="#first-time-authentication">3. First-Time Authentication</a></li>
+<li><a :data-current="activeSection === '#headless-server-use-a-service-account-instead'" class="reference internal" href="#headless-server-use-a-service-account-instead">Headless / server: use a service account instead</a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#advanced-usage'" class="reference internal" href="#advanced-usage">Advanced Usage</a><ul>
+<li><a :data-current="activeSection === '#control-recursion-depth'" class="reference internal" href="#control-recursion-depth">Control Recursion Depth</a></li>
+<li><a :data-current="activeSection === '#include-hidden-files'" class="reference internal" href="#include-hidden-files">Include Hidden Files</a></li>
+<li><a :data-current="activeSection === '#custom-credentials-location'" class="reference internal" href="#custom-credentials-location">Custom Credentials Location</a></li>
+<li><a :data-current="activeSection === '#generate-shareable-urls'" class="reference internal" href="#generate-shareable-urls">Generate Shareable URLs</a></li>
+<li><a :data-current="activeSection === '#caching-downloads'" class="reference internal" href="#caching-downloads">Caching Downloads</a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#examples'" class="reference internal" href="#examples">Examples</a><ul>
+<li><a :data-current="activeSection === '#backup-local-files-to-google-drive'" class="reference internal" href="#backup-local-files-to-google-drive">Backup Local Files to Google Drive</a></li>
+<li><a :data-current="activeSection === '#download-all-files-from-a-folder'" class="reference internal" href="#download-all-files-from-a-folder">Download All Files from a Folder</a></li>
+<li><a :data-current="activeSection === '#sync-between-two-folders'" class="reference internal" href="#sync-between-two-folders">Sync Between Two Folders</a></li>
+<li><a :data-current="activeSection === '#process-csv-files-in-drive'" class="reference internal" href="#process-csv-files-in-drive">Process CSV Files in Drive</a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#architecture'" class="reference internal" href="#architecture">Architecture</a></li>
+<li><a :data-current="activeSection === '#comparison-with-other-tools'" class="reference internal" href="#comparison-with-other-tools">Comparison with Other Tools</a><ul>
+<li><a :data-current="activeSection === '#vs-pydrive2-directly'" class="reference internal" href="#vs-pydrive2-directly">vs. PyDrive2 directly</a></li>
+<li><a :data-current="activeSection === '#vs-google-api-python-client'" class="reference internal" href="#vs-google-api-python-client">vs. google-api-python-client</a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#testing'" class="reference internal" href="#testing">Testing</a><ul>
+<li><a :data-current="activeSection === '#quick-test-no-setup'" class="reference internal" href="#quick-test-no-setup">Quick Test (No Setup)</a></li>
+<li><a :data-current="activeSection === '#full-test-setup'" class="reference internal" href="#full-test-setup">Full Test Setup</a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#faq'" class="reference internal" href="#faq">FAQ</a></li>
+<li><a :data-current="activeSection === '#troubleshooting'" class="reference internal" href="#troubleshooting">Troubleshooting</a><ul>
+<li><a :data-current="activeSection === '#no-module-named-pydrive2'" class="reference internal" href="#no-module-named-pydrive2">“No module named ‘pydrive2’”</a></li>
+<li><a :data-current="activeSection === '#invalid-client-secrets-file'" class="reference internal" href="#invalid-client-secrets-file">“Invalid client secrets file”</a></li>
+<li><a :data-current="activeSection === '#permission-denied'" class="reference internal" href="#permission-denied">“Permission denied”</a></li>
+<li><a :data-current="activeSection === '#notpubliclyshared-from-get-bytes'" class="reference internal" href="#notpubliclyshared-from-get-bytes"><code class="docutils literal notranslate"><span class="pre">NotPubliclyShared</span></code> from <code class="docutils literal notranslate"><span class="pre">get_bytes</span></code></a></li>
+<li><a :data-current="activeSection === '#downloaded-file-won-t-open-badzipfile-on-an-xlsx'" class="reference internal" href="#downloaded-file-won-t-open-badzipfile-on-an-xlsx">Downloaded file won’t open / <code class="docutils literal notranslate"><span class="pre">BadZipFile</span></code> on an xlsx</a></li>
+<li><a :data-current="activeSection === '#tests-are-skipped'" class="reference internal" href="#tests-are-skipped">Tests are skipped</a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#contributing'" class="reference internal" href="#contributing">Contributing</a></li>
+<li><a :data-current="activeSection === '#related-projects'" class="reference internal" href="#related-projects">Related Projects</a></li>
+<li><a :data-current="activeSection === '#license'" class="reference internal" href="#license">License</a></li>
+<li><a :data-current="activeSection === '#credits'" class="reference internal" href="#credits">Credits</a></li>
+</ul>
+</div>
+</aside>
+</main>
+</div>
+</div><footer class="py-6 border-t border-border md:py-0">
+<div class="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
+<div class="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
+<p class="text-sm leading-loose text-center text-muted-foreground md:text-left"></p>
+</div>
+</div>
 </footer>
-        </div>
-      </div>
-    </section>
-  </div>
-  <script>
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script> 
-
+</div>
+<script src="_static/documentation_options.js?v=bbaf98b3"></script>
+<script src="_static/doctools.js?v=fd6eb6e6"></script>
+<script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+<script src="_static/clipboard.min.js?v=a7894cd8"></script>
+<script src="_static/copybutton.js?v=fd10adb8"></script>
+<script defer="defer" src="_static/theme.js?v=5db23cf8"></script>
 </body>
 </html>
