@@ -61,15 +61,29 @@ def _extract_file_id(url: str) -> Optional[str]:
     'ABC123'
     """
     patterns = [
-        r"drive\.google\.com/file/d/([^/]+)",
-        r"drive\.google\.com/open\?id=([^&]+)",
-        r"drive\.google\.com/uc\?.*id=([^&]+)",
+        r"drive\.google\.com/file/d/([A-Za-z0-9_-]+)",
+        r"drive\.google\.com/open\?id=([A-Za-z0-9_-]+)",
+        r"drive\.google\.com/uc\?.*id=([A-Za-z0-9_-]+)",
     ]
     for pattern in patterns:
         match = re.search(pattern, url)
         if match:
             return match.group(1)
     return None
+
+
+def _q(value) -> str:
+    """Quote *value* as a string literal in the Drive search-query language.
+
+    Backslashes and single quotes are escaped, so a file or folder name such as
+    ``x' or title contains '`` stays one literal instead of rewriting the query
+    (which would let a key select -- and ``__setitem__`` overwrite -- files
+    outside the store's folder).
+
+    >>> _q("it's")
+    "'it\\\\'s'"
+    """
+    return "'" + str(value).replace("\\", "\\\\").replace("'", "\\'") + "'"
 
 
 def _extract_folder_id(url: str) -> Optional[str]:
@@ -79,7 +93,7 @@ def _extract_folder_id(url: str) -> Optional[str]:
     >>> _extract_folder_id('https://drive.google.com/drive/folders/ABC123')
     'ABC123'
     """
-    pattern = r"drive\.google\.com/drive/(?:u/\d+/)?folders/([^?]+)"
+    pattern = r"drive\.google\.com/drive/(?:u/\d+/)?folders/([A-Za-z0-9_-]+)"
     match = re.search(pattern, url)
     return match.group(1) if match else None
 
@@ -475,7 +489,7 @@ def _iter_folder_files(
     if max_levels is not None and level > max_levels:
         return
 
-    query = f"'{folder_id}' in parents and trashed=false"
+    query = f"{_q(folder_id)} in parents and trashed=false"
     for item in drive.ListFile({"q": query}).GetList():
         name = item["title"]
         if not include_hidden and name.startswith("."):
@@ -866,7 +880,7 @@ class GDStore(GDReader, MutableMapping):
             convert = self.convert_office
         parent_id = self._get_or_create_folders(key)
         filename = os.path.basename(key)
-        query = f"'{parent_id}' in parents and title='{filename}' and trashed=false"
+        query = f"{_q(parent_id)} in parents and title={_q(filename)} and trashed=false"
         existing = self._drive.ListFile({"q": query}).GetList()
         file_id = existing[0]["id"] if existing else None
         gfile = _upload_converting(
@@ -899,8 +913,8 @@ class GDStore(GDReader, MutableMapping):
 
         for folder_name in folder_parts:
             query = (
-                f"'{current_id}' in parents "
-                f"and title='{folder_name}' "
+                f"{_q(current_id)} in parents "
+                f"and title={_q(folder_name)} "
                 f"and mimeType='application/vnd.google-apps.folder' "
                 f"and trashed=false"
             )
@@ -938,7 +952,7 @@ class GDStore(GDReader, MutableMapping):
         filename = os.path.basename(key)
 
         # Check if file exists
-        query = f"'{parent_id}' in parents and title='{filename}' and trashed=false"
+        query = f"{_q(parent_id)} in parents and title={_q(filename)} and trashed=false"
         files = self._drive.ListFile({"q": query}).GetList()
 
         if files:
