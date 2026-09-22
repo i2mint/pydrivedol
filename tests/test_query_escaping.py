@@ -15,6 +15,9 @@ class _File(dict):
     def SetContentString(self, s):
         self["content"] = s
 
+    def SetContentFile(self, path):
+        self["content_file"] = path
+
     def Upload(self, param=None):
         pass
 
@@ -77,6 +80,8 @@ def test_q(value, literal):
         ("https://drive.google.com/open?id=../secret/s.txt", None),
         ("https://drive.google.com/file/d/AbC_12-x/view", "AbC_12-x"),
         ("https://drive.google.com/uc?export=download&id=AbC123", "AbC123"),
+        ("https://drive.google.com/uc?id=GOOD123456&x_id=EVIL999999", "GOOD123456"),
+        ("https://drive.google.com/uc?x_id=EVIL999999&id=GOOD123456", "GOOD123456"),
     ],
 )
 def test_file_ids_are_confined_to_the_id_alphabet(url, expected):
@@ -85,3 +90,17 @@ def test_file_ids_are_confined_to_the_id_alphabet(url, expected):
 
 def test_folder_id_stops_at_the_id():
     assert _extract_folder_id("https://drive.google.com/drive/folders/AbC123/") == "AbC123"
+
+
+def test_bare_id_with_trailing_newline_is_refused():
+    from pydrivedol.base import _resolve_file_id
+
+    with pytest.raises(ValueError):
+        _resolve_file_id("AAAAAAAAAAAA\n")
+
+
+def test_upload_quotes_the_filename():
+    s = _store()
+    s.convert_office = False
+    s.upload(HOSTILE, b"data")
+    assert "title='x\\' or title contains \\'' " in s._drive.queries[-1]

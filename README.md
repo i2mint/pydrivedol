@@ -403,7 +403,8 @@ gauth = GoogleAuth()
 gauth.LocalWebserverAuth()
 drive = GoogleDrive(gauth)
 
-file_list = drive.ListFile({"q": "'folder_id' in parents"}).GetList()
+folder_id = "YOUR_FOLDER_ID"  # a Drive id: [A-Za-z0-9_-]; quote any other value
+file_list = drive.ListFile({"q": f"'{folder_id}' in parents"}).GetList()
 for file in file_list:
     content = file.GetContentString()
 

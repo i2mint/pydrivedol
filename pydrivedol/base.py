@@ -63,7 +63,7 @@ def _extract_file_id(url: str) -> Optional[str]:
     patterns = [
         r"drive\.google\.com/file/d/([A-Za-z0-9_-]+)",
         r"drive\.google\.com/open\?id=([A-Za-z0-9_-]+)",
-        r"drive\.google\.com/uc\?.*id=([A-Za-z0-9_-]+)",
+        r"drive\.google\.com/uc\?(?:[^#]*&)?id=([A-Za-z0-9_-]+)",
     ]
     for pattern in patterns:
         match = re.search(pattern, url)
@@ -117,7 +117,7 @@ def _resolve_file_id(url_or_id: str) -> str:
     file_id = _extract_file_id(url_or_id)
     if file_id:
         return file_id
-    if _FILE_ID_PATTERN.match(url_or_id):
+    if _FILE_ID_PATTERN.fullmatch(url_or_id):
         return url_or_id
     raise ValueError(
         f"Not a Google Drive file URL or file id: {url_or_id!r}. Expected something like "
