@@ -26,6 +26,7 @@ classifiers = [
 ]
 dependencies = [
     "pydrive2",
+    "dol>=0.3.59",  # inner_most_key (pydrivedol.ops)
     "requests",
 ]
 

@@ -443,10 +443,12 @@ def test_gdfiles_getitem_rejects_an_unusable_key(fake_drive):
         GDFiles(fake_drive)['not a drive key']
 
 
-def test_gdfiles_metadata_method_delegates(fake_drive):
+def test_gdfiles_metadata_function_delegates(fake_drive):
+    from pydrivedol.ops import metadata
+
     files = GDFiles(fake_drive)
-    assert files.metadata(FILE_URL)['fileSize'] == 18512345
-    assert files.metadata(FILE_URL, fields=('id',)) == {'id': FILE_ID}
+    assert metadata(files, FILE_URL)['fileSize'] == 18512345
+    assert metadata(files, FILE_URL, fields=('id',)) == {'id': FILE_ID}
 
 
 def test_gdfiles_needs_no_pydrive2_import(fake_drive, monkeypatch):

@@ -16,6 +16,8 @@ Two access levels, both returning ``bytes``:
 import os
 import re
 import tempfile
+from contextvars import ContextVar
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Union
 from collections.abc import Mapping, MutableMapping
@@ -585,6 +587,29 @@ _UNSCOPED_ITERATION_MESSAGE = (
 )
 
 
+_MOVED = (
+    "{old}() was removed: a method of a dol-wrapped store runs bound to the leaf and receives "
+    "the caller's *unmapped* key, so it touched the wrong Drive file (i2mint/pydrivedol#4). "
+    "Use {new}."
+)
+
+
+@dataclass
+class _UploadRequest:
+    """What ``pydrivedol.ops.upload`` authorises ``GDStore.__setitem__`` to do for one key."""
+
+    key: str  # the leaf key the write must arrive under
+    leaf: object = None  # the GDStore it must arrive at (not another store, same key)
+    convert: Optional[bool] = None
+    google_mimetype: Optional[str] = None
+    url: Optional[str] = None  # filled in by the leaf with the uploaded file's link
+
+
+_UPLOAD_REQUEST: ContextVar[Optional[_UploadRequest]] = ContextVar(
+    "pydrivedol_upload_request", default=None
+)
+
+
 class GDFiles(Mapping):
     """Read-only Mapping of Google Drive **files**, keyed by file id or file URL.
 
@@ -610,7 +635,7 @@ class GDFiles(Mapping):
 
     >>> drive = drive_from_service_account('service-account-key.json')  # doctest: +SKIP
     >>> files = GDFiles(drive)  # doctest: +SKIP
-    >>> files.metadata(url)['fileSize']  # cheap: no download  # doctest: +SKIP
+    >>> metadata(files, url)['fileSize']  # cheap: no download  # doctest: +SKIP
     >>> content = files[url]  # or files[file_id]  # doctest: +SKIP
     >>> url in files  # metadata probe, not a download  # doctest: +SKIP
     True
@@ -678,7 +703,7 @@ class GDFiles(Mapping):
     def __contains__(self, key: str) -> bool:
         """Whether the file exists and is reachable -- a metadata probe, never a download."""
         try:
-            self.metadata(key, fields=("id",))
+            self._metadata(key, fields=("id",))
         except ValueError:
             return False  # not a usable file key at all
         except Exception as error:
@@ -697,12 +722,15 @@ class GDFiles(Mapping):
                 raise KeyError(f"File not found or not accessible: {key}") from error
             raise
 
-    def metadata(self, key: str, *, fields=DEFAULT_METADATA_FIELDS) -> dict:
-        """Metadata (name, size, mimeType, modifiedDate) for ``key``, without downloading it.
-
-        Thin method form of :func:`get_metadata` -- see it for the field semantics.
-        """
+    def _metadata(self, key: str, *, fields=DEFAULT_METADATA_FIELDS) -> dict:
+        """Metadata for the (leaf-coordinates) ``key``: :func:`get_metadata` on this drive."""
         return get_metadata(key, drive=self._drive, fields=fields)
+
+    def metadata(self, *args, **kwargs):
+        """Removed: use ``pydrivedol.ops.metadata(files, key)`` (or :func:`get_metadata`)."""
+        raise AttributeError(
+            _MOVED.format(old="metadata", new="pydrivedol.ops.metadata(files, key)")
+        )
 
 
 class GDReader(Mapping):
@@ -716,7 +744,7 @@ class GDReader(Mapping):
     >>> content = reader['path/to/file.txt']  # doctest: +SKIP
     >>> len(reader)  # doctest: +SKIP
     >>> 'file.txt' in reader  # doctest: +SKIP
-    >>> url = reader.get_url('file.txt')  # doctest: +SKIP
+    >>> url = get_url(reader, 'file.txt')  # doctest: +SKIP
     """
 
     def __init__(
@@ -804,7 +832,7 @@ class GDReader(Mapping):
 
         return _download_via_api(self._drive, self._files[key])
 
-    def get_url(
+    def _get_url(
         self,
         key: str,
         *,
@@ -812,10 +840,10 @@ class GDReader(Mapping):
         permission_role: str = "reader",
     ) -> str:
         """
-        Get shareable URL for file.
+        Get shareable URL for file (and grant ``permission_type`` / ``permission_role`` on it).
 
         Args:
-            key: File path
+            key: File path (leaf coordinates; callers use ``pydrivedol.ops.get_url``)
             permission_type: 'anyone', 'user', 'group', 'domain'
             permission_role: 'reader', 'writer', 'commenter'
 
@@ -838,6 +866,12 @@ class GDReader(Mapping):
 
         return gfile["alternateLink"]
 
+    def get_url(self, *args, **kwargs):
+        """Removed: use ``pydrivedol.ops.get_url(reader, key, ...)``."""
+        raise AttributeError(
+            _MOVED.format(old="get_url", new="pydrivedol.ops.get_url(reader, key, ...)")
+        )
+
 
 class GDStore(GDReader, MutableMapping):
     """
@@ -852,7 +886,7 @@ class GDStore(GDReader, MutableMapping):
 
     Pass ``convert_office=True`` to make ``store['x.xlsx'] = xlsx_bytes`` create a *native
     Google Sheet* (xlsx → Sheet, docx → Doc, pptx → Slides) instead of an uploaded blob. For
-    one-off control use :meth:`upload` with ``convert=True``.
+    one-off control use ``pydrivedol.ops.upload`` with ``convert=True``.
     """
 
     def __init__(self, folder_url: str, *, convert_office: bool = False, **kwargs):
@@ -861,7 +895,7 @@ class GDStore(GDReader, MutableMapping):
         super().__init__(folder_url, **kwargs)
         self.convert_office = convert_office
 
-    def upload(
+    def _upload(
         self,
         key: str,
         value: Optional[bytes] = None,
@@ -875,6 +909,9 @@ class GDStore(GDReader, MutableMapping):
         With ``convert=True`` (or the store's ``convert_office`` default) an office file becomes a
         native Google doc — e.g. ``store.upload('schema.xlsx', xlsx_bytes, convert=True)`` yields a
         Google Sheet. Updates an existing same-named file in the target folder, else creates it.
+        ``key`` is in leaf coordinates; callers use ``pydrivedol.ops.upload``.
+
+        >>> upload(store, 'schema.xlsx', xlsx_bytes, convert=True)  # doctest: +SKIP
         """
         if convert is None:
             convert = self.convert_office
@@ -895,6 +932,12 @@ class GDStore(GDReader, MutableMapping):
         )
         self._refresh_cache()
         return gfile["alternateLink"]
+
+    def upload(self, *args, **kwargs):
+        """Removed: use ``pydrivedol.ops.upload(store, key, value, ...)``."""
+        raise AttributeError(
+            _MOVED.format(old="upload", new="pydrivedol.ops.upload(store, key, value, ...)")
+        )
 
     def _get_or_create_folders(self, key: str) -> str:
         """
@@ -939,13 +982,24 @@ class GDStore(GDReader, MutableMapping):
         """Write bytes to file, creating folders as needed.
 
         If the store was created with ``convert_office=True`` and ``key`` is an office file, it
-        is uploaded as a native Google doc (see :meth:`upload`); otherwise it is stored as raw bytes.
+        is uploaded as a native Google doc (see ``pydrivedol.ops.upload``); otherwise it is stored as raw bytes.
         """
         if not isinstance(value, bytes):
             raise TypeError(f"Value must be bytes, got {type(value)}")
 
+        request = _UPLOAD_REQUEST.get()
+        if request is not None and request.key == key and request.leaf is self:
+            # An ``ops.upload`` call authorised this very write: use its options, report the URL.
+            request.url = self._upload(
+                key,
+                value,
+                convert=request.convert,
+                google_mimetype=request.google_mimetype,
+            )
+            return
+
         if getattr(self, "convert_office", False):
-            self.upload(key, value, convert=True)
+            self._upload(key, value, convert=True)
             return
 
         parent_id = self._get_or_create_folders(key)
