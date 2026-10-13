@@ -936,7 +936,9 @@ class GDStore(GDReader, MutableMapping):
     def upload(self, *args, **kwargs):
         """Removed: use ``pydrivedol.ops.upload(store, key, value, ...)``."""
         raise AttributeError(
-            _MOVED.format(old="upload", new="pydrivedol.ops.upload(store, key, value, ...)")
+            _MOVED.format(
+                old="upload", new="pydrivedol.ops.upload(store, key, value, ...)"
+            )
         )
 
     def _get_or_create_folders(self, key: str) -> str:
