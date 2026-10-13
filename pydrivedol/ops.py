@@ -27,6 +27,7 @@ codec like any value; a layer that performs the write in another thread escapes 
 
 from __future__ import annotations
 
+import inspect
 import os
 from pathlib import Path
 from typing import Optional
@@ -50,10 +51,12 @@ def _leaf_of(store, cls):
     Every wrapper layer above it must define ``_id_of_key`` (dol's ``Store`` layers do): a
     layer that maps keys without it cannot be resolved by ``inner_most_key``, which would then
     hand back an unmapped key and act on the wrong file, so it is refused (``TypeError``).
+    The method must be defined on the layer's class, not reached through ``__getattr__``
+    delegation to the inner store (that one is the leaf's, not the layer's own).
     """
     cur, seen = store, set()
     while not isinstance(cur, cls):
-        if not hasattr(cur, "_id_of_key"):
+        if not callable(inspect.getattr_static(cur, "_id_of_key", None)):  # not via __getattr__
             raise TypeError(
                 f"{type(cur).__name__} wraps a {cls.__name__} but defines no _id_of_key, so "
                 "keys cannot be resolved through it; build wrappers with dol (Store, "
