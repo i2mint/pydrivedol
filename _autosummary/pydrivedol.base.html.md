@@ -73,7 +73,7 @@ always works, scoped or not – it is the primary use case and needs no listing.
 ```pycon
 >>> drive = drive_from_service_account('service-account-key.json')
 >>> files = GDFiles(drive)
->>> files.metadata(url)['fileSize']  # cheap: no download
+>>> metadata(files, url)['fileSize']  # cheap: no download
 >>> content = files[url]  # or files[file_id]
 >>> url in files  # metadata probe, not a download
 True
@@ -86,14 +86,9 @@ Scoped, so it can be listed:
 >>> list(scoped)  # file ids
 ```
 
-#### metadata(key, , fields=('id', 'title', 'mimeType', 'fileSize', 'modifiedDate', 'alternateLink'))
+#### metadata(\*args, \*\*kwargs)
 
-Metadata (name, size, mimeType, modifiedDate) for `key`, without downloading it.
-
-Thin method form of [`get_metadata()`](#pydrivedol.base.get_metadata) – see it for the field semantics.
-
-* **Return type:**
-  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
+Removed: use `pydrivedol.ops.metadata(files, key)` (or [`get_metadata()`](#pydrivedol.base.get_metadata)).
 
 ### *class* pydrivedol.base.GDReader(folder_url, , max_levels=None, credentials_file='client_secrets.json', settings_file='settings.yaml', include_hidden=False, drive=None)
 
@@ -109,21 +104,12 @@ Keys are relative file paths, values are file contents as bytes.
 >>> content = reader['path/to/file.txt']
 >>> len(reader)
 >>> 'file.txt' in reader
->>> url = reader.get_url('file.txt')
+>>> url = get_url(reader, 'file.txt')
 ```
 
-#### get_url(key, , permission_type='anyone', permission_role='reader')
+#### get_url(\*args, \*\*kwargs)
 
-Get shareable URL for file.
-
-* **Parameters:**
-  * **key** ([`str`](https://docs.python.org/3/builtins/stdtypes.html#str)) – File path
-  * **permission_type** ([`str`](https://docs.python.org/3/builtins/stdtypes.html#str)) – ‘anyone’, ‘user’, ‘group’, ‘domain’
-  * **permission_role** ([`str`](https://docs.python.org/3/builtins/stdtypes.html#str)) – ‘reader’, ‘writer’, ‘commenter’
-* **Return type:**
-  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
-* **Returns:**
-  Shareable URL
+Removed: use `pydrivedol.ops.get_url(reader, key, ...)`.
 
 ### *class* pydrivedol.base.GDStore(folder_url, , convert_office=False, \*\*kwargs)
 
@@ -142,18 +128,11 @@ Extends GDReader with write and delete operations.
 
 Pass `convert_office=True` to make `store['x.xlsx'] = xlsx_bytes` create a \*native
 Google Sheet\* (xlsx → Sheet, docx → Doc, pptx → Slides) instead of an uploaded blob. For
-one-off control use [`upload()`](#pydrivedol.base.GDStore.upload) with `convert=True`.
+one-off control use `pydrivedol.ops.upload` with `convert=True`.
 
-#### upload(key, value=None, , path=None, convert=None, google_mimetype=None)
+#### upload(\*args, \*\*kwargs)
 
-Upload `value` (bytes) or a file `path` to `key`; return the shareable URL.
-
-With `convert=True` (or the store’s `convert_office` default) an office file becomes a
-native Google doc — e.g. `store.upload('schema.xlsx', xlsx_bytes, convert=True)` yields a
-Google Sheet. Updates an existing same-named file in the target folder, else creates it.
-
-* **Return type:**
-  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
+Removed: use `pydrivedol.ops.upload(store, key, value, ...)`.
 
 ### *exception* pydrivedol.base.NotPubliclyShared
 

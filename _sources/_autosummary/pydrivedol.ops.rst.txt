@@ -1,0 +1,14 @@
+pydrivedol.ops
+==============
+
+.. automodule:: pydrivedol.ops
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      get_url
+      metadata
+      upload
+   

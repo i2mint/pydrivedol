@@ -1,4 +1,4 @@
-> built 2026-09-22 15:28 UTC from 14764ec (master) · pydrivedol 0.0.7. Details: build_info.json
+> built 2026-10-13 09:41 UTC from ce9d2b5 (master) · pydrivedol 0.0.8. Details: build_info.json
 
 # index.html.md
 
@@ -109,7 +109,7 @@ files = GDFiles(drive)
 content = files[url]  # a Drive file URL...
 content = files[file_id]  # ...or the bare id: same entry
 url in files  # metadata probe, never a download
-files.metadata(url)  # name / size / mimeType / modifiedDate
+metadata(files, url)  # (from pydrivedol import metadata) name / size / mimeType / modifiedDate
 
 # Iteration needs a scope — an unscoped GDFiles addresses the whole Drive
 scoped = GDFiles(drive, folder_url=folder_url)
@@ -148,7 +148,8 @@ if "data/report.xlsx" in reader:
 num_files = len(reader)
 
 # Get shareable URL
-url = reader.get_url("file.txt")
+from pydrivedol import get_url
+url = get_url(reader, "file.txt")
 ```
 
 ### Read-Write Operations
@@ -176,6 +177,17 @@ store["data.json"] = b'{"key": "value"}'
 data = store["data.json"]  # Read
 store["data.json"] = b'{"key": "new"}'  # Update
 del store["data.json"]  # Delete
+```
+
+`GDStore.upload`, `GDReader.get_url` and `GDFiles.metadata` are free functions
+(`pydrivedol.upload(store, key, value, convert=..., google_mimetype=...)`, `get_url(reader, key)`,
+`metadata(files, key)`), not methods, so that they map `key` through any `dol` key codec or
+filter you have wrapped the store in (i2mint/pydrivedol#4). Wrappers must be `dol` layers.
+
+```python
+from pydrivedol import upload
+
+url = upload(store, "schema.xlsx", xlsx_bytes, convert=True)  # -> a native Google Sheet
 ```
 
 ## API Setup (for GDReader/GDStore)
@@ -285,11 +297,14 @@ reader = GDReader(
 ### Generate Shareable URLs
 
 ```python
-# Get public URL for a file
-url = reader.get_url("file.txt")
+# Get public URL for a file (a free function: it maps the key through any dol
+# key codec wrapped around the reader; the old reader.get_url method was removed, #4)
+from pydrivedol import get_url
+url = get_url(reader, "file.txt")
 
 # With specific permissions
-url = reader.get_url(
+url = get_url(
+    reader,
     "file.txt",
     permission_type="anyone",  # 'anyone', 'user', 'group', 'domain'
     permission_role="reader",  # 'reader', 'writer', 'commenter'
@@ -651,7 +666,7 @@ always works, scoped or not – it is the primary use case and needs no listing.
 ```pycon
 >>> drive = drive_from_service_account('service-account-key.json')
 >>> files = GDFiles(drive)
->>> files.metadata(url)['fileSize']  # cheap: no download
+>>> metadata(files, url)['fileSize']  # cheap: no download
 >>> content = files[url]  # or files[file_id]
 >>> url in files  # metadata probe, not a download
 True
@@ -664,14 +679,9 @@ Scoped, so it can be listed:
 >>> list(scoped)  # file ids
 ```
 
-#### metadata(key, , fields=('id', 'title', 'mimeType', 'fileSize', 'modifiedDate', 'alternateLink'))
+#### metadata(\*args, \*\*kwargs)
 
-Metadata (name, size, mimeType, modifiedDate) for `key`, without downloading it.
-
-Thin method form of [`get_metadata()`](_autosummary/pydrivedol.base.html.md#pydrivedol.base.get_metadata) – see it for the field semantics.
-
-* **Return type:**
-  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
+Removed: use `pydrivedol.ops.metadata(files, key)` (or [`get_metadata()`](_autosummary/pydrivedol.base.html.md#pydrivedol.base.get_metadata)).
 
 ### *class* pydrivedol.base.GDReader(folder_url, , max_levels=None, credentials_file='client_secrets.json', settings_file='settings.yaml', include_hidden=False, drive=None)
 
@@ -687,21 +697,12 @@ Keys are relative file paths, values are file contents as bytes.
 >>> content = reader['path/to/file.txt']
 >>> len(reader)
 >>> 'file.txt' in reader
->>> url = reader.get_url('file.txt')
+>>> url = get_url(reader, 'file.txt')
 ```
 
-#### get_url(key, , permission_type='anyone', permission_role='reader')
+#### get_url(\*args, \*\*kwargs)
 
-Get shareable URL for file.
-
-* **Parameters:**
-  * **key** ([`str`](https://docs.python.org/3/builtins/stdtypes.html#str)) – File path
-  * **permission_type** ([`str`](https://docs.python.org/3/builtins/stdtypes.html#str)) – ‘anyone’, ‘user’, ‘group’, ‘domain’
-  * **permission_role** ([`str`](https://docs.python.org/3/builtins/stdtypes.html#str)) – ‘reader’, ‘writer’, ‘commenter’
-* **Return type:**
-  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
-* **Returns:**
-  Shareable URL
+Removed: use `pydrivedol.ops.get_url(reader, key, ...)`.
 
 ### *class* pydrivedol.base.GDStore(folder_url, , convert_office=False, \*\*kwargs)
 
@@ -720,18 +721,11 @@ Extends GDReader with write and delete operations.
 
 Pass `convert_office=True` to make `store['x.xlsx'] = xlsx_bytes` create a \*native
 Google Sheet\* (xlsx → Sheet, docx → Doc, pptx → Slides) instead of an uploaded blob. For
-one-off control use [`upload()`](_autosummary/pydrivedol.base.html.md#pydrivedol.base.GDStore.upload) with `convert=True`.
+one-off control use `pydrivedol.ops.upload` with `convert=True`.
 
-#### upload(key, value=None, , path=None, convert=None, google_mimetype=None)
+#### upload(\*args, \*\*kwargs)
 
-Upload `value` (bytes) or a file `path` to `key`; return the shareable URL.
-
-With `convert=True` (or the store’s `convert_office` default) an office file becomes a
-native Google doc — e.g. `store.upload('schema.xlsx', xlsx_bytes, convert=True)` yields a
-Google Sheet. Updates an existing same-named file in the target folder, else creates it.
-
-* **Return type:**
-  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
+Removed: use `pydrivedol.ops.upload(store, key, value, ...)`.
 
 ### *exception* pydrivedol.base.NotPubliclyShared
 
@@ -933,8 +927,73 @@ Usage:
 
 ### Modules
 
-| [`base`](_autosummary/pydrivedol.base.html.md#module-pydrivedol.base)   | Base objects for pydrivedol: download functions, GDFiles, GDReader, GDStore.   |
-|--------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| [`base`](_autosummary/pydrivedol.base.html.md#module-pydrivedol.base)   | Base objects for pydrivedol: download functions, GDFiles, GDReader, GDStore.         |
+|--------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
+| [`ops`](_autosummary/pydrivedol.ops.html.md#module-pydrivedol.ops)     | Key-taking operations, as free functions over the caller's (possibly wrapped) store. |
+
+
+# _autosummary/pydrivedol.ops.html.md
+
+# pydrivedol.ops
+
+Key-taking operations, as free functions over the caller’s (possibly wrapped) store.
+
+`dol` wraps stores by delegation, so a *method* of a wrapped `GDStore` runs bound to the
+inner leaf and receives the caller’s **outer**, unmapped key (i2mint/pydrivedol#4,
+i2mint/dol#83). Under a key codec `upload` overwrote the wrong Drive file in place and
+`get_url` shared (`anyone`/`reader`) the wrong one. A free function is handed the outer
+store, so the key is resolved through every layer:
+
+- [`get_url()`](_autosummary/pydrivedol.ops.html.md#pydrivedol.ops.get_url) `(reader, key)`: `key in reader` through the caller’s own store (key
+  mapping and any scope filter), then the link of the file the leaf holds under the mapped key.
+- [`metadata()`](_autosummary/pydrivedol.ops.html.md#pydrivedol.ops.metadata) `(files, key)`: the same for [`GDFiles`](_autosummary/pydrivedol.base.html.md#pydrivedol.base.GDFiles).
+- [`upload()`](_autosummary/pydrivedol.ops.html.md#pydrivedol.ops.upload) `(store, key, value)`: performs `store[key] = value` on the caller’s own
+  store, after authorising the leaf (through a context variable, for that one mapped key) to
+  honour the `convert` / `google_mimetype` options and report the file’s link. So key
+  mapping, value codecs, write guards (read-only wrappers) and scope are the layers’ own. A
+  layer that redirects, buffers or swallows the write makes `upload` raise `RuntimeError`.
+
+The methods `GDReader.get_url`, `GDStore.upload` and `GDFiles.metadata` were removed (they
+raise `AttributeError` naming the replacement). Same design as cosmodol.ops and s3dol’s
+ADR-0011.
+
+What stays outside reach, stated rather than hidden: `upload(path=...)` reads the file into
+memory (the store’s `__setitem__` takes bytes) and the value goes through the store’s value
+codec like any value; a layer that performs the write in another thread escapes the options
+(the write then happens as a plain `store[key] = value`).
+
+### Functions
+
+| [`get_url`](_autosummary/pydrivedol.ops.html.md#pydrivedol.ops.get_url)(reader, key, \*[, permission_type, ...])   | Shareable URL of `key` (a key of `reader`), granting the permission on that file.       |
+|-----------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
+| [`metadata`](_autosummary/pydrivedol.ops.html.md#pydrivedol.ops.metadata)(files, key, \*[, fields])                 | Metadata (name, size, mimeType, modifiedDate) of `key` (a key of `files`), no download. |
+| [`upload`](_autosummary/pydrivedol.ops.html.md#pydrivedol.ops.upload)(store, key[, value, path, convert, ...])    | Write `value` (or the file at `path`) under `key` of `store`; return the file's link.   |
+
+### pydrivedol.ops.get_url(reader, key, , permission_type='anyone', permission_role='reader')
+
+Shareable URL of `key` (a key of `reader`), granting the permission on that file.
+
+* **Raises:**
+  [**KeyError**](https://docs.python.org/3/builtins/exceptions.html#KeyError) – if `key` is not in `reader` (checked through the caller’s own store)
+* **Return type:**
+  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
+
+### pydrivedol.ops.metadata(files, key, , fields=('id', 'title', 'mimeType', 'fileSize', 'modifiedDate', 'alternateLink'))
+
+Metadata (name, size, mimeType, modifiedDate) of `key` (a key of `files`), no download.
+
+* **Return type:**
+  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
+
+### pydrivedol.ops.upload(store, key, value=None, , path=None, convert=None, google_mimetype=None)
+
+Write `value` (or the file at `path`) under `key` of `store`; return the file’s link.
+
+With `convert=True` (or the leaf’s `convert_office`) an office file becomes a native
+Google doc. See the module docstring for how the write goes through the caller’s store.
+
+* **Return type:**
+  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 
 # about-this-build.html.md
@@ -943,18 +1002,18 @@ Usage:
 
 # About this build
 
-This documentation was built on **2026-09-22 15:28 UTC** from commit <a href="https://github.com/i2mint/pydrivedol/commit/14764ec279a7ebf51edbf53b2fea4b85f54db1dc"><code>14764ec</code></a> on branch <code>master</code>, for **pydrivedol 0.0.7** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-10-13 09:41 UTC** from commit <a href="https://github.com/i2mint/pydrivedol/commit/ce9d2b5596c358098ed7403a006c0847bb8a1e1c"><code>ce9d2b5</code></a> on branch <code>master</code>, for **pydrivedol 0.0.8** (from <code>pyproject.toml</code>).
 
 #### WARNING
 The documentation and the package may be misaligned:
 
-- The documented version (0.0.7) is behind the latest release on PyPI (0.0.8): `pip install pydrivedol` gives newer code than these docs describe.
+- The documented version (0.0.8) is behind the latest release on PyPI (0.0.9): `pip install pydrivedol` gives newer code than these docs describe.
 
 ## Source
 
 |                     |                                                                                                                                                          |
 |---------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/i2mint/pydrivedol/commit/14764ec279a7ebf51edbf53b2fea4b85f54db1dc"><code>14764ec279a7ebf51edbf53b2fea4b85f54db1dc</code></a> |
+| Commit              | <a href="https://github.com/i2mint/pydrivedol/commit/ce9d2b5596c358098ed7403a006c0847bb8a1e1c"><code>ce9d2b5596c358098ed7403a006c0847bb8a1e1c</code></a> |
 | Branch              | <code>master</code>                                                                                                                                      |
 | Tags at this commit | none                                                                                                                                                     |
 | Working tree        | clean                                                                                                                                                    |
@@ -965,18 +1024,18 @@ The documentation and the package may be misaligned:
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>i2mint/pydrivedol</code>                                                             |
-| Run          | <a href="https://github.com/i2mint/pydrivedol/actions/runs/35747365412">35747365412</a>    |
+| Run          | <a href="https://github.com/i2mint/pydrivedol/actions/runs/38377972227">38377972227</a>    |
 | Ref          | <code>refs/heads/master</code>                                                             |
-| Event commit | <code>14764ec279a7ebf51edbf53b2fea4b85f54db1dc</code> (in the history of the built commit) |
+| Event commit | <code>ce9d2b5596c358098ed7403a006c0847bb8a1e1c</code> (in the history of the built commit) |
 
 ## Tools
 
 |          |         |
 |----------|---------|
-| epythet  | 0.2.12  |
+| epythet  | 0.2.15  |
 | Sphinx   | 9.1.0   |
 | docutils | 0.22.4  |
-| Python   | 3.12.14 |
+| Python   | 3.12.15 |
 
 ## Configuration as resolved
 
@@ -992,14 +1051,14 @@ The documentation and the package may be misaligned:
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/pydrivedol/0.0.8/">0.0.8</a>, newer than the documented version (0.0.7).
+Latest release: <a href="https://pypi.org/project/pydrivedol/0.0.9/">0.0.9</a>, newer than the documented version (0.0.8).
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/i2mint/pydrivedol && cd pydrivedol
-git checkout 14764ec279a7ebf51edbf53b2fea4b85f54db1dc
-pip install "epythet==0.2.12"
+git checkout ce9d2b5596c358098ed7403a006c0847bb8a1e1c
+pip install "epythet==0.2.15"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
 

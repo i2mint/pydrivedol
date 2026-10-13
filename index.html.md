@@ -105,7 +105,7 @@ files = GDFiles(drive)
 content = files[url]  # a Drive file URL...
 content = files[file_id]  # ...or the bare id: same entry
 url in files  # metadata probe, never a download
-files.metadata(url)  # name / size / mimeType / modifiedDate
+metadata(files, url)  # (from pydrivedol import metadata) name / size / mimeType / modifiedDate
 
 # Iteration needs a scope — an unscoped GDFiles addresses the whole Drive
 scoped = GDFiles(drive, folder_url=folder_url)
@@ -144,7 +144,8 @@ if "data/report.xlsx" in reader:
 num_files = len(reader)
 
 # Get shareable URL
-url = reader.get_url("file.txt")
+from pydrivedol import get_url
+url = get_url(reader, "file.txt")
 ```
 
 ### Read-Write Operations
@@ -172,6 +173,17 @@ store["data.json"] = b'{"key": "value"}'
 data = store["data.json"]  # Read
 store["data.json"] = b'{"key": "new"}'  # Update
 del store["data.json"]  # Delete
+```
+
+`GDStore.upload`, `GDReader.get_url` and `GDFiles.metadata` are free functions
+(`pydrivedol.upload(store, key, value, convert=..., google_mimetype=...)`, `get_url(reader, key)`,
+`metadata(files, key)`), not methods, so that they map `key` through any `dol` key codec or
+filter you have wrapped the store in (i2mint/pydrivedol#4). Wrappers must be `dol` layers.
+
+```python
+from pydrivedol import upload
+
+url = upload(store, "schema.xlsx", xlsx_bytes, convert=True)  # -> a native Google Sheet
 ```
 
 ## API Setup (for GDReader/GDStore)
@@ -281,11 +293,14 @@ reader = GDReader(
 ### Generate Shareable URLs
 
 ```python
-# Get public URL for a file
-url = reader.get_url("file.txt")
+# Get public URL for a file (a free function: it maps the key through any dol
+# key codec wrapped around the reader; the old reader.get_url method was removed, #4)
+from pydrivedol import get_url
+url = get_url(reader, "file.txt")
 
 # With specific permissions
-url = reader.get_url(
+url = get_url(
+    reader,
     "file.txt",
     permission_type="anyone",  # 'anyone', 'user', 'group', 'domain'
     permission_role="reader",  # 'reader', 'writer', 'commenter'

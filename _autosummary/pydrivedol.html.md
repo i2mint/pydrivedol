@@ -73,5 +73,6 @@ Usage:
 
 ### Modules
 
-| [`base`](pydrivedol.base.html.md#module-pydrivedol.base)   | Base objects for pydrivedol: download functions, GDFiles, GDReader, GDStore.   |
-|--------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| [`base`](pydrivedol.base.html.md#module-pydrivedol.base)   | Base objects for pydrivedol: download functions, GDFiles, GDReader, GDStore.         |
+|--------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
+| [`ops`](pydrivedol.ops.html.md#module-pydrivedol.ops)     | Key-taking operations, as free functions over the caller's (possibly wrapped) store. |

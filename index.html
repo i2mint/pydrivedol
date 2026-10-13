@@ -83,6 +83,7 @@
 <li class="toctree-l1" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="api.html">API reference<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
 <li class="toctree-l2" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="_autosummary/pydrivedol.html">pydrivedol<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
 <li class="toctree-l3"><a class="reference internal" href="_autosummary/pydrivedol.base.html">pydrivedol.base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/pydrivedol.ops.html">pydrivedol.ops</a></li>
 </ul>
 </li>
 </ul>
@@ -197,7 +198,7 @@ Google-native files — Sheets/Docs/Slides have no stored byte size.</p>
 </span><span id="line-3"><span class="n">content</span> <span class="o">=</span> <span class="n">files</span><span class="p">[</span><span class="n">url</span><span class="p">]</span>  <span class="c1"># a Drive file URL...</span>
 </span><span id="line-4"><span class="n">content</span> <span class="o">=</span> <span class="n">files</span><span class="p">[</span><span class="n">file_id</span><span class="p">]</span>  <span class="c1"># ...or the bare id: same entry</span>
 </span><span id="line-5"><span class="n">url</span> <span class="ow">in</span> <span class="n">files</span>  <span class="c1"># metadata probe, never a download</span>
-</span><span id="line-6"><span class="n">files</span><span class="o">.</span><span class="n">metadata</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>  <span class="c1"># name / size / mimeType / modifiedDate</span>
+</span><span id="line-6"><span class="n">metadata</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>  <span class="c1"># (from pydrivedol import metadata) name / size / mimeType / modifiedDate</span>
 </span><span id="line-7">
 </span><span id="line-8"><span class="c1"># Iteration needs a scope — an unscoped GDFiles addresses the whole Drive</span>
 </span><span id="line-9"><span class="n">scoped</span> <span class="o">=</span> <span class="n">GDFiles</span><span class="p">(</span><span class="n">drive</span><span class="p">,</span> <span class="n">folder_url</span><span class="o">=</span><span class="n">folder_url</span><span class="p">)</span>
@@ -235,7 +236,8 @@ Google-native files — Sheets/Docs/Slides have no stored byte size.</p>
 </span><span id="line-24"><span class="n">num_files</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">reader</span><span class="p">)</span>
 </span><span id="line-25">
 </span><span id="line-26"><span class="c1"># Get shareable URL</span>
-</span><span id="line-27"><span class="n">url</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">get_url</span><span class="p">(</span><span class="s2">"file.txt"</span><span class="p">)</span>
+</span><span id="line-27"><span class="kn">from</span><span class="w"> </span><span class="nn">pydrivedol</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_url</span>
+</span><span id="line-28"><span class="n">url</span> <span class="o">=</span> <span class="n">get_url</span><span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="s2">"file.txt"</span><span class="p">)</span>
 </span></code></pre></div>
 </div>
 </section>
@@ -263,6 +265,15 @@ Google-native files — Sheets/Docs/Slides have no stored byte size.</p>
 </span><span id="line-20"><span class="n">data</span> <span class="o">=</span> <span class="n">store</span><span class="p">[</span><span class="s2">"data.json"</span><span class="p">]</span>  <span class="c1"># Read</span>
 </span><span id="line-21"><span class="n">store</span><span class="p">[</span><span class="s2">"data.json"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">'{"key": "new"}'</span>  <span class="c1"># Update</span>
 </span><span id="line-22"><span class="k">del</span> <span class="n">store</span><span class="p">[</span><span class="s2">"data.json"</span><span class="p">]</span>  <span class="c1"># Delete</span>
+</span></code></pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">GDStore.upload</span></code>, <code class="docutils literal notranslate"><span class="pre">GDReader.get_url</span></code> and <code class="docutils literal notranslate"><span class="pre">GDFiles.metadata</span></code> are free functions
+(<code class="docutils literal notranslate"><span class="pre">pydrivedol.upload(store,</span> <span class="pre">key,</span> <span class="pre">value,</span> <span class="pre">convert=...,</span> <span class="pre">google_mimetype=...)</span></code>, <code class="docutils literal notranslate"><span class="pre">get_url(reader,</span> <span class="pre">key)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">metadata(files,</span> <span class="pre">key)</span></code>), not methods, so that they map <code class="docutils literal notranslate"><span class="pre">key</span></code> through any <code class="docutils literal notranslate"><span class="pre">dol</span></code> key codec or
+filter you have wrapped the store in (i2mint/pydrivedol#4). Wrappers must be <code class="docutils literal notranslate"><span class="pre">dol</span></code> layers.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="kn">from</span><span class="w"> </span><span class="nn">pydrivedol</span><span class="w"> </span><span class="kn">import</span> <span class="n">upload</span>
+</span><span id="line-2">
+</span><span id="line-3"><span class="n">url</span> <span class="o">=</span> <span class="n">upload</span><span class="p">(</span><span class="n">store</span><span class="p">,</span> <span class="s2">"schema.xlsx"</span><span class="p">,</span> <span class="n">xlsx_bytes</span><span class="p">,</span> <span class="n">convert</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># -&gt; a native Google Sheet</span>
 </span></code></pre></div>
 </div>
 </section>
@@ -377,15 +388,18 @@ out of the repo entirely if you can — read its path from an environment variab
 </section>
 <section id="generate-shareable-urls">
 <h3>Generate Shareable URLs<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#generate-shareable-urls" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#generate-shareable-urls'">¶</a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="c1"># Get public URL for a file</span>
-</span><span id="line-2"><span class="n">url</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">get_url</span><span class="p">(</span><span class="s2">"file.txt"</span><span class="p">)</span>
-</span><span id="line-3">
-</span><span id="line-4"><span class="c1"># With specific permissions</span>
-</span><span id="line-5"><span class="n">url</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">get_url</span><span class="p">(</span>
-</span><span id="line-6">    <span class="s2">"file.txt"</span><span class="p">,</span>
-</span><span id="line-7">    <span class="n">permission_type</span><span class="o">=</span><span class="s2">"anyone"</span><span class="p">,</span>  <span class="c1"># 'anyone', 'user', 'group', 'domain'</span>
-</span><span id="line-8">    <span class="n">permission_role</span><span class="o">=</span><span class="s2">"reader"</span><span class="p">,</span>  <span class="c1"># 'reader', 'writer', 'commenter'</span>
-</span><span id="line-9"><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="c1"># Get public URL for a file (a free function: it maps the key through any dol</span>
+</span><span id="line-2"><span class="c1"># key codec wrapped around the reader; the old reader.get_url method was removed, #4)</span>
+</span><span id="line-3"><span class="kn">from</span><span class="w"> </span><span class="nn">pydrivedol</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_url</span>
+</span><span id="line-4"><span class="n">url</span> <span class="o">=</span> <span class="n">get_url</span><span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="s2">"file.txt"</span><span class="p">)</span>
+</span><span id="line-5">
+</span><span id="line-6"><span class="c1"># With specific permissions</span>
+</span><span id="line-7"><span class="n">url</span> <span class="o">=</span> <span class="n">get_url</span><span class="p">(</span>
+</span><span id="line-8">    <span class="n">reader</span><span class="p">,</span>
+</span><span id="line-9">    <span class="s2">"file.txt"</span><span class="p">,</span>
+</span><span id="line-10">    <span class="n">permission_type</span><span class="o">=</span><span class="s2">"anyone"</span><span class="p">,</span>  <span class="c1"># 'anyone', 'user', 'group', 'domain'</span>
+</span><span id="line-11">    <span class="n">permission_role</span><span class="o">=</span><span class="s2">"reader"</span><span class="p">,</span>  <span class="c1"># 'reader', 'writer', 'commenter'</span>
+</span><span id="line-12"><span class="p">)</span>
 </span></code></pre></div>
 </div>
 </section>
@@ -664,7 +678,7 @@ raise <code class="docutils literal notranslate"><span class="pre">NotPubliclySh
 
 </section>
 </section>
-<p class="epythet-provenance" style="font-size:.8em;opacity:.65;margin-top:2.5em;text-align:right">built 2026-09-22 15:28 UTC from <a href="https://github.com/i2mint/pydrivedol/commit/14764ec279a7ebf51edbf53b2fea4b85f54db1dc">14764ec</a> (master) · pydrivedol 0.0.7 · <a href="about-this-build.html">about this build</a></p>
+<p class="epythet-provenance" style="font-size:.8em;opacity:.65;margin-top:2.5em;text-align:right">built 2026-10-13 09:41 UTC from <a href="https://github.com/i2mint/pydrivedol/commit/ce9d2b5596c358098ed7403a006c0847bb8a1e1c">ce9d2b5</a> (master) · pydrivedol 0.0.8 · <a href="about-this-build.html">about this build</a></p>
 </div></div><aside class="hidden text-sm xl:block" id="right-sidebar">
 <div class="sticky top-16 -mt-10 max-h-[calc(100vh-5rem)] h-full overflow-y-auto pt-6 space-y-2"><p class="font-medium">On this page</p>
 <ul>
@@ -738,7 +752,7 @@ raise <code class="docutils literal notranslate"><span class="pre">NotPubliclySh
 </div>
 </footer>
 </div>
-<script src="_static/documentation_options.js?v=bbaf98b3"></script>
+<script src="_static/documentation_options.js?v=53b53b71"></script>
 <script src="_static/doctools.js?v=fd6eb6e6"></script>
 <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
 <script src="_static/clipboard.min.js?v=a7894cd8"></script>

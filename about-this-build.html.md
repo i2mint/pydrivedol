@@ -2,18 +2,18 @@
 
 # About this build
 
-This documentation was built on **2026-09-22 15:28 UTC** from commit <a href="https://github.com/i2mint/pydrivedol/commit/14764ec279a7ebf51edbf53b2fea4b85f54db1dc"><code>14764ec</code></a> on branch <code>master</code>, for **pydrivedol 0.0.7** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-10-13 09:41 UTC** from commit <a href="https://github.com/i2mint/pydrivedol/commit/ce9d2b5596c358098ed7403a006c0847bb8a1e1c"><code>ce9d2b5</code></a> on branch <code>master</code>, for **pydrivedol 0.0.8** (from <code>pyproject.toml</code>).
 
 #### WARNING
 The documentation and the package may be misaligned:
 
-- The documented version (0.0.7) is behind the latest release on PyPI (0.0.8): `pip install pydrivedol` gives newer code than these docs describe.
+- The documented version (0.0.8) is behind the latest release on PyPI (0.0.9): `pip install pydrivedol` gives newer code than these docs describe.
 
 ## Source
 
 |                     |                                                                                                                                                          |
 |---------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/i2mint/pydrivedol/commit/14764ec279a7ebf51edbf53b2fea4b85f54db1dc"><code>14764ec279a7ebf51edbf53b2fea4b85f54db1dc</code></a> |
+| Commit              | <a href="https://github.com/i2mint/pydrivedol/commit/ce9d2b5596c358098ed7403a006c0847bb8a1e1c"><code>ce9d2b5596c358098ed7403a006c0847bb8a1e1c</code></a> |
 | Branch              | <code>master</code>                                                                                                                                      |
 | Tags at this commit | none                                                                                                                                                     |
 | Working tree        | clean                                                                                                                                                    |
@@ -24,18 +24,18 @@ The documentation and the package may be misaligned:
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>i2mint/pydrivedol</code>                                                             |
-| Run          | <a href="https://github.com/i2mint/pydrivedol/actions/runs/35747365412">35747365412</a>    |
+| Run          | <a href="https://github.com/i2mint/pydrivedol/actions/runs/38377972227">38377972227</a>    |
 | Ref          | <code>refs/heads/master</code>                                                             |
-| Event commit | <code>14764ec279a7ebf51edbf53b2fea4b85f54db1dc</code> (in the history of the built commit) |
+| Event commit | <code>ce9d2b5596c358098ed7403a006c0847bb8a1e1c</code> (in the history of the built commit) |
 
 ## Tools
 
 |          |         |
 |----------|---------|
-| epythet  | 0.2.12  |
+| epythet  | 0.2.15  |
 | Sphinx   | 9.1.0   |
 | docutils | 0.22.4  |
-| Python   | 3.12.14 |
+| Python   | 3.12.15 |
 
 ## Configuration as resolved
 
@@ -51,14 +51,14 @@ The documentation and the package may be misaligned:
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/pydrivedol/0.0.8/">0.0.8</a>, newer than the documented version (0.0.7).
+Latest release: <a href="https://pypi.org/project/pydrivedol/0.0.9/">0.0.9</a>, newer than the documented version (0.0.8).
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/i2mint/pydrivedol && cd pydrivedol
-git checkout 14764ec279a7ebf51edbf53b2fea4b85f54db1dc
-pip install "epythet==0.2.12"
+git checkout ce9d2b5596c358098ed7403a006c0847bb8a1e1c
+pip install "epythet==0.2.15"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
 
