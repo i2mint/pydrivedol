@@ -1127,165 +1127,167 @@
 </span><span id="line-936">    <span class="k">def</span><span class="w"> </span><span class="nf">upload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="line-937"><span class="w">        </span><span class="sd">"""Removed: use ``pydrivedol.ops.upload(store, key, value, ...)``."""</span>
 </span><span id="line-938">        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
-</span><span id="line-939">            <span class="n">_MOVED</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">old</span><span class="o">=</span><span class="s2">"upload"</span><span class="p">,</span> <span class="n">new</span><span class="o">=</span><span class="s2">"pydrivedol.ops.upload(store, key, value, ...)"</span><span class="p">)</span>
-</span><span id="line-940">        <span class="p">)</span></div>
+</span><span id="line-939">            <span class="n">_MOVED</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+</span><span id="line-940">                <span class="n">old</span><span class="o">=</span><span class="s2">"upload"</span><span class="p">,</span> <span class="n">new</span><span class="o">=</span><span class="s2">"pydrivedol.ops.upload(store, key, value, ...)"</span>
+</span><span id="line-941">            <span class="p">)</span>
+</span><span id="line-942">        <span class="p">)</span></div>
 
-</span><span id="line-941">
-</span><span id="line-942">    <span class="k">def</span><span class="w"> </span><span class="nf">_get_or_create_folders</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="line-943"><span class="w">        </span><span class="sd">"""</span>
-</span><span id="line-944"><span class="sd">        Create nested folders as needed, return parent folder ID.</span>
-</span><span id="line-945">
-</span><span id="line-946"><span class="sd">        Args:</span>
-</span><span id="line-947"><span class="sd">            key: File path like 'dir1/dir2/file.txt'</span>
-</span><span id="line-948">
-</span><span id="line-949"><span class="sd">        Returns:</span>
-</span><span id="line-950"><span class="sd">            Parent folder ID</span>
-</span><span id="line-951"><span class="sd">        """</span>
-</span><span id="line-952">        <span class="n">parts</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"/"</span><span class="p">)</span>
-</span><span id="line-953">        <span class="n">folder_parts</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-</span><span id="line-954">
-</span><span id="line-955">        <span class="n">current_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder_id</span>
+</span><span id="line-943">
+</span><span id="line-944">    <span class="k">def</span><span class="w"> </span><span class="nf">_get_or_create_folders</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="line-945"><span class="w">        </span><span class="sd">"""</span>
+</span><span id="line-946"><span class="sd">        Create nested folders as needed, return parent folder ID.</span>
+</span><span id="line-947">
+</span><span id="line-948"><span class="sd">        Args:</span>
+</span><span id="line-949"><span class="sd">            key: File path like 'dir1/dir2/file.txt'</span>
+</span><span id="line-950">
+</span><span id="line-951"><span class="sd">        Returns:</span>
+</span><span id="line-952"><span class="sd">            Parent folder ID</span>
+</span><span id="line-953"><span class="sd">        """</span>
+</span><span id="line-954">        <span class="n">parts</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"/"</span><span class="p">)</span>
+</span><span id="line-955">        <span class="n">folder_parts</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 </span><span id="line-956">
-</span><span id="line-957">        <span class="k">for</span> <span class="n">folder_name</span> <span class="ow">in</span> <span class="n">folder_parts</span><span class="p">:</span>
-</span><span id="line-958">            <span class="n">query</span> <span class="o">=</span> <span class="p">(</span>
-</span><span id="line-959">                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">_q</span><span class="p">(</span><span class="n">current_id</span><span class="p">)</span><span class="si">}</span><span class="s2"> in parents "</span>
-</span><span id="line-960">                <span class="sa">f</span><span class="s2">"and title=</span><span class="si">{</span><span class="n">_q</span><span class="p">(</span><span class="n">folder_name</span><span class="p">)</span><span class="si">}</span><span class="s2"> "</span>
-</span><span id="line-961">                <span class="sa">f</span><span class="s2">"and mimeType='application/vnd.google-apps.folder' "</span>
-</span><span id="line-962">                <span class="sa">f</span><span class="s2">"and trashed=false"</span>
-</span><span id="line-963">            <span class="p">)</span>
-</span><span id="line-964">            <span class="n">folders</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">ListFile</span><span class="p">({</span><span class="s2">"q"</span><span class="p">:</span> <span class="n">query</span><span class="p">})</span><span class="o">.</span><span class="n">GetList</span><span class="p">()</span>
-</span><span id="line-965">
-</span><span id="line-966">            <span class="k">if</span> <span class="n">folders</span><span class="p">:</span>
-</span><span id="line-967">                <span class="n">current_id</span> <span class="o">=</span> <span class="n">folders</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"id"</span><span class="p">]</span>
-</span><span id="line-968">            <span class="k">else</span><span class="p">:</span>
-</span><span id="line-969">                <span class="n">folder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">CreateFile</span><span class="p">(</span>
-</span><span id="line-970">                    <span class="p">{</span>
-</span><span id="line-971">                        <span class="s2">"title"</span><span class="p">:</span> <span class="n">folder_name</span><span class="p">,</span>
-</span><span id="line-972">                        <span class="s2">"parents"</span><span class="p">:</span> <span class="p">[{</span><span class="s2">"id"</span><span class="p">:</span> <span class="n">current_id</span><span class="p">}],</span>
-</span><span id="line-973">                        <span class="s2">"mimeType"</span><span class="p">:</span> <span class="s2">"application/vnd.google-apps.folder"</span><span class="p">,</span>
-</span><span id="line-974">                    <span class="p">}</span>
-</span><span id="line-975">                <span class="p">)</span>
-</span><span id="line-976">                <span class="n">folder</span><span class="o">.</span><span class="n">Upload</span><span class="p">()</span>
-</span><span id="line-977">                <span class="n">current_id</span> <span class="o">=</span> <span class="n">folder</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]</span>
-</span><span id="line-978">
-</span><span id="line-979">        <span class="k">return</span> <span class="n">current_id</span>
+</span><span id="line-957">        <span class="n">current_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder_id</span>
+</span><span id="line-958">
+</span><span id="line-959">        <span class="k">for</span> <span class="n">folder_name</span> <span class="ow">in</span> <span class="n">folder_parts</span><span class="p">:</span>
+</span><span id="line-960">            <span class="n">query</span> <span class="o">=</span> <span class="p">(</span>
+</span><span id="line-961">                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">_q</span><span class="p">(</span><span class="n">current_id</span><span class="p">)</span><span class="si">}</span><span class="s2"> in parents "</span>
+</span><span id="line-962">                <span class="sa">f</span><span class="s2">"and title=</span><span class="si">{</span><span class="n">_q</span><span class="p">(</span><span class="n">folder_name</span><span class="p">)</span><span class="si">}</span><span class="s2"> "</span>
+</span><span id="line-963">                <span class="sa">f</span><span class="s2">"and mimeType='application/vnd.google-apps.folder' "</span>
+</span><span id="line-964">                <span class="sa">f</span><span class="s2">"and trashed=false"</span>
+</span><span id="line-965">            <span class="p">)</span>
+</span><span id="line-966">            <span class="n">folders</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">ListFile</span><span class="p">({</span><span class="s2">"q"</span><span class="p">:</span> <span class="n">query</span><span class="p">})</span><span class="o">.</span><span class="n">GetList</span><span class="p">()</span>
+</span><span id="line-967">
+</span><span id="line-968">            <span class="k">if</span> <span class="n">folders</span><span class="p">:</span>
+</span><span id="line-969">                <span class="n">current_id</span> <span class="o">=</span> <span class="n">folders</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"id"</span><span class="p">]</span>
+</span><span id="line-970">            <span class="k">else</span><span class="p">:</span>
+</span><span id="line-971">                <span class="n">folder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">CreateFile</span><span class="p">(</span>
+</span><span id="line-972">                    <span class="p">{</span>
+</span><span id="line-973">                        <span class="s2">"title"</span><span class="p">:</span> <span class="n">folder_name</span><span class="p">,</span>
+</span><span id="line-974">                        <span class="s2">"parents"</span><span class="p">:</span> <span class="p">[{</span><span class="s2">"id"</span><span class="p">:</span> <span class="n">current_id</span><span class="p">}],</span>
+</span><span id="line-975">                        <span class="s2">"mimeType"</span><span class="p">:</span> <span class="s2">"application/vnd.google-apps.folder"</span><span class="p">,</span>
+</span><span id="line-976">                    <span class="p">}</span>
+</span><span id="line-977">                <span class="p">)</span>
+</span><span id="line-978">                <span class="n">folder</span><span class="o">.</span><span class="n">Upload</span><span class="p">()</span>
+</span><span id="line-979">                <span class="n">current_id</span> <span class="o">=</span> <span class="n">folder</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]</span>
 </span><span id="line-980">
-</span><span id="line-981">    <span class="k">def</span><span class="w"> </span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">):</span>
-</span><span id="line-982"><span class="w">        </span><span class="sd">"""Write bytes to file, creating folders as needed.</span>
-</span><span id="line-983">
-</span><span id="line-984"><span class="sd">        If the store was created with ``convert_office=True`` and ``key`` is an office file, it</span>
-</span><span id="line-985"><span class="sd">        is uploaded as a native Google doc (see ``pydrivedol.ops.upload``); otherwise it is stored as raw bytes.</span>
-</span><span id="line-986"><span class="sd">        """</span>
-</span><span id="line-987">        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
-</span><span id="line-988">            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Value must be bytes, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="line-989">
-</span><span id="line-990">        <span class="n">request</span> <span class="o">=</span> <span class="n">_UPLOAD_REQUEST</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
-</span><span id="line-991">        <span class="k">if</span> <span class="n">request</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">request</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="n">key</span> <span class="ow">and</span> <span class="n">request</span><span class="o">.</span><span class="n">leaf</span> <span class="ow">is</span> <span class="bp">self</span><span class="p">:</span>
-</span><span id="line-992">            <span class="c1"># An ``ops.upload`` call authorised this very write: use its options, report the URL.</span>
-</span><span id="line-993">            <span class="n">request</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_upload</span><span class="p">(</span>
-</span><span id="line-994">                <span class="n">key</span><span class="p">,</span>
-</span><span id="line-995">                <span class="n">value</span><span class="p">,</span>
-</span><span id="line-996">                <span class="n">convert</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">convert</span><span class="p">,</span>
-</span><span id="line-997">                <span class="n">google_mimetype</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">google_mimetype</span><span class="p">,</span>
-</span><span id="line-998">            <span class="p">)</span>
-</span><span id="line-999">            <span class="k">return</span>
-</span><span id="line-1000">
-</span><span id="line-1001">        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"convert_office"</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
-</span><span id="line-1002">            <span class="bp">self</span><span class="o">.</span><span class="n">_upload</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">convert</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span><span id="line-1003">            <span class="k">return</span>
-</span><span id="line-1004">
-</span><span id="line-1005">        <span class="n">parent_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_create_folders</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-</span><span id="line-1006">        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-</span><span id="line-1007">
-</span><span id="line-1008">        <span class="c1"># Check if file exists</span>
-</span><span id="line-1009">        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">_q</span><span class="p">(</span><span class="n">parent_id</span><span class="p">)</span><span class="si">}</span><span class="s2"> in parents and title=</span><span class="si">{</span><span class="n">_q</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="si">}</span><span class="s2"> and trashed=false"</span>
-</span><span id="line-1010">        <span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">ListFile</span><span class="p">({</span><span class="s2">"q"</span><span class="p">:</span> <span class="n">query</span><span class="p">})</span><span class="o">.</span><span class="n">GetList</span><span class="p">()</span>
-</span><span id="line-1011">
-</span><span id="line-1012">        <span class="k">if</span> <span class="n">files</span><span class="p">:</span>
-</span><span id="line-1013">            <span class="c1"># Update existing</span>
-</span><span id="line-1014">            <span class="n">gfile</span> <span class="o">=</span> <span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span id="line-1015">        <span class="k">else</span><span class="p">:</span>
-</span><span id="line-1016">            <span class="c1"># Create new</span>
-</span><span id="line-1017">            <span class="n">gfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">CreateFile</span><span class="p">(</span>
-</span><span id="line-1018">                <span class="p">{</span><span class="s2">"title"</span><span class="p">:</span> <span class="n">filename</span><span class="p">,</span> <span class="s2">"parents"</span><span class="p">:</span> <span class="p">[{</span><span class="s2">"id"</span><span class="p">:</span> <span class="n">parent_id</span><span class="p">}]}</span>
-</span><span id="line-1019">            <span class="p">)</span>
-</span><span id="line-1020">
-</span><span id="line-1021">        <span class="n">gfile</span><span class="o">.</span><span class="n">SetContentString</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"latin-1"</span><span class="p">))</span>
-</span><span id="line-1022">        <span class="n">gfile</span><span class="o">.</span><span class="n">Upload</span><span class="p">()</span>
-</span><span id="line-1023">
-</span><span id="line-1024">        <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_cache</span><span class="p">()</span>
+</span><span id="line-981">        <span class="k">return</span> <span class="n">current_id</span>
+</span><span id="line-982">
+</span><span id="line-983">    <span class="k">def</span><span class="w"> </span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">):</span>
+</span><span id="line-984"><span class="w">        </span><span class="sd">"""Write bytes to file, creating folders as needed.</span>
+</span><span id="line-985">
+</span><span id="line-986"><span class="sd">        If the store was created with ``convert_office=True`` and ``key`` is an office file, it</span>
+</span><span id="line-987"><span class="sd">        is uploaded as a native Google doc (see ``pydrivedol.ops.upload``); otherwise it is stored as raw bytes.</span>
+</span><span id="line-988"><span class="sd">        """</span>
+</span><span id="line-989">        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+</span><span id="line-990">            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Value must be bytes, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="line-991">
+</span><span id="line-992">        <span class="n">request</span> <span class="o">=</span> <span class="n">_UPLOAD_REQUEST</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+</span><span id="line-993">        <span class="k">if</span> <span class="n">request</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">request</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="n">key</span> <span class="ow">and</span> <span class="n">request</span><span class="o">.</span><span class="n">leaf</span> <span class="ow">is</span> <span class="bp">self</span><span class="p">:</span>
+</span><span id="line-994">            <span class="c1"># An ``ops.upload`` call authorised this very write: use its options, report the URL.</span>
+</span><span id="line-995">            <span class="n">request</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_upload</span><span class="p">(</span>
+</span><span id="line-996">                <span class="n">key</span><span class="p">,</span>
+</span><span id="line-997">                <span class="n">value</span><span class="p">,</span>
+</span><span id="line-998">                <span class="n">convert</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">convert</span><span class="p">,</span>
+</span><span id="line-999">                <span class="n">google_mimetype</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">google_mimetype</span><span class="p">,</span>
+</span><span id="line-1000">            <span class="p">)</span>
+</span><span id="line-1001">            <span class="k">return</span>
+</span><span id="line-1002">
+</span><span id="line-1003">        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"convert_office"</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+</span><span id="line-1004">            <span class="bp">self</span><span class="o">.</span><span class="n">_upload</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">convert</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="line-1005">            <span class="k">return</span>
+</span><span id="line-1006">
+</span><span id="line-1007">        <span class="n">parent_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_create_folders</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span id="line-1008">        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span id="line-1009">
+</span><span id="line-1010">        <span class="c1"># Check if file exists</span>
+</span><span id="line-1011">        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">_q</span><span class="p">(</span><span class="n">parent_id</span><span class="p">)</span><span class="si">}</span><span class="s2"> in parents and title=</span><span class="si">{</span><span class="n">_q</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="si">}</span><span class="s2"> and trashed=false"</span>
+</span><span id="line-1012">        <span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">ListFile</span><span class="p">({</span><span class="s2">"q"</span><span class="p">:</span> <span class="n">query</span><span class="p">})</span><span class="o">.</span><span class="n">GetList</span><span class="p">()</span>
+</span><span id="line-1013">
+</span><span id="line-1014">        <span class="k">if</span> <span class="n">files</span><span class="p">:</span>
+</span><span id="line-1015">            <span class="c1"># Update existing</span>
+</span><span id="line-1016">            <span class="n">gfile</span> <span class="o">=</span> <span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span id="line-1017">        <span class="k">else</span><span class="p">:</span>
+</span><span id="line-1018">            <span class="c1"># Create new</span>
+</span><span id="line-1019">            <span class="n">gfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">CreateFile</span><span class="p">(</span>
+</span><span id="line-1020">                <span class="p">{</span><span class="s2">"title"</span><span class="p">:</span> <span class="n">filename</span><span class="p">,</span> <span class="s2">"parents"</span><span class="p">:</span> <span class="p">[{</span><span class="s2">"id"</span><span class="p">:</span> <span class="n">parent_id</span><span class="p">}]}</span>
+</span><span id="line-1021">            <span class="p">)</span>
+</span><span id="line-1022">
+</span><span id="line-1023">        <span class="n">gfile</span><span class="o">.</span><span class="n">SetContentString</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"latin-1"</span><span class="p">))</span>
+</span><span id="line-1024">        <span class="n">gfile</span><span class="o">.</span><span class="n">Upload</span><span class="p">()</span>
 </span><span id="line-1025">
-</span><span id="line-1026">    <span class="k">def</span><span class="w"> </span><span class="fm">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="line-1027"><span class="w">        </span><span class="sd">"""Delete file."""</span>
-</span><span id="line-1028">        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files</span><span class="p">:</span>
-</span><span id="line-1029">            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"File not found: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="line-1030">
-</span><span id="line-1031">        <span class="n">file_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-</span><span id="line-1032">        <span class="n">gfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">CreateFile</span><span class="p">({</span><span class="s2">"id"</span><span class="p">:</span> <span class="n">file_id</span><span class="p">})</span>
-</span><span id="line-1033">        <span class="n">gfile</span><span class="o">.</span><span class="n">Delete</span><span class="p">()</span>
-</span><span id="line-1034">
-</span><span id="line-1035">        <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_cache</span><span class="p">()</span></div>
-
+</span><span id="line-1026">        <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_cache</span><span class="p">()</span>
+</span><span id="line-1027">
+</span><span id="line-1028">    <span class="k">def</span><span class="w"> </span><span class="fm">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="line-1029"><span class="w">        </span><span class="sd">"""Delete file."""</span>
+</span><span id="line-1030">        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files</span><span class="p">:</span>
+</span><span id="line-1031">            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"File not found: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="line-1032">
+</span><span id="line-1033">        <span class="n">file_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+</span><span id="line-1034">        <span class="n">gfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drive</span><span class="o">.</span><span class="n">CreateFile</span><span class="p">({</span><span class="s2">"id"</span><span class="p">:</span> <span class="n">file_id</span><span class="p">})</span>
+</span><span id="line-1035">        <span class="n">gfile</span><span class="o">.</span><span class="n">Delete</span><span class="p">()</span>
 </span><span id="line-1036">
-</span><span id="line-1037">
-</span><span id="line-1038"><span class="c1"># =============================================================================</span>
-</span><span id="line-1039"><span class="c1"># Convenience: make a native Google Sheet from an .xlsx</span>
+</span><span id="line-1037">        <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_cache</span><span class="p">()</span></div>
+
+</span><span id="line-1038">
+</span><span id="line-1039">
 </span><span id="line-1040"><span class="c1"># =============================================================================</span>
-</span><span id="line-1041">
-</span><span id="line-1042">
+</span><span id="line-1041"><span class="c1"># Convenience: make a native Google Sheet from an .xlsx</span>
+</span><span id="line-1042"><span class="c1"># =============================================================================</span>
+</span><span id="line-1043">
+</span><span id="line-1044">
 <div class="viewcode-block" id="xlsx_to_google_sheet">
 <a class="viewcode-back" href="../../_autosummary/pydrivedol.base.html#pydrivedol.base.xlsx_to_google_sheet">[docs]</a>
-</span><span id="line-1043"><span class="k">def</span><span class="w"> </span><span class="nf">xlsx_to_google_sheet</span><span class="p">(</span>
-</span><span id="line-1044">    <span class="n">folder_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-</span><span id="line-1045">    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-</span><span id="line-1046">    <span class="n">xlsx</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">],</span>
-</span><span id="line-1047">    <span class="o">*</span><span class="p">,</span>
-</span><span id="line-1048">    <span class="n">share_with</span><span class="o">=</span><span class="p">(),</span>
-</span><span id="line-1049">    <span class="n">anyone_reader</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-</span><span id="line-1050">    <span class="n">credentials_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"client_secrets.json"</span><span class="p">,</span>
-</span><span id="line-1051">    <span class="n">settings_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"settings.yaml"</span><span class="p">,</span>
-</span><span id="line-1052">    <span class="n">drive</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span id="line-1053"><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="line-1054"><span class="w">    </span><span class="sd">"""Upload an ``.xlsx`` as a **native Google Sheet** and return its shareable URL.</span>
-</span><span id="line-1055">
-</span><span id="line-1056"><span class="sd">    The whole point: Drive can *convert* an uploaded spreadsheet into an editable Google Sheet</span>
-</span><span id="line-1057"><span class="sd">    (preserving cell formatting), rather than parking an ``.xlsx`` blob. This wraps that.</span>
-</span><span id="line-1058">
-</span><span id="line-1059"><span class="sd">    Args:</span>
-</span><span id="line-1060"><span class="sd">        folder_url: destination Drive folder URL (``None`` → the account's root).</span>
-</span><span id="line-1061"><span class="sd">        title: the Google Sheet's name.</span>
-</span><span id="line-1062"><span class="sd">        xlsx: a path (``str``/``Path``) or raw ``bytes``.</span>
-</span><span id="line-1063"><span class="sd">        share_with: emails to grant ``writer`` access (no notification email sent).</span>
-</span><span id="line-1064"><span class="sd">        anyone_reader: also grant anyone-with-link ``reader`` access.</span>
-</span><span id="line-1065"><span class="sd">        credentials_file / settings_file: PyDrive2 auth (ignored if ``drive`` is given).</span>
-</span><span id="line-1066"><span class="sd">        drive: an existing PyDrive2 ``GoogleDrive`` (skips auth).</span>
-</span><span id="line-1067">
-</span><span id="line-1068"><span class="sd">    Returns:</span>
-</span><span id="line-1069"><span class="sd">        The Google Sheet URL (``alternateLink``).</span>
-</span><span id="line-1070">
-</span><span id="line-1071"><span class="sd">    &gt;&gt;&gt; url = xlsx_to_google_sheet(folder_url, 'My Schema', '/tmp/schema.xlsx',</span>
-</span><span id="line-1072"><span class="sd">    ...                            anyone_reader=True)  # doctest: +SKIP</span>
-</span><span id="line-1073"><span class="sd">    """</span>
-</span><span id="line-1074">    <span class="k">if</span> <span class="n">drive</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="line-1075">        <span class="n">_require_pydrive2</span><span class="p">()</span>
-</span><span id="line-1076">        <span class="n">drive</span> <span class="o">=</span> <span class="n">_init_google_drive</span><span class="p">(</span><span class="n">credentials_file</span><span class="p">,</span> <span class="n">settings_file</span><span class="p">)</span>
-</span><span id="line-1077">    <span class="n">parent_id</span> <span class="o">=</span> <span class="n">_extract_folder_id</span><span class="p">(</span><span class="n">folder_url</span><span class="p">)</span> <span class="k">if</span> <span class="n">folder_url</span> <span class="k">else</span> <span class="kc">None</span>
-</span><span id="line-1078">    <span class="n">path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">xlsx</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">xlsx</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">))</span> <span class="k">else</span> <span class="kc">None</span>
-</span><span id="line-1079">    <span class="n">content</span> <span class="o">=</span> <span class="n">xlsx</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">xlsx</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
-</span><span id="line-1080">    <span class="n">gfile</span> <span class="o">=</span> <span class="n">_upload_converting</span><span class="p">(</span>
-</span><span id="line-1081">        <span class="n">drive</span><span class="p">,</span>
-</span><span id="line-1082">        <span class="n">parent_id</span><span class="o">=</span><span class="n">parent_id</span><span class="p">,</span>
-</span><span id="line-1083">        <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
-</span><span id="line-1084">        <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
-</span><span id="line-1085">        <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
-</span><span id="line-1086">        <span class="n">convert</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="line-1087">        <span class="n">google_mimetype</span><span class="o">=</span><span class="s2">"application/vnd.google-apps.spreadsheet"</span><span class="p">,</span>
-</span><span id="line-1088">    <span class="p">)</span>
-</span><span id="line-1089">    <span class="k">for</span> <span class="n">email</span> <span class="ow">in</span> <span class="n">share_with</span><span class="p">:</span>
-</span><span id="line-1090">        <span class="n">gfile</span><span class="o">.</span><span class="n">InsertPermission</span><span class="p">({</span><span class="s2">"type"</span><span class="p">:</span> <span class="s2">"user"</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">:</span> <span class="n">email</span><span class="p">,</span> <span class="s2">"role"</span><span class="p">:</span> <span class="s2">"writer"</span><span class="p">})</span>
-</span><span id="line-1091">    <span class="k">if</span> <span class="n">anyone_reader</span><span class="p">:</span>
-</span><span id="line-1092">        <span class="n">gfile</span><span class="o">.</span><span class="n">InsertPermission</span><span class="p">({</span><span class="s2">"type"</span><span class="p">:</span> <span class="s2">"anyone"</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">:</span> <span class="s2">"anyone"</span><span class="p">,</span> <span class="s2">"role"</span><span class="p">:</span> <span class="s2">"reader"</span><span class="p">})</span>
-</span><span id="line-1093">    <span class="k">return</span> <span class="n">gfile</span><span class="p">[</span><span class="s2">"alternateLink"</span><span class="p">]</span></div>
+</span><span id="line-1045"><span class="k">def</span><span class="w"> </span><span class="nf">xlsx_to_google_sheet</span><span class="p">(</span>
+</span><span id="line-1046">    <span class="n">folder_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+</span><span id="line-1047">    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="line-1048">    <span class="n">xlsx</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">],</span>
+</span><span id="line-1049">    <span class="o">*</span><span class="p">,</span>
+</span><span id="line-1050">    <span class="n">share_with</span><span class="o">=</span><span class="p">(),</span>
+</span><span id="line-1051">    <span class="n">anyone_reader</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="line-1052">    <span class="n">credentials_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"client_secrets.json"</span><span class="p">,</span>
+</span><span id="line-1053">    <span class="n">settings_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"settings.yaml"</span><span class="p">,</span>
+</span><span id="line-1054">    <span class="n">drive</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span id="line-1055"><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="line-1056"><span class="w">    </span><span class="sd">"""Upload an ``.xlsx`` as a **native Google Sheet** and return its shareable URL.</span>
+</span><span id="line-1057">
+</span><span id="line-1058"><span class="sd">    The whole point: Drive can *convert* an uploaded spreadsheet into an editable Google Sheet</span>
+</span><span id="line-1059"><span class="sd">    (preserving cell formatting), rather than parking an ``.xlsx`` blob. This wraps that.</span>
+</span><span id="line-1060">
+</span><span id="line-1061"><span class="sd">    Args:</span>
+</span><span id="line-1062"><span class="sd">        folder_url: destination Drive folder URL (``None`` → the account's root).</span>
+</span><span id="line-1063"><span class="sd">        title: the Google Sheet's name.</span>
+</span><span id="line-1064"><span class="sd">        xlsx: a path (``str``/``Path``) or raw ``bytes``.</span>
+</span><span id="line-1065"><span class="sd">        share_with: emails to grant ``writer`` access (no notification email sent).</span>
+</span><span id="line-1066"><span class="sd">        anyone_reader: also grant anyone-with-link ``reader`` access.</span>
+</span><span id="line-1067"><span class="sd">        credentials_file / settings_file: PyDrive2 auth (ignored if ``drive`` is given).</span>
+</span><span id="line-1068"><span class="sd">        drive: an existing PyDrive2 ``GoogleDrive`` (skips auth).</span>
+</span><span id="line-1069">
+</span><span id="line-1070"><span class="sd">    Returns:</span>
+</span><span id="line-1071"><span class="sd">        The Google Sheet URL (``alternateLink``).</span>
+</span><span id="line-1072">
+</span><span id="line-1073"><span class="sd">    &gt;&gt;&gt; url = xlsx_to_google_sheet(folder_url, 'My Schema', '/tmp/schema.xlsx',</span>
+</span><span id="line-1074"><span class="sd">    ...                            anyone_reader=True)  # doctest: +SKIP</span>
+</span><span id="line-1075"><span class="sd">    """</span>
+</span><span id="line-1076">    <span class="k">if</span> <span class="n">drive</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="line-1077">        <span class="n">_require_pydrive2</span><span class="p">()</span>
+</span><span id="line-1078">        <span class="n">drive</span> <span class="o">=</span> <span class="n">_init_google_drive</span><span class="p">(</span><span class="n">credentials_file</span><span class="p">,</span> <span class="n">settings_file</span><span class="p">)</span>
+</span><span id="line-1079">    <span class="n">parent_id</span> <span class="o">=</span> <span class="n">_extract_folder_id</span><span class="p">(</span><span class="n">folder_url</span><span class="p">)</span> <span class="k">if</span> <span class="n">folder_url</span> <span class="k">else</span> <span class="kc">None</span>
+</span><span id="line-1080">    <span class="n">path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">xlsx</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">xlsx</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">))</span> <span class="k">else</span> <span class="kc">None</span>
+</span><span id="line-1081">    <span class="n">content</span> <span class="o">=</span> <span class="n">xlsx</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">xlsx</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+</span><span id="line-1082">    <span class="n">gfile</span> <span class="o">=</span> <span class="n">_upload_converting</span><span class="p">(</span>
+</span><span id="line-1083">        <span class="n">drive</span><span class="p">,</span>
+</span><span id="line-1084">        <span class="n">parent_id</span><span class="o">=</span><span class="n">parent_id</span><span class="p">,</span>
+</span><span id="line-1085">        <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+</span><span id="line-1086">        <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
+</span><span id="line-1087">        <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
+</span><span id="line-1088">        <span class="n">convert</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="line-1089">        <span class="n">google_mimetype</span><span class="o">=</span><span class="s2">"application/vnd.google-apps.spreadsheet"</span><span class="p">,</span>
+</span><span id="line-1090">    <span class="p">)</span>
+</span><span id="line-1091">    <span class="k">for</span> <span class="n">email</span> <span class="ow">in</span> <span class="n">share_with</span><span class="p">:</span>
+</span><span id="line-1092">        <span class="n">gfile</span><span class="o">.</span><span class="n">InsertPermission</span><span class="p">({</span><span class="s2">"type"</span><span class="p">:</span> <span class="s2">"user"</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">:</span> <span class="n">email</span><span class="p">,</span> <span class="s2">"role"</span><span class="p">:</span> <span class="s2">"writer"</span><span class="p">})</span>
+</span><span id="line-1093">    <span class="k">if</span> <span class="n">anyone_reader</span><span class="p">:</span>
+</span><span id="line-1094">        <span class="n">gfile</span><span class="o">.</span><span class="n">InsertPermission</span><span class="p">({</span><span class="s2">"type"</span><span class="p">:</span> <span class="s2">"anyone"</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">:</span> <span class="s2">"anyone"</span><span class="p">,</span> <span class="s2">"role"</span><span class="p">:</span> <span class="s2">"reader"</span><span class="p">})</span>
+</span><span id="line-1095">    <span class="k">return</span> <span class="n">gfile</span><span class="p">[</span><span class="s2">"alternateLink"</span><span class="p">]</span></div>
 
 </span></code></pre></div>
     </div></div>
@@ -1300,7 +1302,7 @@
 </footer>
     </div>
     
-    <script src="../../_static/documentation_options.js?v=53b53b71"></script>
+    <script src="../../_static/documentation_options.js?v=f7cdbf68"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>

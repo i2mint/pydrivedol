@@ -1,32 +1,32 @@
 {
   "schema_version": 1,
-  "built_at": "2026-10-13T09:41:44Z",
+  "built_at": "2026-10-13T11:14:20Z",
   "package": {
     "name": "pydrivedol",
-    "version": "0.0.8",
+    "version": "0.0.9",
     "display_name": "pydrivedol",
     "source": "pyproject.toml"
   },
   "git": {
     "available": true,
-    "commit": "ce9d2b5596c358098ed7403a006c0847bb8a1e1c",
-    "short_commit": "ce9d2b5",
+    "commit": "738d5bb2ecdf7549bf9f19678f8695b67921782b",
+    "short_commit": "738d5bb",
     "branch": "master",
     "tags": [],
     "dirty": false,
     "remote_url": "https://github.com/i2mint/pydrivedol",
-    "commit_url": "https://github.com/i2mint/pydrivedol/commit/ce9d2b5596c358098ed7403a006c0847bb8a1e1c",
+    "commit_url": "https://github.com/i2mint/pydrivedol/commit/738d5bb2ecdf7549bf9f19678f8695b67921782b",
     "error": null
   },
   "ci": {
     "provider": "github",
     "repository": "i2mint/pydrivedol",
-    "sha": "ce9d2b5596c358098ed7403a006c0847bb8a1e1c",
+    "sha": "738d5bb2ecdf7549bf9f19678f8695b67921782b",
     "sha_in_history": true,
     "ref": "refs/heads/master",
     "ref_name": "master",
-    "run_id": "38377972227",
-    "run_url": "https://github.com/i2mint/pydrivedol/actions/runs/38377972227",
+    "run_id": "38388661245",
+    "run_url": "https://github.com/i2mint/pydrivedol/actions/runs/38388661245",
     "server_url": "https://github.com"
   },
   "tools": {
@@ -60,16 +60,16 @@
   },
   "pypi": {
     "checked": true,
-    "latest": "0.0.9",
+    "latest": "0.0.10",
     "relation": "behind",
     "error": null
   },
-  "reproduce": "git clone https://github.com/i2mint/pydrivedol && cd pydrivedol\ngit checkout ce9d2b5596c358098ed7403a006c0847bb8a1e1c\npip install \"epythet==0.2.15\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "reproduce": "git clone https://github.com/i2mint/pydrivedol && cd pydrivedol\ngit checkout 738d5bb2ecdf7549bf9f19678f8695b67921782b\npip install \"epythet==0.2.15\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
   "warnings": [],
   "alignment": {
     "aligned": false,
     "notes": [
-      "The documented version (0.0.8) is behind the latest release on PyPI (0.0.9): `pip install pydrivedol` gives newer code than these docs describe."
+      "The documented version (0.0.9) is behind the latest release on PyPI (0.0.10): `pip install pydrivedol` gives newer code than these docs describe."
     ]
   }
 }

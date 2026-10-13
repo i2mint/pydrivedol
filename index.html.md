@@ -105,7 +105,9 @@ files = GDFiles(drive)
 content = files[url]  # a Drive file URL...
 content = files[file_id]  # ...or the bare id: same entry
 url in files  # metadata probe, never a download
-metadata(files, url)  # (from pydrivedol import metadata) name / size / mimeType / modifiedDate
+metadata(
+    files, url
+)  # (from pydrivedol import metadata) name / size / mimeType / modifiedDate
 
 # Iteration needs a scope — an unscoped GDFiles addresses the whole Drive
 scoped = GDFiles(drive, folder_url=folder_url)
@@ -145,6 +147,7 @@ num_files = len(reader)
 
 # Get shareable URL
 from pydrivedol import get_url
+
 url = get_url(reader, "file.txt")
 ```
 
@@ -296,6 +299,7 @@ reader = GDReader(
 # Get public URL for a file (a free function: it maps the key through any dol
 # key codec wrapped around the reader; the old reader.get_url method was removed, #4)
 from pydrivedol import get_url
+
 url = get_url(reader, "file.txt")
 
 # With specific permissions

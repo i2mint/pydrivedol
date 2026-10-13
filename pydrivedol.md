@@ -1,4 +1,4 @@
-> built 2026-10-13 09:41 UTC from ce9d2b5 (master) · pydrivedol 0.0.8. Details: build_info.json
+> built 2026-10-13 11:14 UTC from 738d5bb (master) · pydrivedol 0.0.9. Details: build_info.json
 
 # index.html.md
 
@@ -109,7 +109,9 @@ files = GDFiles(drive)
 content = files[url]  # a Drive file URL...
 content = files[file_id]  # ...or the bare id: same entry
 url in files  # metadata probe, never a download
-metadata(files, url)  # (from pydrivedol import metadata) name / size / mimeType / modifiedDate
+metadata(
+    files, url
+)  # (from pydrivedol import metadata) name / size / mimeType / modifiedDate
 
 # Iteration needs a scope — an unscoped GDFiles addresses the whole Drive
 scoped = GDFiles(drive, folder_url=folder_url)
@@ -149,6 +151,7 @@ num_files = len(reader)
 
 # Get shareable URL
 from pydrivedol import get_url
+
 url = get_url(reader, "file.txt")
 ```
 
@@ -300,6 +303,7 @@ reader = GDReader(
 # Get public URL for a file (a free function: it maps the key through any dol
 # key codec wrapped around the reader; the old reader.get_url method was removed, #4)
 from pydrivedol import get_url
+
 url = get_url(reader, "file.txt")
 
 # With specific permissions
@@ -1002,18 +1006,18 @@ Google doc. See the module docstring for how the write goes through the caller�
 
 # About this build
 
-This documentation was built on **2026-10-13 09:41 UTC** from commit <a href="https://github.com/i2mint/pydrivedol/commit/ce9d2b5596c358098ed7403a006c0847bb8a1e1c"><code>ce9d2b5</code></a> on branch <code>master</code>, for **pydrivedol 0.0.8** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-10-13 11:14 UTC** from commit <a href="https://github.com/i2mint/pydrivedol/commit/738d5bb2ecdf7549bf9f19678f8695b67921782b"><code>738d5bb</code></a> on branch <code>master</code>, for **pydrivedol 0.0.9** (from <code>pyproject.toml</code>).
 
 #### WARNING
 The documentation and the package may be misaligned:
 
-- The documented version (0.0.8) is behind the latest release on PyPI (0.0.9): `pip install pydrivedol` gives newer code than these docs describe.
+- The documented version (0.0.9) is behind the latest release on PyPI (0.0.10): `pip install pydrivedol` gives newer code than these docs describe.
 
 ## Source
 
 |                     |                                                                                                                                                          |
 |---------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/i2mint/pydrivedol/commit/ce9d2b5596c358098ed7403a006c0847bb8a1e1c"><code>ce9d2b5596c358098ed7403a006c0847bb8a1e1c</code></a> |
+| Commit              | <a href="https://github.com/i2mint/pydrivedol/commit/738d5bb2ecdf7549bf9f19678f8695b67921782b"><code>738d5bb2ecdf7549bf9f19678f8695b67921782b</code></a> |
 | Branch              | <code>master</code>                                                                                                                                      |
 | Tags at this commit | none                                                                                                                                                     |
 | Working tree        | clean                                                                                                                                                    |
@@ -1024,9 +1028,9 @@ The documentation and the package may be misaligned:
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>i2mint/pydrivedol</code>                                                             |
-| Run          | <a href="https://github.com/i2mint/pydrivedol/actions/runs/38377972227">38377972227</a>    |
+| Run          | <a href="https://github.com/i2mint/pydrivedol/actions/runs/38388661245">38388661245</a>    |
 | Ref          | <code>refs/heads/master</code>                                                             |
-| Event commit | <code>ce9d2b5596c358098ed7403a006c0847bb8a1e1c</code> (in the history of the built commit) |
+| Event commit | <code>738d5bb2ecdf7549bf9f19678f8695b67921782b</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -1051,13 +1055,13 @@ The documentation and the package may be misaligned:
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/pydrivedol/0.0.9/">0.0.9</a>, newer than the documented version (0.0.8).
+Latest release: <a href="https://pypi.org/project/pydrivedol/0.0.10/">0.0.10</a>, newer than the documented version (0.0.9).
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/i2mint/pydrivedol && cd pydrivedol
-git checkout ce9d2b5596c358098ed7403a006c0847bb8a1e1c
+git checkout 738d5bb2ecdf7549bf9f19678f8695b67921782b
 pip install "epythet==0.2.15"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
