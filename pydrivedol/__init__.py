@@ -71,3 +71,8 @@ from pydrivedol.base import (
     xlsx_to_google_sheet,  # upload an .xlsx as a native Google Sheet -> URL
     GOOGLE_MIME,  # office-ext -> Google-native editor mimetype map
 )
+from pydrivedol.ops import (
+    get_url,  # shareable URL of a key (works through dol key codecs)
+    upload,  # write bytes/file to a key with convert= options (works through dol key codecs)
+    metadata,  # a GDFiles key's metadata (works through dol key codecs)
+)

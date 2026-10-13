@@ -111,5 +111,7 @@ def test_bare_id_with_trailing_newline_is_refused():
 def test_upload_quotes_the_filename():
     s = _store()
     s.convert_office = False
-    s.upload(HOSTILE, b"data")
+    from pydrivedol.ops import upload
+
+    upload(s, HOSTILE, b"data")
     assert "title='x\\' or title contains \\'' " in s._drive.queries[-1]
