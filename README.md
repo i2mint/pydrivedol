@@ -173,6 +173,17 @@ store["data.json"] = b'{"key": "new"}'  # Update
 del store["data.json"]  # Delete
 ```
 
+`GDStore.upload`, `GDReader.get_url` and `GDFiles.metadata` are free functions
+(`pydrivedol.upload(store, key, value, convert=..., google_mimetype=...)`, `get_url(reader, key)`,
+`metadata(files, key)`), not methods, so that they map `key` through any `dol` key codec or
+filter you have wrapped the store in (i2mint/pydrivedol#4). Wrappers must be `dol` layers.
+
+```python
+from pydrivedol import upload
+
+url = upload(store, "schema.xlsx", xlsx_bytes, convert=True)  # -> a native Google Sheet
+```
+
 ## API Setup (for GDReader/GDStore)
 
 ### 1. Create Google Cloud Project

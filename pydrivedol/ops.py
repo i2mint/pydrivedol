@@ -27,6 +27,7 @@ codec like any value; a layer that performs the write in another thread escapes 
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Optional
 
@@ -34,6 +35,7 @@ from dol import inner_most_key
 
 from pydrivedol.base import (
     DEFAULT_METADATA_FIELDS,
+    GOOGLE_MIME,
     GDFiles,
     GDReader,
     GDStore,
@@ -43,9 +45,20 @@ from pydrivedol.base import (
 
 
 def _leaf_of(store, cls):
-    """The innermost layer of ``store`` that is an instance of ``cls``."""
+    """The innermost layer of ``store`` that is an instance of ``cls``.
+
+    Every wrapper layer above it must define ``_id_of_key`` (dol's ``Store`` layers do): a
+    layer that maps keys without it cannot be resolved by ``inner_most_key``, which would then
+    hand back an unmapped key and act on the wrong file, so it is refused (``TypeError``).
+    """
     cur, seen = store, set()
     while not isinstance(cur, cls):
+        if not hasattr(cur, "_id_of_key"):
+            raise TypeError(
+                f"{type(cur).__name__} wraps a {cls.__name__} but defines no _id_of_key, so "
+                "keys cannot be resolved through it; build wrappers with dol (Store, "
+                "wrap_kvs, KeyCodecs, ...)."
+            )
         inner = getattr(cur, "store", None)
         if inner is None or id(cur) in seen:
             raise TypeError(f"{type(store).__name__} does not wrap a {cls.__name__}")
@@ -108,8 +121,14 @@ def upload(
         raise ValueError("Pass exactly one of value= and path=")
     if path is not None:
         value = Path(path).read_bytes()
+    if path is not None and google_mimetype is None:
+        # the file's own extension decides the Google type (the bytes are sent under ``key``)
+        google_mimetype = GOOGLE_MIME.get(os.path.splitext(path)[1].lower())
     request = _UploadRequest(
-        key=_inner_key(store, key), convert=convert, google_mimetype=google_mimetype
+        key=_inner_key(store, key),
+        leaf=leaf,
+        convert=convert,
+        google_mimetype=google_mimetype,
     )
     token = _UPLOAD_REQUEST.set(request)
     try:
@@ -118,7 +137,8 @@ def upload(
         _UPLOAD_REQUEST.reset(token)
     if request.url is None:
         raise RuntimeError(
-            f"The write of {key!r} did not reach the Drive store under {request.key!r}: a "
-            "layer redirected, buffered or swallowed it."
+            f"The write of {key!r} reached no Drive store under {request.key!r} with the upload "
+            "options: a layer redirected, buffered, swallowed or deferred it (the data may "
+            "have been written, without convert=/google_mimetype=, or elsewhere)."
         )
     return request.url

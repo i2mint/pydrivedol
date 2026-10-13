@@ -599,6 +599,7 @@ class _UploadRequest:
     """What ``pydrivedol.ops.upload`` authorises ``GDStore.__setitem__`` to do for one key."""
 
     key: str  # the leaf key the write must arrive under
+    leaf: object = None  # the GDStore it must arrive at (not another store, same key)
     convert: Optional[bool] = None
     google_mimetype: Optional[str] = None
     url: Optional[str] = None  # filled in by the leaf with the uploaded file's link
@@ -909,6 +910,8 @@ class GDStore(GDReader, MutableMapping):
         native Google doc — e.g. ``store.upload('schema.xlsx', xlsx_bytes, convert=True)`` yields a
         Google Sheet. Updates an existing same-named file in the target folder, else creates it.
         ``key`` is in leaf coordinates; callers use ``pydrivedol.ops.upload``.
+
+        >>> upload(store, 'schema.xlsx', xlsx_bytes, convert=True)  # pydrivedol.ops; doctest: +SKIP
         """
         if convert is None:
             convert = self.convert_office
@@ -979,13 +982,13 @@ class GDStore(GDReader, MutableMapping):
         """Write bytes to file, creating folders as needed.
 
         If the store was created with ``convert_office=True`` and ``key`` is an office file, it
-        is uploaded as a native Google doc (see :meth:`upload`); otherwise it is stored as raw bytes.
+        is uploaded as a native Google doc (see ``pydrivedol.ops.upload``); otherwise it is stored as raw bytes.
         """
         if not isinstance(value, bytes):
             raise TypeError(f"Value must be bytes, got {type(value)}")
 
         request = _UPLOAD_REQUEST.get()
-        if request is not None and request.key == key:
+        if request is not None and request.key == key and request.leaf is self:
             # An ``ops.upload`` call authorised this very write: use its options, report the URL.
             request.url = self._upload(
                 key,

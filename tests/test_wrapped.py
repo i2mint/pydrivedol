@@ -7,7 +7,7 @@ from dol import KeyCodecs, ValueCodecs, filt_iter, wrap_kvs
 
 import pydrivedol.base as B
 from pydrivedol import get_url, metadata, upload
-from pydrivedol.base import GDFiles, GDStore
+from pydrivedol.base import GDFiles, GDStore, GOOGLE_MIME
 
 B._PYDRIVE2_AVAILABLE = True  # drive= is injected; skip the pydrive2 guard
 FOLDER = "https://drive.google.com/drive/folders/ROOT"
@@ -51,6 +51,7 @@ class FakeFile(dict):
 class FakeDrive:
     def __init__(self):
         self.files, self._n, self.permission_log = {}, 0, []
+        self.created_meta = []
 
     def add(self, id, title, parent, mimeType="text/plain", content=b""):
         self.files[id] = FakeFile(
@@ -74,6 +75,7 @@ class FakeDrive:
         return type("L", (), {"GetList": lambda s: out})()
 
     def CreateFile(self, meta):
+        self.created_meta.append(dict(meta))
         if meta.get("id") in self.files:
             return self.files[meta["id"]]
         self._n += 1
@@ -171,7 +173,7 @@ def test_upload_redirecting_layer_raises():
         def __setitem__(self, k, v):
             self.store["a/b"] = v  # writes somewhere else than the mapped key
 
-    with pytest.raises(RuntimeError, match="did not reach"):
+    with pytest.raises(RuntimeError, match="reached no Drive store"):
         upload(Redirect(base), "other", b"x")
 
 
@@ -221,3 +223,54 @@ def test_metadata_maps_key(monkeypatch):
     }
     # the existence probe (key in files) and the call itself both used the mapped key
     assert set(seen) == {"https://drive.google.com/file/d/ABC123def456"}
+
+
+class PlainPrefix:
+    """A key-mapping wrapper with no ``_id_of_key`` (not a dol layer)."""
+
+    def __init__(self, store):
+        self.store = store
+
+    def __contains__(self, k):
+        return "a/" + k in self.store
+
+    def __getitem__(self, k):
+        return self.store["a/" + k]
+
+    def __setitem__(self, k, v):
+        self.store["a/" + k] = v
+
+
+def test_wrapper_without_id_of_key_is_refused_not_guessed():
+    d = fresh()
+    w = PlainPrefix(GDStore(FOLDER, drive=d))
+    for call in (
+        lambda: get_url(w, "b"),
+        lambda: upload(w, "b", b"x"),
+    ):
+        with pytest.raises(TypeError, match="_id_of_key"):
+            call()
+    assert d.permission_log == [] and contents(d)["F_ROOT_B"] == b"IMPORTANT ROOT DATA"
+
+
+def test_upload_from_another_store_is_not_accepted():
+    d = fresh()
+    other = GDStore(FOLDER, drive=fresh())
+    base = GDStore(FOLDER, drive=d)
+
+    class ToOther(type(wrap_kvs(base))):
+        def __setitem__(self, k, v):
+            other[k] = v  # same relative key, different store
+
+    with pytest.raises(RuntimeError, match="reached no Drive store"):
+        upload(ToOther(base), "b", b"x")
+
+
+def test_upload_path_extension_picks_google_type(tmp_path):
+    d = fresh()
+    s = GDStore(FOLDER, drive=d)
+    f = tmp_path / "x.xlsx"
+    f.write_bytes(b"PK")
+    upload(s, "report", path=str(f), convert=True)
+    [meta] = [m for m in d.created_meta if m.get("title") == "report"]
+    assert meta["mimeType"] == GOOGLE_MIME[".xlsx"]
