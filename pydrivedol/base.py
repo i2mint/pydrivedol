@@ -911,7 +911,7 @@ class GDStore(GDReader, MutableMapping):
         Google Sheet. Updates an existing same-named file in the target folder, else creates it.
         ``key`` is in leaf coordinates; callers use ``pydrivedol.ops.upload``.
 
-        >>> upload(store, 'schema.xlsx', xlsx_bytes, convert=True)  # pydrivedol.ops; doctest: +SKIP
+        >>> upload(store, 'schema.xlsx', xlsx_bytes, convert=True)  # doctest: +SKIP
         """
         if convert is None:
             convert = self.convert_office
