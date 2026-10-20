@@ -64,6 +64,7 @@ from pydrivedol.base import (
     # Needing API setup:
     get_metadata,  # a file's name/size/mimeType/modifiedDate, without downloading it
     DEFAULT_METADATA_FIELDS,  # the metadata fields get_metadata asks for by default
+    iter_folder_items,  # (path, metadata) for every file in a folder, from one listing
     GDFiles,  # read-only Mapping of files, keyed by file id or file URL
     GDReader,  # read-only Mapping interface to a Google Drive folder
     GDStore,  # read-write MutableMapping interface to a Google Drive folder

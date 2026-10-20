@@ -473,26 +473,55 @@ def get_metadata(url_or_id: str, *, drive, fields=DEFAULT_METADATA_FIELDS) -> di
     return _normalized_metadata(gfile, wanted)
 
 
-def _iter_folder_files(
+#: Fields a folder listing needs for itself, whatever the caller asks for: the traversal
+#: reads ``title`` (hidden files, path), ``mimeType`` (recurse into folders) and ``id``.
+_LISTING_REQUIRED_FIELDS = ("id", "title", "mimeType")
+
+
+def _listing_params(query: str, fields) -> dict:
+    """The ``ListFile`` parameters: ``q``, plus a partial-response ``fields`` when given."""
+    params = {"q": query}
+    if fields:
+        wanted = dict.fromkeys((*_LISTING_REQUIRED_FIELDS, *fields))
+        params["fields"] = f"nextPageToken,items({','.join(wanted)})"
+    return params
+
+
+def iter_folder_items(
     drive,
     folder_id: str,
     *,
     max_levels: Optional[int] = None,
     include_hidden: bool = False,
+    fields=DEFAULT_METADATA_FIELDS,
     prefix: str = "",
     level: int = 0,
 ):
-    """Yield ``(relative_path, file_id)`` for every file under ``folder_id``.
+    """Yield ``(relative_path, metadata)`` for every file under ``folder_id``.
 
-    Recurses into subfolders up to ``max_levels`` (``None`` = unlimited, ``0`` = this folder
-    only). ``drive`` is injected so the traversal is shared by :class:`GDFiles` and
-    :class:`GDReader` rather than duplicated in each.
+    The listing call already returns each item's metadata, so a caller that needs name,
+    size and date for every file in a folder gets them in the one listing -- not one
+    :func:`get_metadata` call per file. ``metadata`` is normalised like
+    :func:`get_metadata` (``fileSize`` as an ``int``, absent for Google-native files).
+
+    Recurses into subfolders up to ``max_levels`` (``None`` = unlimited, ``0`` = this
+    folder only); folders themselves are not yielded.
+
+    Args:
+        drive: an authenticated PyDrive2 ``GoogleDrive`` (injected, so this is testable).
+        folder_id: the folder to list.
+        fields: metadata fields to keep (and to request from Drive); ``None`` keeps
+            everything the listing returned. ``id``, ``title`` and ``mimeType`` are always
+            fetched, as the traversal needs them, but only those in ``fields`` are yielded.
+
+    >>> for path, info in iter_folder_items(drive, folder_id):  # doctest: +SKIP
+    ...     print(path, info['fileSize'], info['modifiedDate'])
     """
     if max_levels is not None and level > max_levels:
         return
 
     query = f"{_q(folder_id)} in parents and trashed=false"
-    for item in drive.ListFile({"q": query}).GetList():
+    for item in drive.ListFile(_listing_params(query, fields)).GetList():
         name = item["title"]
         if not include_hidden and name.startswith("."):
             continue
@@ -501,16 +530,28 @@ def _iter_folder_files(
 
         if item["mimeType"] == _FOLDER_MIMETYPE:
             if max_levels is None or level < max_levels:
-                yield from _iter_folder_files(
+                yield from iter_folder_items(
                     drive,
                     item["id"],
                     max_levels=max_levels,
                     include_hidden=include_hidden,
+                    fields=fields,
                     prefix=item_path,
                     level=level + 1,
                 )
         else:
-            yield (item_path, item["id"])
+            wanted = fields if fields else tuple(item.keys())
+            yield (item_path, _normalized_metadata(item, wanted))
+
+
+def _iter_folder_files(drive, folder_id: str, **kwargs):
+    """Yield ``(relative_path, file_id)`` for every file under ``folder_id``.
+
+    The ids-only view of :func:`iter_folder_items`, shared by :class:`GDFiles` and
+    :class:`GDReader` rather than duplicated in each.
+    """
+    for path, item in iter_folder_items(drive, folder_id, fields=("id",), **kwargs):
+        yield (path, item["id"])
 
 
 # Office → Google-native editor MIME types (the target when ``convert=True``).
@@ -788,10 +829,16 @@ class GDReader(Mapping):
             else _init_google_drive(credentials_file, settings_file)
         )
         self._file_cache = None
+        self._item_cache = None
 
     def _list_files(self, folder_id: str, prefix: str = "", level: int = 0):
         """Recursively list ``(relative_path, file_id)`` pairs under ``folder_id``."""
-        yield from _iter_folder_files(
+        for path, item in self._list_items(folder_id, prefix, level):
+            yield (path, item["id"])
+
+    def _list_items(self, folder_id: str, prefix: str = "", level: int = 0):
+        """Recursively list ``(relative_path, metadata)`` pairs under ``folder_id``."""
+        yield from iter_folder_items(
             self._drive,
             folder_id,
             max_levels=self.max_levels,
@@ -801,15 +848,34 @@ class GDReader(Mapping):
         )
 
     @property
+    def _items(self):
+        """Cached listing: ``{relative_path: metadata}`` (one listing, metadata included)."""
+        if self._item_cache is None:
+            self._item_cache = dict(self._list_items(self.folder_id))
+        return self._item_cache
+
+    @property
     def _files(self):
-        """Cached file listing."""
+        """Cached file listing: ``{relative_path: file_id}``."""
         if self._file_cache is None:
-            self._file_cache = dict(self._list_files(self.folder_id))
+            self._file_cache = {path: item["id"] for path, item in self._items.items()}
         return self._file_cache
+
+    def metadata(self, key: str) -> dict:
+        """The metadata of the file at ``key``, from the cached folder listing.
+
+        No extra Drive call: the listing that produced the keys already carried
+        :data:`DEFAULT_METADATA_FIELDS` (``title``, ``fileSize`` as an ``int``,
+        ``modifiedDate``, ...). Call :meth:`_refresh_cache` to see later changes.
+        """
+        if key not in self._files:
+            raise KeyError(f"File not found: {key}")
+        return dict(self._items[key])
 
     def _refresh_cache(self):
         """Clear file cache."""
         self._file_cache = None
+        self._item_cache = None
 
     def __iter__(self):
         return iter(self._files)
