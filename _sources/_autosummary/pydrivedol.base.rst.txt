@@ -17,6 +17,7 @@ pydrivedol.base
       drive_from_service_account
       get_bytes
       get_metadata
+      iter_folder_items
       xlsx_to_google_sheet
    
    .. rubric:: Classes

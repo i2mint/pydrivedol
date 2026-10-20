@@ -2,18 +2,18 @@
 
 # About this build
 
-This documentation was built on **2026-10-13 11:14 UTC** from commit <a href="https://github.com/i2mint/pydrivedol/commit/738d5bb2ecdf7549bf9f19678f8695b67921782b"><code>738d5bb</code></a> on branch <code>master</code>, for **pydrivedol 0.0.9** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-10-20 02:47 UTC** from commit <a href="https://github.com/i2mint/pydrivedol/commit/1adec63157500ab5a3eb7820721e5c06b2232413"><code>1adec63</code></a> on branch <code>master</code>, for **pydrivedol 0.0.10** (from <code>pyproject.toml</code>).
 
 #### WARNING
 The documentation and the package may be misaligned:
 
-- The documented version (0.0.9) is behind the latest release on PyPI (0.0.10): `pip install pydrivedol` gives newer code than these docs describe.
+- The documented version (0.0.10) is behind the latest release on PyPI (0.0.11): `pip install pydrivedol` gives newer code than these docs describe.
 
 ## Source
 
 |                     |                                                                                                                                                          |
 |---------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/i2mint/pydrivedol/commit/738d5bb2ecdf7549bf9f19678f8695b67921782b"><code>738d5bb2ecdf7549bf9f19678f8695b67921782b</code></a> |
+| Commit              | <a href="https://github.com/i2mint/pydrivedol/commit/1adec63157500ab5a3eb7820721e5c06b2232413"><code>1adec63157500ab5a3eb7820721e5c06b2232413</code></a> |
 | Branch              | <code>master</code>                                                                                                                                      |
 | Tags at this commit | none                                                                                                                                                     |
 | Working tree        | clean                                                                                                                                                    |
@@ -24,16 +24,16 @@ The documentation and the package may be misaligned:
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>i2mint/pydrivedol</code>                                                             |
-| Run          | <a href="https://github.com/i2mint/pydrivedol/actions/runs/38388661245">38388661245</a>    |
+| Run          | <a href="https://github.com/i2mint/pydrivedol/actions/runs/39360669429">39360669429</a>    |
 | Ref          | <code>refs/heads/master</code>                                                             |
-| Event commit | <code>738d5bb2ecdf7549bf9f19678f8695b67921782b</code> (in the history of the built commit) |
+| Event commit | <code>1adec63157500ab5a3eb7820721e5c06b2232413</code> (in the history of the built commit) |
 
 ## Tools
 
 |          |         |
 |----------|---------|
-| epythet  | 0.2.15  |
-| Sphinx   | 9.1.0   |
+| epythet  | 0.2.18  |
+| Sphinx   | 9.1.1   |
 | docutils | 0.22.4  |
 | Python   | 3.12.15 |
 
@@ -51,14 +51,14 @@ The documentation and the package may be misaligned:
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/pydrivedol/0.0.10/">0.0.10</a>, newer than the documented version (0.0.9).
+Latest release: <a href="https://pypi.org/project/pydrivedol/0.0.11/">0.0.11</a>, newer than the documented version (0.0.10).
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/i2mint/pydrivedol && cd pydrivedol
-git checkout 738d5bb2ecdf7549bf9f19678f8695b67921782b
-pip install "epythet==0.2.15"
+git checkout 1adec63157500ab5a3eb7820721e5c06b2232413
+pip install "epythet==0.2.18"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
 

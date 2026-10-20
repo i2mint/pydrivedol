@@ -10,7 +10,7 @@
 - [pydrivedol](_autosummary/pydrivedol.html.md): Google Drive Data Object Layer
 - [pydrivedol.base](_autosummary/pydrivedol.base.html.md): Base objects for pydrivedol: download functions, GDFiles, GDReader, GDStore.
 - [pydrivedol.ops](_autosummary/pydrivedol.ops.html.md): Key-taking operations, as free functions over the caller’s (possibly wrapped) store.
-- [About this build](about-this-build.html.md): This documentation was built on &#42;&#42;2026-10-13 11:14 UTC&#42;&#42; from commit &lt;a href="https://github.com/i2m...
+- [About this build](about-this-build.html.md): This documentation was built on &#42;&#42;2026-10-20 02:47 UTC&#42;&#42; from commit &lt;a href="https://github.com/i2m...
 
 ## Optional
 

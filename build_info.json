@@ -1,37 +1,37 @@
 {
   "schema_version": 1,
-  "built_at": "2026-10-13T11:14:20Z",
+  "built_at": "2026-10-20T02:47:18Z",
   "package": {
     "name": "pydrivedol",
-    "version": "0.0.9",
+    "version": "0.0.10",
     "display_name": "pydrivedol",
     "source": "pyproject.toml"
   },
   "git": {
     "available": true,
-    "commit": "738d5bb2ecdf7549bf9f19678f8695b67921782b",
-    "short_commit": "738d5bb",
+    "commit": "1adec63157500ab5a3eb7820721e5c06b2232413",
+    "short_commit": "1adec63",
     "branch": "master",
     "tags": [],
     "dirty": false,
     "remote_url": "https://github.com/i2mint/pydrivedol",
-    "commit_url": "https://github.com/i2mint/pydrivedol/commit/738d5bb2ecdf7549bf9f19678f8695b67921782b",
+    "commit_url": "https://github.com/i2mint/pydrivedol/commit/1adec63157500ab5a3eb7820721e5c06b2232413",
     "error": null
   },
   "ci": {
     "provider": "github",
     "repository": "i2mint/pydrivedol",
-    "sha": "738d5bb2ecdf7549bf9f19678f8695b67921782b",
+    "sha": "1adec63157500ab5a3eb7820721e5c06b2232413",
     "sha_in_history": true,
     "ref": "refs/heads/master",
     "ref_name": "master",
-    "run_id": "38388661245",
-    "run_url": "https://github.com/i2mint/pydrivedol/actions/runs/38388661245",
+    "run_id": "39360669429",
+    "run_url": "https://github.com/i2mint/pydrivedol/actions/runs/39360669429",
     "server_url": "https://github.com"
   },
   "tools": {
-    "epythet": "0.2.15",
-    "sphinx": "9.1.0",
+    "epythet": "0.2.18",
+    "sphinx": "9.1.1",
     "docutils": "0.22.4",
     "python": "3.12.15"
   },
@@ -56,20 +56,20 @@
   },
   "site": {
     "modules_documented": 3,
-    "objects_documented": 15
+    "objects_documented": 17
   },
   "pypi": {
     "checked": true,
-    "latest": "0.0.10",
+    "latest": "0.0.11",
     "relation": "behind",
     "error": null
   },
-  "reproduce": "git clone https://github.com/i2mint/pydrivedol && cd pydrivedol\ngit checkout 738d5bb2ecdf7549bf9f19678f8695b67921782b\npip install \"epythet==0.2.15\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "reproduce": "git clone https://github.com/i2mint/pydrivedol && cd pydrivedol\ngit checkout 1adec63157500ab5a3eb7820721e5c06b2232413\npip install \"epythet==0.2.18\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
   "warnings": [],
   "alignment": {
     "aligned": false,
     "notes": [
-      "The documented version (0.0.9) is behind the latest release on PyPI (0.0.10): `pip install pydrivedol` gives newer code than these docs describe."
+      "The documented version (0.0.10) is behind the latest release on PyPI (0.0.11): `pip install pydrivedol` gives newer code than these docs describe."
     ]
   }
 }

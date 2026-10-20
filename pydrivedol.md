@@ -1,4 +1,4 @@
-> built 2026-10-13 11:14 UTC from 738d5bb (master) · pydrivedol 0.0.9. Details: build_info.json
+> built 2026-10-20 02:47 UTC from 1adec63 (master) · pydrivedol 0.0.10. Details: build_info.json
 
 # index.html.md
 
@@ -620,6 +620,7 @@ Two access levels, both returning `bytes`:
 |----------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|
 | [`get_bytes`](_autosummary/pydrivedol.base.html.md#pydrivedol.base.get_bytes)(url, \*[, local_path, use_cache, ...])  | Download bytes from a Google Drive URL.                                      |
 | [`get_metadata`](_autosummary/pydrivedol.base.html.md#pydrivedol.base.get_metadata)(url_or_id, \*, drive[, fields])      | Fetch a Drive file's metadata **without downloading its content**.           |
+| [`iter_folder_items`](_autosummary/pydrivedol.base.html.md#pydrivedol.base.iter_folder_items)(drive, folder_id, \*[, ...])    | Yield `(relative_path, metadata)` for every file under `folder_id`.          |
 | [`xlsx_to_google_sheet`](_autosummary/pydrivedol.base.html.md#pydrivedol.base.xlsx_to_google_sheet)(folder_url, title, xlsx, \*) | Upload an `.xlsx` as a **native Google Sheet** and return its shareable URL. |
 
 ### Classes
@@ -708,6 +709,17 @@ Keys are relative file paths, values are file contents as bytes.
 
 Removed: use `pydrivedol.ops.get_url(reader, key, ...)`.
 
+#### metadata(key)
+
+The metadata of the file at `key`, from the cached folder listing.
+
+No extra Drive call: the listing that produced the keys already carried
+[`DEFAULT_METADATA_FIELDS`](_autosummary/pydrivedol.base.html.md#pydrivedol.base.DEFAULT_METADATA_FIELDS) (`title`, `fileSize` as an `int`,
+`modifiedDate`, …). Call `_refresh_cache()` to see later changes.
+
+* **Return type:**
+  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
+
 ### *class* pydrivedol.base.GDStore(folder_url, , convert_office=False, \*\*kwargs)
 
 Bases: [`GDReader`](_autosummary/pydrivedol.base.html.md#pydrivedol.base.GDReader), [`MutableMapping`](https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping)
@@ -773,15 +785,15 @@ identity.
 
 * **Parameters:**
   * **url** ([`str`](https://docs.python.org/3/builtins/stdtypes.html#str)) – Google Drive file link (a bare file id is accepted too).
-  * **local_path** (`Union`[[`bool`](https://docs.python.org/3/builtins/functions.html#bool), [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)]) – False (return bytes), True (save to temp), or str (save to path)
-  * **use_cache** (`Union`[[`bool`](https://docs.python.org/3/builtins/functions.html#bool), [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)]) – False (no cache), True (use ~/.cache/pydrivedol/cached/), or str (use dir)
+  * **local_path** ([`Union`](https://docs.python.org/3/library/typing.html#typing.Union)[[`bool`](https://docs.python.org/3/builtins/functions.html#bool), [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)]) – False (return bytes), True (save to temp), or str (save to path)
+  * **use_cache** ([`Union`](https://docs.python.org/3/library/typing.html#typing.Union)[[`bool`](https://docs.python.org/3/builtins/functions.html#bool), [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)]) – False (no cache), True (use ~/.cache/pydrivedol/cached/), or str (use dir)
   * **drive** – an authenticated PyDrive2 `GoogleDrive`. When given, the download goes through
     the API; `None` (default) keeps the public, unauthenticated behaviour exactly.
   * **allow_html** ([`bool`](https://docs.python.org/3/builtins/functions.html#bool)) – by default an HTML payload from the *public* endpoint raises, because it is
     Google’s login page masquerading as file content. Set True only when the file you
     are downloading genuinely is HTML. Ignored on the authenticated path.
 * **Return type:**
-  `Union`[[`bytes`](https://docs.python.org/3/builtins/stdtypes.html#bytes), [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)]
+  [`Union`](https://docs.python.org/3/library/typing.html#typing.Union)[[`bytes`](https://docs.python.org/3/builtins/stdtypes.html#bytes), [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)]
 * **Returns:**
   bytes if local_path is False or str, filepath str if local_path is True
 * **Raises:**
@@ -828,6 +840,30 @@ spreadsheet is not something you fetch just to learn its name.
 ('client_export.xlsx', 18512345)
 ```
 
+### pydrivedol.base.iter_folder_items(drive, folder_id, , max_levels=None, include_hidden=False, fields=('id', 'title', 'mimeType', 'fileSize', 'modifiedDate', 'alternateLink'), prefix='', level=0)
+
+Yield `(relative_path, metadata)` for every file under `folder_id`.
+
+The listing call already returns each item’s metadata, so a caller that needs name,
+size and date for every file in a folder gets them in the one listing – not one
+[`get_metadata()`](_autosummary/pydrivedol.base.html.md#pydrivedol.base.get_metadata) call per file. `metadata` is normalised like
+[`get_metadata()`](_autosummary/pydrivedol.base.html.md#pydrivedol.base.get_metadata) (`fileSize` as an `int`, absent for Google-native files).
+
+Recurses into subfolders up to `max_levels` (`None` = unlimited, `0` = this
+folder only); folders themselves are not yielded.
+
+* **Parameters:**
+  * **drive** – an authenticated PyDrive2 `GoogleDrive` (injected, so this is testable).
+  * **folder_id** ([`str`](https://docs.python.org/3/builtins/stdtypes.html#str)) – the folder to list.
+  * **fields** – metadata fields to keep (and to request from Drive); `None` keeps
+    everything the listing returned. `id`, `title` and `mimeType` are always
+    fetched, as the traversal needs them, but only those in `fields` are yielded.
+
+```pycon
+>>> for path, info in iter_folder_items(drive, folder_id):
+...     print(path, info['fileSize'], info['modifiedDate'])
+```
+
 ### pydrivedol.base.xlsx_to_google_sheet(folder_url, title, xlsx, , share_with=(), anyone_reader=False, credentials_file='client_secrets.json', settings_file='settings.yaml', drive=None)
 
 Upload an `.xlsx` as a **native Google Sheet** and return its shareable URL.
@@ -838,7 +874,7 @@ The whole point: Drive can *convert* an uploaded spreadsheet into an editable Go
 * **Parameters:**
   * **folder_url** ([`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str)]) – destination Drive folder URL (`None` → the account’s root).
   * **title** ([`str`](https://docs.python.org/3/builtins/stdtypes.html#str)) – the Google Sheet’s name.
-  * **xlsx** (`Union`[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path), [`bytes`](https://docs.python.org/3/builtins/stdtypes.html#bytes)]) – a path (`str`/`Path`) or raw `bytes`.
+  * **xlsx** ([`Union`](https://docs.python.org/3/library/typing.html#typing.Union)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path), [`bytes`](https://docs.python.org/3/builtins/stdtypes.html#bytes)]) – a path (`str`/`Path`) or raw `bytes`.
   * **share_with** – emails to grant `writer` access (no notification email sent).
   * **anyone_reader** ([`bool`](https://docs.python.org/3/builtins/functions.html#bool)) – also grant anyone-with-link `reader` access.
   * **settings_file** ([`str`](https://docs.python.org/3/builtins/stdtypes.html#str)) – PyDrive2 auth (ignored if `drive` is given).
@@ -1006,18 +1042,18 @@ Google doc. See the module docstring for how the write goes through the caller�
 
 # About this build
 
-This documentation was built on **2026-10-13 11:14 UTC** from commit <a href="https://github.com/i2mint/pydrivedol/commit/738d5bb2ecdf7549bf9f19678f8695b67921782b"><code>738d5bb</code></a> on branch <code>master</code>, for **pydrivedol 0.0.9** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-10-20 02:47 UTC** from commit <a href="https://github.com/i2mint/pydrivedol/commit/1adec63157500ab5a3eb7820721e5c06b2232413"><code>1adec63</code></a> on branch <code>master</code>, for **pydrivedol 0.0.10** (from <code>pyproject.toml</code>).
 
 #### WARNING
 The documentation and the package may be misaligned:
 
-- The documented version (0.0.9) is behind the latest release on PyPI (0.0.10): `pip install pydrivedol` gives newer code than these docs describe.
+- The documented version (0.0.10) is behind the latest release on PyPI (0.0.11): `pip install pydrivedol` gives newer code than these docs describe.
 
 ## Source
 
 |                     |                                                                                                                                                          |
 |---------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/i2mint/pydrivedol/commit/738d5bb2ecdf7549bf9f19678f8695b67921782b"><code>738d5bb2ecdf7549bf9f19678f8695b67921782b</code></a> |
+| Commit              | <a href="https://github.com/i2mint/pydrivedol/commit/1adec63157500ab5a3eb7820721e5c06b2232413"><code>1adec63157500ab5a3eb7820721e5c06b2232413</code></a> |
 | Branch              | <code>master</code>                                                                                                                                      |
 | Tags at this commit | none                                                                                                                                                     |
 | Working tree        | clean                                                                                                                                                    |
@@ -1028,16 +1064,16 @@ The documentation and the package may be misaligned:
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>i2mint/pydrivedol</code>                                                             |
-| Run          | <a href="https://github.com/i2mint/pydrivedol/actions/runs/38388661245">38388661245</a>    |
+| Run          | <a href="https://github.com/i2mint/pydrivedol/actions/runs/39360669429">39360669429</a>    |
 | Ref          | <code>refs/heads/master</code>                                                             |
-| Event commit | <code>738d5bb2ecdf7549bf9f19678f8695b67921782b</code> (in the history of the built commit) |
+| Event commit | <code>1adec63157500ab5a3eb7820721e5c06b2232413</code> (in the history of the built commit) |
 
 ## Tools
 
 |          |         |
 |----------|---------|
-| epythet  | 0.2.15  |
-| Sphinx   | 9.1.0   |
+| epythet  | 0.2.18  |
+| Sphinx   | 9.1.1   |
 | docutils | 0.22.4  |
 | Python   | 3.12.15 |
 
@@ -1055,14 +1091,14 @@ The documentation and the package may be misaligned:
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/pydrivedol/0.0.10/">0.0.10</a>, newer than the documented version (0.0.9).
+Latest release: <a href="https://pypi.org/project/pydrivedol/0.0.11/">0.0.11</a>, newer than the documented version (0.0.10).
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/i2mint/pydrivedol && cd pydrivedol
-git checkout 738d5bb2ecdf7549bf9f19678f8695b67921782b
-pip install "epythet==0.2.15"
+git checkout 1adec63157500ab5a3eb7820721e5c06b2232413
+pip install "epythet==0.2.18"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
 
