@@ -84,6 +84,7 @@
 <li class="toctree-l2" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="_autosummary/pydrivedol.html">pydrivedol<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
 <li class="toctree-l3"><a class="reference internal" href="_autosummary/pydrivedol.base.html">pydrivedol.base</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_autosummary/pydrivedol.ops.html">pydrivedol.ops</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/pydrivedol.rest.html">pydrivedol.rest</a></li>
 </ul>
 </li>
 </ul>
@@ -113,13 +114,10 @@
 
 <section id="about-this-build">
 <h1>About this build<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#about-this-build">¶</a></h1>
-<p>This documentation was built on <strong>2026-11-26 12:54 UTC</strong> from commit <a href="https://github.com/i2mint/pydrivedol/commit/4baad49966f1a9db05f236e49e94d27b3069a38b"><code>4baad49</code></a> on branch <code>master</code>, for <strong>pydrivedol 0.0.11</strong> (from <code>pyproject.toml</code>).</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>The documentation and the package may be misaligned:</p>
-<ul class="simple">
-<li><p>The documented version (0.0.11) is behind the latest release on PyPI (0.0.12): <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">pydrivedol</span></code> gives newer code than these docs describe.</p></li>
-</ul>
+<p>This documentation was built on <strong>2026-11-26 13:01 UTC</strong> from commit <a href="https://github.com/i2mint/pydrivedol/commit/6de366f95b59d48476c5d36711a3fe116fb1aadd"><code>6de366f</code></a> on branch <code>master</code>, for <strong>pydrivedol 0.0.12</strong> (from <code>pyproject.toml</code>).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.</p>
 </div>
 <section id="source">
 <h2>Source<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#source" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#source'">¶</a></h2>
@@ -131,7 +129,7 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Commit</p></td>
-<td><p><a href="https://github.com/i2mint/pydrivedol/commit/4baad49966f1a9db05f236e49e94d27b3069a38b"><code>4baad49966f1a9db05f236e49e94d27b3069a38b</code></a></p></td>
+<td><p><a href="https://github.com/i2mint/pydrivedol/commit/6de366f95b59d48476c5d36711a3fe116fb1aadd"><code>6de366f95b59d48476c5d36711a3fe116fb1aadd</code></a></p></td>
 </tr>
 <tr class="row-odd"><td><p>Branch</p></td>
 <td><p><code>master</code></p></td>
@@ -161,13 +159,13 @@
 <td><p><code>i2mint/pydrivedol</code></p></td>
 </tr>
 <tr class="row-odd"><td><p>Run</p></td>
-<td><p><a href="https://github.com/i2mint/pydrivedol/actions/runs/45823829521">45823829521</a></p></td>
+<td><p><a href="https://github.com/i2mint/pydrivedol/actions/runs/45824791791">45824791791</a></p></td>
 </tr>
 <tr class="row-even"><td><p>Ref</p></td>
 <td><p><code>refs/heads/master</code></p></td>
 </tr>
 <tr class="row-odd"><td><p>Event commit</p></td>
-<td><p><code>4baad49966f1a9db05f236e49e94d27b3069a38b</code> (in the history of the built commit)</p></td>
+<td><p><code>6de366f95b59d48476c5d36711a3fe116fb1aadd</code> (in the history of the built commit)</p></td>
 </tr>
 </tbody>
 </table>
@@ -231,13 +229,13 @@
 </section>
 <section id="package-on-pypi">
 <h2>Package on PyPI<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#package-on-pypi" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#package-on-pypi'">¶</a></h2>
-<p>Latest release: <a href="https://pypi.org/project/pydrivedol/0.0.12/">0.0.12</a>, newer than the documented version (0.0.11).</p>
+<p>Latest release: <a href="https://pypi.org/project/pydrivedol/0.0.12/">0.0.12</a>, the same as the documented version.</p>
 </section>
-<section id="site"><h2>Site</h2><table class="docutils align-default"><tbody><tr><td><p>Modules documented</p></td><td><p>3</p></td></tr><tr><td><p>Objects documented</p></td><td><p>18</p></td></tr></tbody></table></section>
+<section id="site"><h2>Site</h2><table class="docutils align-default"><tbody><tr><td><p>Modules documented</p></td><td><p>4</p></td></tr><tr><td><p>Objects documented</p></td><td><p>36</p></td></tr></tbody></table></section>
 <section id="reproduce">
 <h2>Reproduce<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#reproduce" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#reproduce'">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">git<span class="w"> </span>clone<span class="w"> </span>https://github.com/i2mint/pydrivedol<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>pydrivedol
-</span><span id="line-2">git<span class="w"> </span>checkout<span class="w"> </span>4baad49966f1a9db05f236e49e94d27b3069a38b
+</span><span id="line-2">git<span class="w"> </span>checkout<span class="w"> </span>6de366f95b59d48476c5d36711a3fe116fb1aadd
 </span><span id="line-3">pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"epythet==0.2.25"</span>
 </span><span id="line-4">epythet<span class="w"> </span>quickstart<span class="w"> </span>.<span class="w"> </span>--ignore<span class="w"> </span>tests/<span class="w"> </span>scrap/<span class="w"> </span>examples/
 </span></code></pre></div>
@@ -267,7 +265,7 @@
 </div>
 </footer>
 </div>
-<script src="_static/documentation_options.js?v=0c446633"></script>
+<script src="_static/documentation_options.js?v=3bbcec59"></script>
 <script src="_static/doctools.js?v=fd6eb6e6"></script>
 <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
 <script src="_static/clipboard.min.js?v=a7894cd8"></script>

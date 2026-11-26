@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+
+<html :class="{ 'dark' : darkMode === true }" data-content_root="../" lang="en" x-data="{ darkMode: $persist(window.matchMedia('(prefers-color-scheme: dark)').matches), activeSection: ''}">
+<head>
+<script>
+    (function () {
+      // Set initial color scheme
+      if ((localStorage.getItem("_x_darkMode") === "true") || (window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+        document.documentElement.classList.add("dark");
+      }
+
+      // Watch for media preference changes
+      window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (event) => {
+        localStorage.setItem("_x_darkMode", event.matches);
+        document.documentElement.classList.toggle("dark", event.matches);
+      });
+    })();
+  </script>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta charset="utf-8"/>
+<meta content="#ffffff" media="(prefers-color-scheme: light)" name="theme-color"/>
+<meta content="#030711" media="(prefers-color-scheme: dark)" name="theme-color"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<link href="pydrivedol.rest.html.md" rel="alternate" type="text/markdown"/>
+<link href="../llms.txt" rel="describedby" type="text/markdown"/>
+<link href="pydrivedol.rest.html.md" rel="alternate" type="text/markdown"/>
+<link href="llms.txt" rel="describedby"/>
+<title>pydrivedol.rest | pydrivedol</title>
+<meta content="pydrivedol.rest | pydrivedol" property="og:title"/>
+<meta content="pydrivedol.rest | pydrivedol" name="twitter:title"/>
+<link href="../_static/pygments.css?v=d75fae25" rel="stylesheet" type="text/css"/>
+<link href="../_static/theme.css?v=009055c6" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx_autodoc_typehints.css?v=057ac668" rel="stylesheet" type="text/css"/>
+<link href="../_static/copybutton.css?v=76b2166b" rel="stylesheet" type="text/css"/>
+<link href="../_static/epythet.css?v=518c29d0" rel="stylesheet" type="text/css"/>
+<link href="../search.html" rel="search" title="Search"/>
+<link href="../genindex.html" rel="index" title="Index"/>
+<link href="pydrivedol.ops.html" rel="prev" title="pydrivedol.ops"/>
+</head>
+<body :class="{ 'overflow-hidden': showSidebar }" class="min-h-screen font-sans antialiased bg-background text-foreground" x-data="{ showSidebar: false, showScrollTop: false }">
+<div @click.self="showSidebar = false" class="fixed inset-0 z-50 overflow-hidden bg-background/80 backdrop-blur-sm md:hidden" x-cloak="" x-show="showSidebar"></div><div class="relative flex flex-col min-h-screen" id="page"><a class="absolute top-0 left-0 z-[100] block bg-background p-4 text-xl transition -translate-x-full opacity-0 focus:translate-x-0 focus:opacity-100" href="#content">
+      Skip to content
+    </a><header class="sticky top-0 z-40 w-full border-b shadow-xs border-border bg-background/90 backdrop-blur"><div class="container flex items-center h-14">
+<div class="hidden mr-4 md:flex">
+<a class="flex items-center mr-6" href="../index.html"><span class="hidden font-bold sm:inline-block text-clip whitespace-nowrap">pydrivedol</span>
+</a><nav class="flex items-center gap-6 text-sm font-medium">
+<a class="transition-colors hover:text-foreground/80 text-foreground/60" href="https://github.com/i2mint/pydrivedol" rel="noopener nofollow">GitHub</a>
+</nav></div><button @click="showSidebar = true" class="inline-flex items-center justify-center h-10 px-0 py-2 mr-2 text-base font-medium transition-colors rounded-md hover:text-accent-foreground hover:bg-transparent md:hidden" type="button">
+<svg aria-hidden="true" fill="currentColor" height="24" viewbox="0 96 960 960" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M152.587 825.087q-19.152 0-32.326-13.174t-13.174-32.326q0-19.152 13.174-32.326t32.326-13.174h440q19.152 0 32.326 13.174t13.174 32.326q0 19.152-13.174 32.326t-32.326 13.174h-440Zm0-203.587q-19.152 0-32.326-13.174T107.087 576q0-19.152 13.174-32.326t32.326-13.174h320q19.152 0 32.326 13.174T518.087 576q0 19.152-13.174 32.326T472.587 621.5h-320Zm0-203.587q-19.152 0-32.326-13.174t-13.174-32.326q0-19.152 13.174-32.326t32.326-13.174h440q19.152 0 32.326 13.174t13.174 32.326q0 19.152-13.174 32.326t-32.326 13.174h-440ZM708.913 576l112.174 112.174q12.674 12.674 12.674 31.826t-12.674 31.826Q808.413 764.5 789.261 764.5t-31.826-12.674l-144-144Q600 594.391 600 576t13.435-31.826l144-144q12.674-12.674 31.826-12.674t31.826 12.674q12.674 12.674 12.674 31.826t-12.674 31.826L708.913 576Z"></path>
+</svg>
+<span class="sr-only">Toggle navigation menu</span>
+</button>
+<div class="flex items-center justify-between flex-1 gap-2 sm:gap-4 md:justify-end">
+<div class="flex-1 w-full md:w-auto md:flex-none"><form @keydown.k.window.meta="$refs.search.focus()" action="../search.html" class="relative flex items-center group" id="searchbox" method="get">
+<input aria-label="Search the docs" class="inline-flex items-center font-medium transition-colors bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background border border-input hover:bg-accent focus:bg-accent hover:text-accent-foreground focus:text-accent-foreground hover:placeholder-accent-foreground py-2 px-4 relative h-9 w-full justify-start rounded-[0.5rem] text-sm text-muted-foreground sm:pr-12 md:w-40 lg:w-64" id="search-input" name="q" placeholder="Search ..." type="search" x-ref="search"/>
+<kbd class="pointer-events-none absolute right-1.5 top-2 hidden h-5 select-none text-muted-foreground items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex group-hover:bg-accent group-hover:text-accent-foreground">
+<span class="text-xs">⌘</span>
+    K
+  </kbd>
+</form>
+</div>
+<nav class="flex items-center gap-1">
+<button @click="darkMode = !darkMode" class="relative inline-flex items-center justify-center px-0 text-sm font-medium transition-colors rounded-md hover:bg-accent hover:text-accent-foreground h-9 w-9" title="Toggle color scheme" type="button">
+<svg class="absolute transition-all scale-100 rotate-0 dark:-rotate-90 dark:scale-0" fill="currentColor" height="16" viewbox="0 96 960 960" width="16" xmlns="http://www.w3.org/2000/svg">
+<path d="M480 685q45.456 0 77.228-31.772Q589 621.456 589 576q0-45.456-31.772-77.228Q525.456 467 480 467q-45.456 0-77.228 31.772Q371 530.544 371 576q0 45.456 31.772 77.228Q434.544 685 480 685Zm0 91q-83 0-141.5-58.5T280 576q0-83 58.5-141.5T480 376q83 0 141.5 58.5T680 576q0 83-58.5 141.5T480 776ZM80 621.5q-19.152 0-32.326-13.174T34.5 576q0-19.152 13.174-32.326T80 530.5h80q19.152 0 32.326 13.174T205.5 576q0 19.152-13.174 32.326T160 621.5H80Zm720 0q-19.152 0-32.326-13.174T754.5 576q0-19.152 13.174-32.326T800 530.5h80q19.152 0 32.326 13.174T925.5 576q0 19.152-13.174 32.326T880 621.5h-80Zm-320-320q-19.152 0-32.326-13.174T434.5 256v-80q0-19.152 13.174-32.326T480 130.5q19.152 0 32.326 13.174T525.5 176v80q0 19.152-13.174 32.326T480 301.5Zm0 720q-19.152 0-32.326-13.17Q434.5 995.152 434.5 976v-80q0-19.152 13.174-32.326T480 850.5q19.152 0 32.326 13.174T525.5 896v80q0 19.152-13.174 32.33-13.174 13.17-32.326 13.17ZM222.174 382.065l-43-42Q165.5 327.391 166 308.239t13.174-33.065q13.435-13.674 32.587-13.674t32.065 13.674l42.239 43q12.674 13.435 12.555 31.706-.12 18.272-12.555 31.946-12.674 13.674-31.445 13.413-18.772-.261-32.446-13.174Zm494 494.761-42.239-43q-12.674-13.435-12.674-32.087t12.674-31.565Q686.609 756.5 705.38 757q18.772.5 32.446 13.174l43 41.761Q794.5 824.609 794 843.761t-13.174 33.065Q767.391 890.5 748.239 890.5t-32.065-13.674Zm-42-494.761Q660.5 369.391 661 350.62q.5-18.772 13.174-32.446l41.761-43Q728.609 261.5 747.761 262t33.065 13.174q13.674 13.435 13.674 32.587t-13.674 32.065l-43 42.239q-13.435 12.674-31.706 12.555-18.272-.12-31.946-12.555Zm-495 494.761Q165.5 863.391 165.5 844.239t13.674-32.065l43-42.239q13.435-12.674 32.087-12.674t31.565 12.674Q299.5 782.609 299 801.38q-.5 18.772-13.174 32.446l-41.761 43Q231.391 890.5 212.239 890t-33.065-13.174ZM480 576Z"></path>
+</svg>
+<svg class="absolute transition-all scale-0 rotate-90 dark:rotate-0 dark:scale-100" fill="currentColor" height="16" viewbox="0 96 960 960" width="16" xmlns="http://www.w3.org/2000/svg">
+<path d="M480 936q-151 0-255.5-104.5T120 576q0-138 90-239.5T440 218q25-3 39 18t-1 44q-17 26-25.5 55t-8.5 61q0 90 63 153t153 63q31 0 61.5-9t54.5-25q21-14 43-1.5t19 39.5q-14 138-117.5 229T480 936Zm0-80q88 0 158-48.5T740 681q-20 5-40 8t-40 3q-123 0-209.5-86.5T364 396q0-20 3-40t8-40q-78 32-126.5 102T200 576q0 116 82 198t198 82Zm-10-270Z"></path>
+</svg>
+</button>
+</nav>
+</div>
+</div>
+</header>
+<div class="flex-1"><div class="container md:grid md:grid-cols-[220px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10"><aside :aria-hidden="!showSidebar" :class="{ 'translate-x-0': showSidebar }" class="fixed inset-y-0 left-0 md:top-14 z-50 md:z-30 bg-background md:bg-transparent transition-all duration-100 -translate-x-full md:translate-x-0 ml-0 p-6 md:p-0 md:-ml-2 md:h-[calc(100vh-3.5rem)] w-5/6 md:w-full overflow-y-auto border-r border-border md:sticky" id="left-sidebar">
+<a class="justify-start text-sm md:!hidden bg-background" href="../index.html"><span class="font-bold text-clip whitespace-nowrap">pydrivedol</span>
+</a>
+<div class="relative overflow-hidden md:overflow-auto my-4 md:my-0">
+<div class="overflow-y-auto h-full w-full relative pr-6"><nav class="flex md:hidden flex-col font-medium mt-4">
+<a href="https://github.com/i2mint/pydrivedol" rel="nofollow noopener">GitHub</a>
+</nav><nav class="table w-full min-w-full my-6 lg:my-8">
+<ul class="current">
+<li class="toctree-l1 current" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="../api.html">API reference<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul class="current" x-show="expanded">
+<li class="toctree-l2 current" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="pydrivedol.html">pydrivedol<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul class="current" x-show="expanded">
+<li class="toctree-l3"><a class="reference internal" href="pydrivedol.base.html">pydrivedol.base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pydrivedol.ops.html">pydrivedol.ops</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pydrivedol.rest</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+<button @click="showSidebar = false" class="absolute md:hidden right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100" type="button">
+<svg class="h-4 w-4" fill="currentColor" height="24" stroke="none" viewbox="0 96 960 960" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M480 632 284 828q-11 11-28 11t-28-11q-11-11-11-28t11-28l196-196-196-196q-11-11-11-28t11-28q11-11 28-11t28 11l196 196 196-196q11-11 28-11t28 11q11 11 11 28t-11 28L536 576l196 196q11 11 11 28t-11 28q-11 11-28 11t-28-11L480 632Z"></path>
+</svg>
+</button>
+</aside>
+<main class="relative py-6 lg:gap-10 lg:py-8 xl:grid xl:grid-cols-[1fr_300px]">
+<div class="w-full min-w-0 mx-auto">
+<nav aria-label="breadcrumbs" class="flex items-center mb-4 space-x-1 text-sm text-muted-foreground">
+<a class="overflow-hidden text-ellipsis whitespace-nowrap hover:text-foreground" href="../index.html">
+<span class="hidden md:inline">pydrivedol</span>
+<svg aria-label="Home" class="md:hidden" fill="currentColor" height="18" stroke="none" viewbox="0 96 960 960" width="18" xmlns="http://www.w3.org/2000/svg">
+<path d="M240 856h120V616h240v240h120V496L480 316 240 496v360Zm-80 80V456l320-240 320 240v480H520V696h-80v240H160Zm320-350Z"></path>
+</svg>
+</a>
+<div class="mr-1">/</div><a class="hover:text-foreground overflow-hidden text-ellipsis whitespace-nowrap" href="../api.html">API reference</a>
+<div class="mr-1">/</div><a class="hover:text-foreground overflow-hidden text-ellipsis whitespace-nowrap" href="pydrivedol.html">pydrivedol</a>
+<div class="mr-1">/</div><span aria-current="page" class="font-medium text-foreground overflow-hidden text-ellipsis whitespace-nowrap">pydrivedol.rest</span>
+</nav>
+<div id="content" role="main">
+<section id="module-pydrivedol.rest">
+<span id="pydrivedol-rest"></span><h1>pydrivedol.rest<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#module-pydrivedol.rest">¶</a></h1>
+<p>Read a Drive folder over the plain Drive v3 REST API, and mirror it to disk.</p>
+<p>No PyDrive2 and no OAuth flow: a folder shared “anyone with the link” needs only an API
+key; a private folder works the same way with an authorized session (for instance
+<code class="docutils literal notranslate"><span class="pre">google.auth.transport.requests.AuthorizedSession</span></code>) passed as <code class="docutils literal notranslate"><span class="pre">session=</span></code>. That
+<code class="docutils literal notranslate"><span class="pre">session</span></code> is the one seam between the two; everything else is shared.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="gp">&gt;&gt;&gt; </span><span class="n">folder</span> <span class="o">=</span> <span class="n">PublicDriveFolder</span><span class="p">(</span><span class="n">folder_url</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="n">key</span><span class="p">)</span>
+</span><span id="line-2"><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
+</span><span id="line-3"><span class="go">['intro.mp3', 'clips/a.mp4']</span>
+</span><span id="line-4"><span class="gp">&gt;&gt;&gt; </span><span class="n">folder</span><span class="o">.</span><span class="n">meta</span><span class="p">(</span><span class="s1">'clips/a.mp4'</span><span class="p">)[</span><span class="s1">'size'</span><span class="p">]</span>
+</span><span id="line-5"><span class="gp">&gt;&gt;&gt; </span><span class="n">report</span> <span class="o">=</span> <span class="n">sync_to_dir</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="s1">'mirror/'</span><span class="p">,</span> <span class="n">include</span><span class="o">=</span><span class="p">{</span><span class="s1">'.mp4'</span><span class="p">})</span>
+</span><span id="line-6"><span class="gp">&gt;&gt;&gt; </span><span class="n">report</span><span class="o">.</span><span class="n">added</span><span class="p">,</span> <span class="n">report</span><span class="o">.</span><span class="n">changed</span><span class="p">,</span> <span class="n">report</span><span class="o">.</span><span class="n">unchanged</span>
+</span></code></pre></div>
+</div>
+<p class="rubric">Module Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pydrivedol.rest.DRIVE_V3_FILES" title="pydrivedol.rest.DRIVE_V3_FILES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DRIVE_V3_FILES</span></code></a></p></td>
+<td><p>Drive v3 files endpoint.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pydrivedol.rest.API_KEY_ENV_VARS" title="pydrivedol.rest.API_KEY_ENV_VARS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">API_KEY_ENV_VARS</span></code></a></p></td>
+<td><p>Environment variables the default key resolver reads, in order.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pydrivedol.rest.LISTING_FIELDS" title="pydrivedol.rest.LISTING_FIELDS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LISTING_FIELDS</span></code></a></p></td>
+<td><p>Metadata requested for every file in a listing.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pydrivedol.rest.LISTING_PAGE_SIZE" title="pydrivedol.rest.LISTING_PAGE_SIZE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LISTING_PAGE_SIZE</span></code></a></p></td>
+<td><p>Items Drive returns per listing page (its maximum).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pydrivedol.rest.SYNC_INDEX_NAME" title="pydrivedol.rest.SYNC_INDEX_NAME"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SYNC_INDEX_NAME</span></code></a></p></td>
+<td><p>Name of the (name -&gt; md5) index <a class="reference internal" href="#pydrivedol.rest.sync_to_dir" title="pydrivedol.rest.sync_to_dir"><code class="xref py py-func docutils literal notranslate"><span class="pre">sync_to_dir()</span></code></a> keeps inside the mirror.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pydrivedol.rest.PART_SUFFIX" title="pydrivedol.rest.PART_SUFFIX"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PART_SUFFIX</span></code></a></p></td>
+<td><p>Suffix of the temporary file a download streams into.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pydrivedol.rest.DOWNLOAD_CHUNK_SIZE" title="pydrivedol.rest.DOWNLOAD_CHUNK_SIZE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DOWNLOAD_CHUNK_SIZE</span></code></a></p></td>
+<td><p>Bytes read per chunk when streaming a download to disk.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pydrivedol.rest.SESSION_RETRIES" title="pydrivedol.rest.SESSION_RETRIES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SESSION_RETRIES</span></code></a></p></td>
+<td><p>Retries of a transient failure (429/5xx) on the default session.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pydrivedol.rest.REQUEST_TIMEOUT" title="pydrivedol.rest.REQUEST_TIMEOUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">REQUEST_TIMEOUT</span></code></a></p></td>
+<td><p>Seconds before a Drive request times out.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pydrivedol.rest.env_api_key" title="pydrivedol.rest.env_api_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">env_api_key</span></code></a>()</p></td>
+<td><p>The default API-key resolver: the first of <a class="reference internal" href="#pydrivedol.rest.API_KEY_ENV_VARS" title="pydrivedol.rest.API_KEY_ENV_VARS"><code class="xref py py-data docutils literal notranslate"><span class="pre">API_KEY_ENV_VARS</span></code></a> that is set.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pydrivedol.rest.sync_to_dir" title="pydrivedol.rest.sync_to_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sync_to_dir</span></code></a>(folder, dest, *[, include, ...])</p></td>
+<td><p>Mirror a Drive folder into <code class="docutils literal notranslate"><span class="pre">dest</span></code>, downloading only what is new or changed.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pydrivedol.rest.PublicDriveFolder" title="pydrivedol.rest.PublicDriveFolder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PublicDriveFolder</span></code></a>(url_or_id, *[, api_key, ...])</p></td>
+<td><p>Read-only <code class="docutils literal notranslate"><span class="pre">Mapping[path,</span> <span class="pre">bytes]</span></code> over a Drive folder, through Drive v3 REST.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pydrivedol.rest.SyncReport" title="pydrivedol.rest.SyncReport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SyncReport</span></code></a>([added, changed, unchanged, ...])</p></td>
+<td><p>What <a class="reference internal" href="#pydrivedol.rest.sync_to_dir" title="pydrivedol.rest.sync_to_dir"><code class="xref py py-func docutils literal notranslate"><span class="pre">sync_to_dir()</span></code></a> did, as lists of folder-relative paths.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py data">
+<dt class="sig sig-object py" id="pydrivedol.rest.API_KEY_ENV_VARS">
+<span class="sig-prename descclassname"><span class="pre">pydrivedol.rest.</span></span><span class="sig-name descname"><span class="pre">API_KEY_ENV_VARS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('PYDRIVEDOL_API_KEY',</span> <span class="pre">'GOOGLE_API_KEY')</span></span><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.rest.API_KEY_ENV_VARS" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.rest.API_KEY_ENV_VARS'">¶</a></dt>
+<dd><p>Environment variables the default key resolver reads, in order.</p>
+</dd></dl>
+<dl class="py data">
+<dt class="sig sig-object py" id="pydrivedol.rest.DOWNLOAD_CHUNK_SIZE">
+<span class="sig-prename descclassname"><span class="pre">pydrivedol.rest.</span></span><span class="sig-name descname"><span class="pre">DOWNLOAD_CHUNK_SIZE</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1048576</span></span><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.rest.DOWNLOAD_CHUNK_SIZE" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.rest.DOWNLOAD_CHUNK_SIZE'">¶</a></dt>
+<dd><p>Bytes read per chunk when streaming a download to disk.</p>
+</dd></dl>
+<dl class="py data">
+<dt class="sig sig-object py" id="pydrivedol.rest.DRIVE_V3_FILES">
+<span class="sig-prename descclassname"><span class="pre">pydrivedol.rest.</span></span><span class="sig-name descname"><span class="pre">DRIVE_V3_FILES</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'https://www.googleapis.com/drive/v3/files'</span></span><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.rest.DRIVE_V3_FILES" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.rest.DRIVE_V3_FILES'">¶</a></dt>
+<dd><p>Drive v3 files endpoint.</p>
+</dd></dl>
+<dl class="py data">
+<dt class="sig sig-object py" id="pydrivedol.rest.LISTING_FIELDS">
+<span class="sig-prename descclassname"><span class="pre">pydrivedol.rest.</span></span><span class="sig-name descname"><span class="pre">LISTING_FIELDS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('id',</span> <span class="pre">'name',</span> <span class="pre">'mimeType',</span> <span class="pre">'size',</span> <span class="pre">'modifiedTime',</span> <span class="pre">'md5Checksum')</span></span><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.rest.LISTING_FIELDS" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.rest.LISTING_FIELDS'">¶</a></dt>
+<dd><p>Metadata requested for every file in a listing.</p>
+</dd></dl>
+<dl class="py data">
+<dt class="sig sig-object py" id="pydrivedol.rest.LISTING_PAGE_SIZE">
+<span class="sig-prename descclassname"><span class="pre">pydrivedol.rest.</span></span><span class="sig-name descname"><span class="pre">LISTING_PAGE_SIZE</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1000</span></span><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.rest.LISTING_PAGE_SIZE" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.rest.LISTING_PAGE_SIZE'">¶</a></dt>
+<dd><p>Items Drive returns per listing page (its maximum).</p>
+</dd></dl>
+<dl class="py data">
+<dt class="sig sig-object py" id="pydrivedol.rest.PART_SUFFIX">
+<span class="sig-prename descclassname"><span class="pre">pydrivedol.rest.</span></span><span class="sig-name descname"><span class="pre">PART_SUFFIX</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'.pydrivedol-part'</span></span><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.rest.PART_SUFFIX" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.rest.PART_SUFFIX'">¶</a></dt>
+<dd><p>Suffix of the temporary file a download streams into.</p>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="pydrivedol.rest.PublicDriveFolder">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pydrivedol.rest.</span></span><span class="sig-name descname"><span class="pre">PublicDriveFolder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url_or_id</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recursive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydrivedol/rest.html#PublicDriveFolder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.rest.PublicDriveFolder" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.rest.PublicDriveFolder'">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" rel="nofollow noopener" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mapping</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></p>
+<p>Read-only <code class="docutils literal notranslate"><span class="pre">Mapping[path,</span> <span class="pre">bytes]</span></code> over a Drive folder, through Drive v3 REST.</p>
+<p>Keys are paths inside the folder (<code class="docutils literal notranslate"><span class="pre">"sub/file.mp3"</span></code>); Google-native documents
+(Docs, Sheets, …) have no bytes and are left out.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>url_or_id</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" rel="nofollow noopener" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></span>) – the folder’s URL or its id.</p></li>
+<li><p><strong>api_key</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" rel="nofollow noopener" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Union</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" rel="nofollow noopener" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>, <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" rel="nofollow noopener" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>[[], <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" rel="nofollow noopener" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" rel="nofollow noopener" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>]], <span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" rel="nofollow noopener" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></span>]</span>) – a string, a zero-argument callable returning one, or <code class="docutils literal notranslate"><span class="pre">None</span></code> for
+<a class="reference internal" href="#pydrivedol.rest.env_api_key" title="pydrivedol.rest.env_api_key"><code class="xref py py-func docutils literal notranslate"><span class="pre">env_api_key()</span></code></a>. Never shown in <code class="docutils literal notranslate"><span class="pre">repr</span></code>. Not needed when <code class="docutils literal notranslate"><span class="pre">session</span></code>
+authenticates the requests.</p></li>
+<li><p><strong>session</strong> – a <code class="docutils literal notranslate"><span class="pre">requests</span></code>-compatible session; default a plain
+<code class="docutils literal notranslate"><span class="pre">requests.Session</span></code>. Pass an <code class="docutils literal notranslate"><span class="pre">AuthorizedSession</span></code> to read private folders.</p></li>
+<li><p><strong>recursive</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" rel="nofollow noopener" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></span>) – descend into subfolders.</p></li>
+<li><p><strong>include</strong> – <code class="docutils literal notranslate"><span class="pre">None</span></code>, a suffix or collection of suffixes, or a predicate
+<code class="docutils literal notranslate"><span class="pre">meta</span> <span class="pre">-&gt;</span> <span class="pre">bool</span></code> (<code class="docutils literal notranslate"><span class="pre">meta</span></code> holds <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">mimeType</span></code>, …).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pydrivedol.rest.PublicDriveFolder.check_access">
+<span class="sig-name descname"><span class="pre">check_access</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydrivedol/rest.html#PublicDriveFolder.check_access"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.rest.PublicDriveFolder.check_access" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.rest.PublicDriveFolder.check_access'">¶</a></dt>
+<dd><p>Fetch the folder itself; raises <code class="docutils literal notranslate"><span class="pre">requests.HTTPError</span></code> (404/403) if unreachable.</p>
+<p>A listing of a folder the key cannot see may come back empty rather than failing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" rel="nofollow noopener" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pydrivedol.rest.PublicDriveFolder.download_to">
+<span class="sig-name descname"><span class="pre">download_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydrivedol/rest.html#PublicDriveFolder.download_to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.rest.PublicDriveFolder.download_to" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.rest.PublicDriveFolder.download_to'">¶</a></dt>
+<dd><p>Stream a file to <code class="docutils literal notranslate"><span class="pre">dest</span></code> atomically (a temporary file, then a rename).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" rel="nofollow noopener" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pydrivedol.rest.PublicDriveFolder.media_url">
+<span class="sig-name descname"><span class="pre">media_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydrivedol/rest.html#PublicDriveFolder.media_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.rest.PublicDriveFolder.media_url" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.rest.PublicDriveFolder.media_url'">¶</a></dt>
+<dd><p>The <code class="docutils literal notranslate"><span class="pre">alt=media</span></code> URL of a file, for a server that proxies <code class="docutils literal notranslate"><span class="pre">Range</span></code> requests.</p>
+<p>It embeds the API key when one is configured: hand it to trusted server code only.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" rel="nofollow noopener" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pydrivedol.rest.PublicDriveFolder.meta">
+<span class="sig-name descname"><span class="pre">meta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydrivedol/rest.html#PublicDriveFolder.meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.rest.PublicDriveFolder.meta" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.rest.PublicDriveFolder.meta'">¶</a></dt>
+<dd><p>Metadata of one file: <code class="docutils literal notranslate"><span class="pre">id</span></code>, <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">size</span></code> (int), <code class="docutils literal notranslate"><span class="pre">modifiedTime</span></code>, <code class="docutils literal notranslate"><span class="pre">md5Checksum</span></code>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" rel="nofollow noopener" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pydrivedol.rest.PublicDriveFolder.refresh">
+<span class="sig-name descname"><span class="pre">refresh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydrivedol/rest.html#PublicDriveFolder.refresh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.rest.PublicDriveFolder.refresh" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.rest.PublicDriveFolder.refresh'">¶</a></dt>
+<dd><p>Forget the cached listing so the next access lists the folder again.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#pydrivedol.rest.PublicDriveFolder" title="pydrivedol.rest.PublicDriveFolder"><code class="xref py py-class docutils literal notranslate"><span class="pre">PublicDriveFolder</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py data">
+<dt class="sig sig-object py" id="pydrivedol.rest.REQUEST_TIMEOUT">
+<span class="sig-prename descclassname"><span class="pre">pydrivedol.rest.</span></span><span class="sig-name descname"><span class="pre">REQUEST_TIMEOUT</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">60</span></span><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.rest.REQUEST_TIMEOUT" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.rest.REQUEST_TIMEOUT'">¶</a></dt>
+<dd><p>Seconds before a Drive request times out.</p>
+</dd></dl>
+<dl class="py data">
+<dt class="sig sig-object py" id="pydrivedol.rest.SESSION_RETRIES">
+<span class="sig-prename descclassname"><span class="pre">pydrivedol.rest.</span></span><span class="sig-name descname"><span class="pre">SESSION_RETRIES</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></span><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.rest.SESSION_RETRIES" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.rest.SESSION_RETRIES'">¶</a></dt>
+<dd><p>Retries of a transient failure (429/5xx) on the default session.</p>
+</dd></dl>
+<dl class="py data">
+<dt class="sig sig-object py" id="pydrivedol.rest.SYNC_INDEX_NAME">
+<span class="sig-prename descclassname"><span class="pre">pydrivedol.rest.</span></span><span class="sig-name descname"><span class="pre">SYNC_INDEX_NAME</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'.pydrivedol/index.json'</span></span><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.rest.SYNC_INDEX_NAME" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.rest.SYNC_INDEX_NAME'">¶</a></dt>
+<dd><p>Name of the (name -&gt; md5) index <a class="reference internal" href="#pydrivedol.rest.sync_to_dir" title="pydrivedol.rest.sync_to_dir"><code class="xref py py-func docutils literal notranslate"><span class="pre">sync_to_dir()</span></code></a> keeps inside the mirror.</p>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="pydrivedol.rest.SyncReport">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pydrivedol.rest.</span></span><span class="sig-name descname"><span class="pre">SyncReport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">added</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">list()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">changed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">list()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unchanged</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">list()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">list()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">failed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">dict()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydrivedol/rest.html#SyncReport"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.rest.SyncReport" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.rest.SyncReport'">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" rel="nofollow noopener" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></p>
+<p>What <a class="reference internal" href="#pydrivedol.rest.sync_to_dir" title="pydrivedol.rest.sync_to_dir"><code class="xref py py-func docutils literal notranslate"><span class="pre">sync_to_dir()</span></code></a> did, as lists of folder-relative paths.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="pydrivedol.rest.env_api_key">
+<span class="sig-prename descclassname"><span class="pre">pydrivedol.rest.</span></span><span class="sig-name descname"><span class="pre">env_api_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydrivedol/rest.html#env_api_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.rest.env_api_key" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.rest.env_api_key'">¶</a></dt>
+<dd><p>The default API-key resolver: the first of <a class="reference internal" href="#pydrivedol.rest.API_KEY_ENV_VARS" title="pydrivedol.rest.API_KEY_ENV_VARS"><code class="xref py py-data docutils literal notranslate"><span class="pre">API_KEY_ENV_VARS</span></code></a> that is set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" rel="nofollow noopener" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" rel="nofollow noopener" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="pydrivedol.rest.sync_to_dir">
+<span class="sig-prename descclassname"><span class="pre">pydrivedol.rest.</span></span><span class="sig-name descname"><span class="pre">sync_to_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">include</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.pydrivedol/index.json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prune</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">folder_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydrivedol/rest.html#sync_to_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.rest.sync_to_dir" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.rest.sync_to_dir'">¶</a></dt>
+<dd><p>Mirror a Drive folder into <code class="docutils literal notranslate"><span class="pre">dest</span></code>, downloading only what is new or changed.</p>
+<p>An index (path -&gt; md5) is kept in <code class="docutils literal notranslate"><span class="pre">dest</span></code>, so a re-run with nothing changed
+downloads nothing. A file is fetched when it is absent locally or its md5 differs
+from the indexed one. A file that fails to download is reported in
+<code class="docutils literal notranslate"><span class="pre">SyncReport.failed</span></code> and the rest carry on.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>folder</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" rel="nofollow noopener" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Union</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>[<a class="reference internal" href="#pydrivedol.rest.PublicDriveFolder" title="pydrivedol.rest.PublicDriveFolder"><code class="xref py py-class docutils literal notranslate"><span class="pre">PublicDriveFolder</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" rel="nofollow noopener" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>]</span>) – a <a class="reference internal" href="#pydrivedol.rest.PublicDriveFolder" title="pydrivedol.rest.PublicDriveFolder"><code class="xref py py-class docutils literal notranslate"><span class="pre">PublicDriveFolder</span></code></a>, or a folder URL/id (then built with
+<code class="docutils literal notranslate"><span class="pre">folder_kwargs</span></code>: <code class="docutils literal notranslate"><span class="pre">api_key</span></code>, <code class="docutils literal notranslate"><span class="pre">session</span></code>, <code class="docutils literal notranslate"><span class="pre">recursive</span></code>).</p></li>
+<li><p><strong>dest</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" rel="nofollow noopener" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Union</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" rel="nofollow noopener" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>, <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" rel="nofollow noopener" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>]</span>) – the local directory (created if needed).</p></li>
+<li><p><strong>include</strong> – as for <a class="reference internal" href="#pydrivedol.rest.PublicDriveFolder" title="pydrivedol.rest.PublicDriveFolder"><code class="xref py py-class docutils literal notranslate"><span class="pre">PublicDriveFolder</span></code></a>; applied on top of the folder’s own.</p></li>
+<li><p><strong>index_name</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" rel="nofollow noopener" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></span>) – index file, relative to <code class="docutils literal notranslate"><span class="pre">dest</span></code>.</p></li>
+<li><p><strong>prune</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" rel="nofollow noopener" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code><svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></span>) – also delete local files this mirror downloaded that are no longer in the
+folder. Narrowing <code class="docutils literal notranslate"><span class="pre">include</span></code> never prunes; an empty listing, or a change of
+<code class="docutils literal notranslate"><span class="pre">recursive</span></code> since the last run, refuses to prune.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#pydrivedol.rest.SyncReport" title="pydrivedol.rest.SyncReport"><code class="xref py py-class docutils literal notranslate"><span class="pre">SyncReport</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+</section>
+</div></div><aside class="hidden text-sm xl:block" id="right-sidebar">
+<div class="sticky top-16 -mt-10 max-h-[calc(100vh-5rem)] h-full overflow-y-auto pt-6 space-y-2"><p class="font-medium">On this page</p>
+<ul>
+<li><a :data-current="activeSection === '#pydrivedol.rest.API_KEY_ENV_VARS'" class="reference internal" href="#pydrivedol.rest.API_KEY_ENV_VARS"><code class="docutils literal notranslate"><span class="pre">API_KEY_ENV_VARS</span></code></a></li>
+<li><a :data-current="activeSection === '#pydrivedol.rest.DOWNLOAD_CHUNK_SIZE'" class="reference internal" href="#pydrivedol.rest.DOWNLOAD_CHUNK_SIZE"><code class="docutils literal notranslate"><span class="pre">DOWNLOAD_CHUNK_SIZE</span></code></a></li>
+<li><a :data-current="activeSection === '#pydrivedol.rest.DRIVE_V3_FILES'" class="reference internal" href="#pydrivedol.rest.DRIVE_V3_FILES"><code class="docutils literal notranslate"><span class="pre">DRIVE_V3_FILES</span></code></a></li>
+<li><a :data-current="activeSection === '#pydrivedol.rest.LISTING_FIELDS'" class="reference internal" href="#pydrivedol.rest.LISTING_FIELDS"><code class="docutils literal notranslate"><span class="pre">LISTING_FIELDS</span></code></a></li>
+<li><a :data-current="activeSection === '#pydrivedol.rest.LISTING_PAGE_SIZE'" class="reference internal" href="#pydrivedol.rest.LISTING_PAGE_SIZE"><code class="docutils literal notranslate"><span class="pre">LISTING_PAGE_SIZE</span></code></a></li>
+<li><a :data-current="activeSection === '#pydrivedol.rest.PART_SUFFIX'" class="reference internal" href="#pydrivedol.rest.PART_SUFFIX"><code class="docutils literal notranslate"><span class="pre">PART_SUFFIX</span></code></a></li>
+<li><a :data-current="activeSection === '#pydrivedol.rest.PublicDriveFolder'" class="reference internal" href="#pydrivedol.rest.PublicDriveFolder"><code class="docutils literal notranslate"><span class="pre">PublicDriveFolder</span></code></a><ul>
+<li><a :data-current="activeSection === '#pydrivedol.rest.PublicDriveFolder.check_access'" class="reference internal" href="#pydrivedol.rest.PublicDriveFolder.check_access"><code class="docutils literal notranslate"><span class="pre">PublicDriveFolder.check_access()</span></code></a></li>
+<li><a :data-current="activeSection === '#pydrivedol.rest.PublicDriveFolder.download_to'" class="reference internal" href="#pydrivedol.rest.PublicDriveFolder.download_to"><code class="docutils literal notranslate"><span class="pre">PublicDriveFolder.download_to()</span></code></a></li>
+<li><a :data-current="activeSection === '#pydrivedol.rest.PublicDriveFolder.media_url'" class="reference internal" href="#pydrivedol.rest.PublicDriveFolder.media_url"><code class="docutils literal notranslate"><span class="pre">PublicDriveFolder.media_url()</span></code></a></li>
+<li><a :data-current="activeSection === '#pydrivedol.rest.PublicDriveFolder.meta'" class="reference internal" href="#pydrivedol.rest.PublicDriveFolder.meta"><code class="docutils literal notranslate"><span class="pre">PublicDriveFolder.meta()</span></code></a></li>
+<li><a :data-current="activeSection === '#pydrivedol.rest.PublicDriveFolder.refresh'" class="reference internal" href="#pydrivedol.rest.PublicDriveFolder.refresh"><code class="docutils literal notranslate"><span class="pre">PublicDriveFolder.refresh()</span></code></a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#pydrivedol.rest.REQUEST_TIMEOUT'" class="reference internal" href="#pydrivedol.rest.REQUEST_TIMEOUT"><code class="docutils literal notranslate"><span class="pre">REQUEST_TIMEOUT</span></code></a></li>
+<li><a :data-current="activeSection === '#pydrivedol.rest.SESSION_RETRIES'" class="reference internal" href="#pydrivedol.rest.SESSION_RETRIES"><code class="docutils literal notranslate"><span class="pre">SESSION_RETRIES</span></code></a></li>
+<li><a :data-current="activeSection === '#pydrivedol.rest.SYNC_INDEX_NAME'" class="reference internal" href="#pydrivedol.rest.SYNC_INDEX_NAME"><code class="docutils literal notranslate"><span class="pre">SYNC_INDEX_NAME</span></code></a></li>
+<li><a :data-current="activeSection === '#pydrivedol.rest.SyncReport'" class="reference internal" href="#pydrivedol.rest.SyncReport"><code class="docutils literal notranslate"><span class="pre">SyncReport</span></code></a></li>
+<li><a :data-current="activeSection === '#pydrivedol.rest.env_api_key'" class="reference internal" href="#pydrivedol.rest.env_api_key"><code class="docutils literal notranslate"><span class="pre">env_api_key()</span></code></a></li>
+<li><a :data-current="activeSection === '#pydrivedol.rest.sync_to_dir'" class="reference internal" href="#pydrivedol.rest.sync_to_dir"><code class="docutils literal notranslate"><span class="pre">sync_to_dir()</span></code></a></li>
+</ul>
+</div>
+</aside>
+</main>
+</div>
+</div><footer class="py-6 border-t border-border md:py-0">
+<div class="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
+<div class="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
+<p class="text-sm leading-loose text-center text-muted-foreground md:text-left"></p>
+</div>
+</div>
+</footer>
+</div>
+<script src="../_static/documentation_options.js?v=3bbcec59"></script>
+<script src="../_static/doctools.js?v=fd6eb6e6"></script>
+<script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+<script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+<script src="../_static/copybutton.js?v=fd10adb8"></script>
+<script defer="defer" src="../_static/theme.js?v=49cc6205"></script>
+</body>
+</html>

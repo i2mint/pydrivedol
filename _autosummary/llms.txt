@@ -8,6 +8,7 @@
 - [pydrivedol](pydrivedol.html.md): Google Drive Data Object Layer
 - [pydrivedol.base](pydrivedol.base.html.md): Base objects for pydrivedol: download functions, GDFiles, GDReader, GDStore.
 - [pydrivedol.ops](pydrivedol.ops.html.md): Key-taking operations, as free functions over the caller’s (possibly wrapped) store.
+- [pydrivedol.rest](pydrivedol.rest.html.md): Read a Drive folder over the plain Drive v3 REST API, and mirror it to disk.
 
 ## Optional
 

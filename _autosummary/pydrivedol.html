@@ -86,6 +86,7 @@
 <li class="toctree-l2 current" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="current reference internal expandable" href="#">pydrivedol<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
 <li class="toctree-l3"><a class="reference internal" href="pydrivedol.base.html">pydrivedol.base</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pydrivedol.ops.html">pydrivedol.ops</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pydrivedol.rest.html">pydrivedol.rest</a></li>
 </ul>
 </li>
 </ul>
@@ -160,6 +161,11 @@ NotPubliclyShared rather than handing that page back as the file’s content.</p
 </span><span id="line-3"><span class="gp">&gt;&gt;&gt; </span><span class="n">content</span> <span class="o">=</span> <span class="n">reader</span><span class="p">[</span><span class="s1">'path/to/file.txt'</span><span class="p">]</span>
 </span></code></pre></div>
 </div>
+<p>Read a link-shared folder with just an API key, and mirror it incrementally</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="gp">&gt;&gt;&gt; </span><span class="n">folder</span> <span class="o">=</span> <span class="n">PublicDriveFolder</span><span class="p">(</span><span class="n">folder_url</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="n">key</span><span class="p">)</span>
+</span><span id="line-2"><span class="gp">&gt;&gt;&gt; </span><span class="n">report</span> <span class="o">=</span> <span class="n">sync_to_dir</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="s1">'mirror/'</span><span class="p">,</span> <span class="n">include</span><span class="o">=</span><span class="p">{</span><span class="s1">'.mp4'</span><span class="p">})</span>
+</span></code></pre></div>
+</div>
 <p>Write to folder</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="gp">&gt;&gt;&gt; </span><span class="n">store</span> <span class="o">=</span> <span class="n">GDStore</span><span class="p">(</span><span class="n">folder_url</span><span class="p">)</span>
 </span><span id="line-2"><span class="gp">&gt;&gt;&gt; </span><span class="n">store</span><span class="p">[</span><span class="s1">'file.txt'</span><span class="p">]</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">'content'</span>
@@ -182,6 +188,9 @@ NotPubliclyShared rather than handing that page back as the file’s content.</p
 <tr class="row-even"><td><p><a class="reference internal" href="pydrivedol.ops.html#module-pydrivedol.ops" title="pydrivedol.ops"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ops</span></code></a></p></td>
 <td><p>Key-taking operations, as free functions over the caller's (possibly wrapped) store.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pydrivedol.rest.html#module-pydrivedol.rest" title="pydrivedol.rest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rest</span></code></a></p></td>
+<td><p>Read a Drive folder over the plain Drive v3 REST API, and mirror it to disk.</p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -196,7 +205,7 @@ NotPubliclyShared rather than handing that page back as the file’s content.</p
 </div>
 </footer>
 </div>
-<script src="../_static/documentation_options.js?v=0c446633"></script>
+<script src="../_static/documentation_options.js?v=3bbcec59"></script>
 <script src="../_static/doctools.js?v=fd6eb6e6"></script>
 <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
 <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

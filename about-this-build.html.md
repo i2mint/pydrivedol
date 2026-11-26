@@ -2,18 +2,16 @@
 
 # About this build
 
-This documentation was built on **2026-11-26 12:54 UTC** from commit <a href="https://github.com/i2mint/pydrivedol/commit/4baad49966f1a9db05f236e49e94d27b3069a38b"><code>4baad49</code></a> on branch <code>master</code>, for **pydrivedol 0.0.11** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-11-26 13:01 UTC** from commit <a href="https://github.com/i2mint/pydrivedol/commit/6de366f95b59d48476c5d36711a3fe116fb1aadd"><code>6de366f</code></a> on branch <code>master</code>, for **pydrivedol 0.0.12** (from <code>pyproject.toml</code>).
 
-#### WARNING
-The documentation and the package may be misaligned:
-
-- The documented version (0.0.11) is behind the latest release on PyPI (0.0.12): `pip install pydrivedol` gives newer code than these docs describe.
+#### NOTE
+Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
 
 ## Source
 
 |                     |                                                                                                                                                          |
 |---------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/i2mint/pydrivedol/commit/4baad49966f1a9db05f236e49e94d27b3069a38b"><code>4baad49966f1a9db05f236e49e94d27b3069a38b</code></a> |
+| Commit              | <a href="https://github.com/i2mint/pydrivedol/commit/6de366f95b59d48476c5d36711a3fe116fb1aadd"><code>6de366f95b59d48476c5d36711a3fe116fb1aadd</code></a> |
 | Branch              | <code>master</code>                                                                                                                                      |
 | Tags at this commit | none                                                                                                                                                     |
 | Working tree        | clean                                                                                                                                                    |
@@ -24,9 +22,9 @@ The documentation and the package may be misaligned:
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>i2mint/pydrivedol</code>                                                             |
-| Run          | <a href="https://github.com/i2mint/pydrivedol/actions/runs/45823829521">45823829521</a>    |
+| Run          | <a href="https://github.com/i2mint/pydrivedol/actions/runs/45824791791">45824791791</a>    |
 | Ref          | <code>refs/heads/master</code>                                                             |
-| Event commit | <code>4baad49966f1a9db05f236e49e94d27b3069a38b</code> (in the history of the built commit) |
+| Event commit | <code>6de366f95b59d48476c5d36711a3fe116fb1aadd</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -51,13 +49,13 @@ The documentation and the package may be misaligned:
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/pydrivedol/0.0.12/">0.0.12</a>, newer than the documented version (0.0.11).
+Latest release: <a href="https://pypi.org/project/pydrivedol/0.0.12/">0.0.12</a>, the same as the documented version.
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/i2mint/pydrivedol && cd pydrivedol
-git checkout 4baad49966f1a9db05f236e49e94d27b3069a38b
+git checkout 6de366f95b59d48476c5d36711a3fe116fb1aadd
 pip install "epythet==0.2.25"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```

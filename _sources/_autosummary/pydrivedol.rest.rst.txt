@@ -1,0 +1,34 @@
+pydrivedol.rest
+===============
+
+.. automodule:: pydrivedol.rest
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      DRIVE_V3_FILES
+      API_KEY_ENV_VARS
+      LISTING_FIELDS
+      LISTING_PAGE_SIZE
+      SYNC_INDEX_NAME
+      PART_SUFFIX
+      DOWNLOAD_CHUNK_SIZE
+      SESSION_RETRIES
+      REQUEST_TIMEOUT
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      env_api_key
+      sync_to_dir
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      PublicDriveFolder
+      SyncReport
+   

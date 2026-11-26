@@ -1,4 +1,4 @@
-> built 2026-11-26 12:54 UTC from 4baad49 (master) · pydrivedol 0.0.11. Details: build_info.json
+> built 2026-11-26 13:01 UTC from 6de366f (master) · pydrivedol 0.0.12. Details: build_info.json
 
 # index.html.md
 
@@ -957,6 +957,13 @@ Usage:
 > >>> content = reader['path/to/file.txt']
 > ```
 
+> Read a link-shared folder with just an API key, and mirror it incrementally
+
+> ```pycon
+> >>> folder = PublicDriveFolder(folder_url, api_key=key)
+> >>> report = sync_to_dir(folder, 'mirror/', include={'.mp4'})
+> ```
+
 > Write to folder
 
 > ```pycon
@@ -978,6 +985,7 @@ Usage:
 | [`base`](_autosummary/pydrivedol.base.html.md#module-pydrivedol.base)   | Base objects for pydrivedol: download functions, GDFiles, GDReader, GDStore.         |
 |--------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
 | [`ops`](_autosummary/pydrivedol.ops.html.md#module-pydrivedol.ops)     | Key-taking operations, as free functions over the caller's (possibly wrapped) store. |
+| [`rest`](_autosummary/pydrivedol.rest.html.md#module-pydrivedol.rest)   | Read a Drive folder over the plain Drive v3 REST API, and mirror it to disk.         |
 
 
 # _autosummary/pydrivedol.ops.html.md
@@ -1044,24 +1052,197 @@ Google doc. See the module docstring for how the write goes through the caller�
   [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 
+# _autosummary/pydrivedol.rest.html.md
+
+# pydrivedol.rest
+
+Read a Drive folder over the plain Drive v3 REST API, and mirror it to disk.
+
+No PyDrive2 and no OAuth flow: a folder shared “anyone with the link” needs only an API
+key; a private folder works the same way with an authorized session (for instance
+`google.auth.transport.requests.AuthorizedSession`) passed as `session=`. That
+`session` is the one seam between the two; everything else is shared.
+
+```pycon
+>>> folder = PublicDriveFolder(folder_url, api_key=key)
+>>> list(folder)
+['intro.mp3', 'clips/a.mp4']
+>>> folder.meta('clips/a.mp4')['size']
+>>> report = sync_to_dir(folder, 'mirror/', include={'.mp4'})
+>>> report.added, report.changed, report.unchanged
+```
+
+### Module Attributes
+
+| [`DRIVE_V3_FILES`](_autosummary/pydrivedol.rest.html.md#pydrivedol.rest.DRIVE_V3_FILES)      | Drive v3 files endpoint.                                                                                                |
+|----------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
+| [`API_KEY_ENV_VARS`](_autosummary/pydrivedol.rest.html.md#pydrivedol.rest.API_KEY_ENV_VARS)    | Environment variables the default key resolver reads, in order.                                                         |
+| [`LISTING_FIELDS`](_autosummary/pydrivedol.rest.html.md#pydrivedol.rest.LISTING_FIELDS)      | Metadata requested for every file in a listing.                                                                         |
+| [`LISTING_PAGE_SIZE`](_autosummary/pydrivedol.rest.html.md#pydrivedol.rest.LISTING_PAGE_SIZE)   | Items Drive returns per listing page (its maximum).                                                                     |
+| [`SYNC_INDEX_NAME`](_autosummary/pydrivedol.rest.html.md#pydrivedol.rest.SYNC_INDEX_NAME)     | Name of the (name -> md5) index [`sync_to_dir()`](_autosummary/pydrivedol.rest.html.md#pydrivedol.rest.sync_to_dir) keeps inside the mirror. |
+| [`PART_SUFFIX`](_autosummary/pydrivedol.rest.html.md#pydrivedol.rest.PART_SUFFIX)         | Suffix of the temporary file a download streams into.                                                                   |
+| [`DOWNLOAD_CHUNK_SIZE`](_autosummary/pydrivedol.rest.html.md#pydrivedol.rest.DOWNLOAD_CHUNK_SIZE) | Bytes read per chunk when streaming a download to disk.                                                                 |
+| [`SESSION_RETRIES`](_autosummary/pydrivedol.rest.html.md#pydrivedol.rest.SESSION_RETRIES)     | Retries of a transient failure (429/5xx) on the default session.                                                        |
+| [`REQUEST_TIMEOUT`](_autosummary/pydrivedol.rest.html.md#pydrivedol.rest.REQUEST_TIMEOUT)     | Seconds before a Drive request times out.                                                                               |
+
+### Functions
+
+| [`env_api_key`](_autosummary/pydrivedol.rest.html.md#pydrivedol.rest.env_api_key)()                                 | The default API-key resolver: the first of [`API_KEY_ENV_VARS`](_autosummary/pydrivedol.rest.html.md#pydrivedol.rest.API_KEY_ENV_VARS) that is set.   |
+|------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
+| [`sync_to_dir`](_autosummary/pydrivedol.rest.html.md#pydrivedol.rest.sync_to_dir)(folder, dest, \*[, include, ...]) | Mirror a Drive folder into `dest`, downloading only what is new or changed.                                                 |
+
+### Classes
+
+| [`PublicDriveFolder`](_autosummary/pydrivedol.rest.html.md#pydrivedol.rest.PublicDriveFolder)(url_or_id, \*[, api_key, ...])   | Read-only `Mapping[path, bytes]` over a Drive folder, through Drive v3 REST.                                |
+|-----------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|
+| [`SyncReport`](_autosummary/pydrivedol.rest.html.md#pydrivedol.rest.SyncReport)([added, changed, unchanged, ...])       | What [`sync_to_dir()`](_autosummary/pydrivedol.rest.html.md#pydrivedol.rest.sync_to_dir) did, as lists of folder-relative paths. |
+
+### pydrivedol.rest.API_KEY_ENV_VARS *= ('PYDRIVEDOL_API_KEY', 'GOOGLE_API_KEY')*
+
+Environment variables the default key resolver reads, in order.
+
+### pydrivedol.rest.DOWNLOAD_CHUNK_SIZE *= 1048576*
+
+Bytes read per chunk when streaming a download to disk.
+
+### pydrivedol.rest.DRIVE_V3_FILES *= 'https://www.googleapis.com/drive/v3/files'*
+
+Drive v3 files endpoint.
+
+### pydrivedol.rest.LISTING_FIELDS *= ('id', 'name', 'mimeType', 'size', 'modifiedTime', 'md5Checksum')*
+
+Metadata requested for every file in a listing.
+
+### pydrivedol.rest.LISTING_PAGE_SIZE *= 1000*
+
+Items Drive returns per listing page (its maximum).
+
+### pydrivedol.rest.PART_SUFFIX *= '.pydrivedol-part'*
+
+Suffix of the temporary file a download streams into.
+
+### *class* pydrivedol.rest.PublicDriveFolder(url_or_id, , api_key=None, session=None, recursive=True, include=None)
+
+Bases: [`Mapping`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)
+
+Read-only `Mapping[path, bytes]` over a Drive folder, through Drive v3 REST.
+
+Keys are paths inside the folder (`"sub/file.mp3"`); Google-native documents
+(Docs, Sheets, …) have no bytes and are left out.
+
+* **Parameters:**
+  * **url_or_id** ([`str`](https://docs.python.org/3/builtins/stdtypes.html#str)) – the folder’s URL or its id.
+  * **api_key** ([`Union`](https://docs.python.org/3/library/typing.html#typing.Union)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Callable`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[], [`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str)]], [`None`](https://docs.python.org/3/builtins/constants.html#None)]) – a string, a zero-argument callable returning one, or `None` for
+    [`env_api_key()`](_autosummary/pydrivedol.rest.html.md#pydrivedol.rest.env_api_key). Never shown in `repr`. Not needed when `session`
+    authenticates the requests.
+  * **session** – a `requests`-compatible session; default a plain
+    `requests.Session`. Pass an `AuthorizedSession` to read private folders.
+  * **recursive** ([`bool`](https://docs.python.org/3/builtins/functions.html#bool)) – descend into subfolders.
+  * **include** – `None`, a suffix or collection of suffixes, or a predicate
+    `meta -> bool` (`meta` holds `name`, `mimeType`, …).
+
+#### check_access()
+
+Fetch the folder itself; raises `requests.HTTPError` (404/403) if unreachable.
+
+A listing of a folder the key cannot see may come back empty rather than failing.
+
+* **Return type:**
+  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
+
+#### download_to(path, dest)
+
+Stream a file to `dest` atomically (a temporary file, then a rename).
+
+* **Return type:**
+  [`Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path)
+
+#### media_url(path)
+
+The `alt=media` URL of a file, for a server that proxies `Range` requests.
+
+It embeds the API key when one is configured: hand it to trusted server code only.
+
+* **Return type:**
+  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
+
+#### meta(path)
+
+Metadata of one file: `id`, `name`, `size` (int), `modifiedTime`, `md5Checksum`…
+
+* **Return type:**
+  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
+
+#### refresh()
+
+Forget the cached listing so the next access lists the folder again.
+
+* **Return type:**
+  [`PublicDriveFolder`](_autosummary/pydrivedol.rest.html.md#pydrivedol.rest.PublicDriveFolder)
+
+### pydrivedol.rest.REQUEST_TIMEOUT *= 60*
+
+Seconds before a Drive request times out.
+
+### pydrivedol.rest.SESSION_RETRIES *= 4*
+
+Retries of a transient failure (429/5xx) on the default session.
+
+### pydrivedol.rest.SYNC_INDEX_NAME *= '.pydrivedol/index.json'*
+
+Name of the (name -> md5) index [`sync_to_dir()`](_autosummary/pydrivedol.rest.html.md#pydrivedol.rest.sync_to_dir) keeps inside the mirror.
+
+### *class* pydrivedol.rest.SyncReport(added=list(), changed=list(), unchanged=list(), removed=list(), failed=dict())
+
+Bases: [`object`](https://docs.python.org/3/builtins/functions.html#object)
+
+What [`sync_to_dir()`](_autosummary/pydrivedol.rest.html.md#pydrivedol.rest.sync_to_dir) did, as lists of folder-relative paths.
+
+### pydrivedol.rest.env_api_key()
+
+The default API-key resolver: the first of [`API_KEY_ENV_VARS`](_autosummary/pydrivedol.rest.html.md#pydrivedol.rest.API_KEY_ENV_VARS) that is set.
+
+* **Return type:**
+  [`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str)]
+
+### pydrivedol.rest.sync_to_dir(folder, dest, , include=None, index_name='.pydrivedol/index.json', prune=False, \*\*folder_kwargs)
+
+Mirror a Drive folder into `dest`, downloading only what is new or changed.
+
+An index (path -> md5) is kept in `dest`, so a re-run with nothing changed
+downloads nothing. A file is fetched when it is absent locally or its md5 differs
+from the indexed one. A file that fails to download is reported in
+`SyncReport.failed` and the rest carry on.
+
+* **Parameters:**
+  * **folder** ([`Union`](https://docs.python.org/3/library/typing.html#typing.Union)[[`PublicDriveFolder`](_autosummary/pydrivedol.rest.html.md#pydrivedol.rest.PublicDriveFolder), [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)]) – a [`PublicDriveFolder`](_autosummary/pydrivedol.rest.html.md#pydrivedol.rest.PublicDriveFolder), or a folder URL/id (then built with
+    `folder_kwargs`: `api_key`, `session`, `recursive`).
+  * **dest** ([`Union`](https://docs.python.org/3/library/typing.html#typing.Union)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path)]) – the local directory (created if needed).
+  * **include** – as for [`PublicDriveFolder`](_autosummary/pydrivedol.rest.html.md#pydrivedol.rest.PublicDriveFolder); applied on top of the folder’s own.
+  * **index_name** ([`str`](https://docs.python.org/3/builtins/stdtypes.html#str)) – index file, relative to `dest`.
+  * **prune** ([`bool`](https://docs.python.org/3/builtins/functions.html#bool)) – also delete local files this mirror downloaded that are no longer in the
+    folder. Narrowing `include` never prunes; an empty listing, or a change of
+    `recursive` since the last run, refuses to prune.
+* **Return type:**
+  [`SyncReport`](_autosummary/pydrivedol.rest.html.md#pydrivedol.rest.SyncReport)
+
+
 # about-this-build.html.md
 
 <!-- generated by epythet -->
 
 # About this build
 
-This documentation was built on **2026-11-26 12:54 UTC** from commit <a href="https://github.com/i2mint/pydrivedol/commit/4baad49966f1a9db05f236e49e94d27b3069a38b"><code>4baad49</code></a> on branch <code>master</code>, for **pydrivedol 0.0.11** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-11-26 13:01 UTC** from commit <a href="https://github.com/i2mint/pydrivedol/commit/6de366f95b59d48476c5d36711a3fe116fb1aadd"><code>6de366f</code></a> on branch <code>master</code>, for **pydrivedol 0.0.12** (from <code>pyproject.toml</code>).
 
-#### WARNING
-The documentation and the package may be misaligned:
-
-- The documented version (0.0.11) is behind the latest release on PyPI (0.0.12): `pip install pydrivedol` gives newer code than these docs describe.
+#### NOTE
+Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
 
 ## Source
 
 |                     |                                                                                                                                                          |
 |---------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/i2mint/pydrivedol/commit/4baad49966f1a9db05f236e49e94d27b3069a38b"><code>4baad49966f1a9db05f236e49e94d27b3069a38b</code></a> |
+| Commit              | <a href="https://github.com/i2mint/pydrivedol/commit/6de366f95b59d48476c5d36711a3fe116fb1aadd"><code>6de366f95b59d48476c5d36711a3fe116fb1aadd</code></a> |
 | Branch              | <code>master</code>                                                                                                                                      |
 | Tags at this commit | none                                                                                                                                                     |
 | Working tree        | clean                                                                                                                                                    |
@@ -1072,9 +1253,9 @@ The documentation and the package may be misaligned:
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>i2mint/pydrivedol</code>                                                             |
-| Run          | <a href="https://github.com/i2mint/pydrivedol/actions/runs/45823829521">45823829521</a>    |
+| Run          | <a href="https://github.com/i2mint/pydrivedol/actions/runs/45824791791">45824791791</a>    |
 | Ref          | <code>refs/heads/master</code>                                                             |
-| Event commit | <code>4baad49966f1a9db05f236e49e94d27b3069a38b</code> (in the history of the built commit) |
+| Event commit | <code>6de366f95b59d48476c5d36711a3fe116fb1aadd</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -1099,13 +1280,13 @@ The documentation and the package may be misaligned:
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/pydrivedol/0.0.12/">0.0.12</a>, newer than the documented version (0.0.11).
+Latest release: <a href="https://pypi.org/project/pydrivedol/0.0.12/">0.0.12</a>, the same as the documented version.
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/i2mint/pydrivedol && cd pydrivedol
-git checkout 4baad49966f1a9db05f236e49e94d27b3069a38b
+git checkout 6de366f95b59d48476c5d36711a3fe116fb1aadd
 pip install "epythet==0.2.25"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```

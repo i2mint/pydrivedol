@@ -55,6 +55,13 @@ Usage:
 > >>> content = reader['path/to/file.txt']
 > ```
 
+> Read a link-shared folder with just an API key, and mirror it incrementally
+
+> ```pycon
+> >>> folder = PublicDriveFolder(folder_url, api_key=key)
+> >>> report = sync_to_dir(folder, 'mirror/', include={'.mp4'})
+> ```
+
 > Write to folder
 
 > ```pycon
@@ -76,3 +83,4 @@ Usage:
 | [`base`](pydrivedol.base.html.md#module-pydrivedol.base)   | Base objects for pydrivedol: download functions, GDFiles, GDReader, GDStore.         |
 |--------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
 | [`ops`](pydrivedol.ops.html.md#module-pydrivedol.ops)     | Key-taking operations, as free functions over the caller's (possibly wrapped) store. |
+| [`rest`](pydrivedol.rest.html.md#module-pydrivedol.rest)   | Read a Drive folder over the plain Drive v3 REST API, and mirror it to disk.         |
