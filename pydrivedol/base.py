@@ -380,17 +380,58 @@ def drive_from_service_account(
     >>> reader = GDReader(folder_url, drive=drive)           # doctest: +SKIP
     """
     _require_pydrive2()
-    service_config = {"client_json_file_path": key_file}
-    if subject:
-        service_config["client_user_email"] = subject
+    try:
+        from google.oauth2 import service_account
+    except ImportError as e:  # pragma: no cover
+        raise ImportError(
+            "google-auth required for drive_from_service_account. "
+            "Install: pip install google-auth google-auth-httplib2"
+        ) from e
+    credentials = service_account.Credentials.from_service_account_file(
+        key_file, scopes=list(scopes), subject=subject
+    )
+    return drive_from_google_credentials(credentials)
+
+
+class _GoogleAuthCredentials:
+    """Adapter giving google-auth credentials the slice of the oauth2client API
+    that PyDrive2's ``GoogleAuth`` calls (``authorize``, ``access_token_expired``).
+
+    oauth2client (PyDrive2's own service-account backend) is unmaintained and breaks
+    on current pyOpenSSL; google-auth signs with ``cryptography``/``rsa`` instead.
+    """
+
+    def __init__(self, credentials):
+        self._credentials = credentials
+
+    @property
+    def access_token_expired(self) -> bool:
+        # google-auth refreshes lazily on each request, so never report "expired".
+        return False
+
+    def authorize(self, http):
+        import google_auth_httplib2
+
+        return google_auth_httplib2.AuthorizedHttp(self._credentials, http=http)
+
+
+def drive_from_google_credentials(credentials):
+    """Build a PyDrive2 ``GoogleDrive`` from any ``google.auth`` credentials object.
+
+    The seam under :func:`drive_from_service_account`: pass service-account,
+    impersonated, or user credentials created with ``google-auth``.
+    """
+    _require_pydrive2()
+    # PyDrive2 validates its settings eagerly; we never call its own ServiceAuth, so
+    # the service_config is a placeholder that only satisfies that validation.
     gauth = GoogleAuth(
         settings={
             "client_config_backend": "service",
-            "service_config": service_config,
-            "oauth_scope": list(scopes),
+            "service_config": {"client_json_file_path": "unused-see-google-auth"},
         }
     )
-    gauth.ServiceAuth()
+    gauth.credentials = _GoogleAuthCredentials(credentials)
+    gauth.Authorize()
     return GoogleDrive(gauth)
 
 

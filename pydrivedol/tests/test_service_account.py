@@ -5,50 +5,85 @@ service-account settings, and that ``GDReader``/``GDStore`` use an injected ``dr
 client instead of the interactive OAuth flow.
 """
 
+import json
+
 import pydrivedol.base as base
 from pydrivedol import drive_from_service_account, GDReader
 
 
-def test_drive_from_service_account_builds_service_settings(monkeypatch):
-    captured = {}
+def _throwaway_key_file(tmp_path):
+    """A service-account key file with a freshly generated RSA key (never a real one)."""
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric import rsa
 
-    class FakeAuth:
-        def __init__(self, settings=None):
-            captured["settings"] = settings
+    key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    pem = key.private_bytes(
+        serialization.Encoding.PEM,
+        serialization.PrivateFormat.PKCS8,
+        serialization.NoEncryption(),
+    ).decode()
+    path = tmp_path / "sa.json"
+    path.write_text(
+        json.dumps(
+            {
+                "type": "service_account",
+                "project_id": "p",
+                "private_key_id": "k1",
+                "private_key": pem,
+                "client_email": "sa@p.iam.gserviceaccount.com",
+                "client_id": "1",
+                "token_uri": "https://oauth2.googleapis.com/token",
+            }
+        )
+    )
+    return str(path)
 
-        def ServiceAuth(self):
-            captured["service_auth"] = True
 
-    monkeypatch.setattr(base, "_PYDRIVE2_AVAILABLE", True)
-    monkeypatch.setattr(base, "GoogleAuth", FakeAuth)
-    monkeypatch.setattr(base, "GoogleDrive", lambda auth: ("DRIVE", auth))
+def test_drive_from_service_account_signs_jwt_with_current_crypto(tmp_path):
+    """Regression for #17: signing must work with whatever pyOpenSSL is installed.
 
-    drive = drive_from_service_account("/key.json", scopes=("scope-a",), subject="u@x.com")
+    Builds the drive from a throwaway key and signs a real JWT assertion, which is the
+    step that used to raise ``AttributeError: module 'OpenSSL.crypto' has no attribute 'sign'``.
+    """
+    drive = drive_from_service_account(
+        _throwaway_key_file(tmp_path), scopes=("scope-a",), subject="u@x.com"
+    )
+    creds = drive.auth.credentials._credentials
+    assert creds.service_account_email == "sa@p.iam.gserviceaccount.com"
+    assert list(creds.scopes) == ["scope-a"]
+    assert creds._subject == "u@x.com"
+    assert drive.auth.credentials.access_token_expired is False
+    assertion = creds._make_authorization_grant_assertion()  # signs with the RSA key
+    assert assertion.count(b".") == 2
 
-    s = captured["settings"]
-    assert s["client_config_backend"] == "service"
-    assert s["service_config"]["client_json_file_path"] == "/key.json"
-    assert s["service_config"]["client_user_email"] == "u@x.com"  # impersonation when subject given
-    assert s["oauth_scope"] == ["scope-a"]
-    assert captured["service_auth"] is True
-    assert drive[0] == "DRIVE"
 
+def test_authorized_http_refreshes_via_google_auth(tmp_path, monkeypatch):
+    """The adapter really authorizes requests: token is fetched and sent as Bearer."""
+    from google.auth import credentials as _gc
 
-def test_drive_from_service_account_no_subject_omits_impersonation(monkeypatch):
-    captured = {}
+    drive = drive_from_service_account(_throwaway_key_file(tmp_path))
+    creds = drive.auth.credentials._credentials
 
-    class FakeAuth:
-        def __init__(self, settings=None):
-            captured["settings"] = settings
+    def fake_refresh(request):
+        creds.token = "tok123"
+        creds.expiry = None
 
-        def ServiceAuth(self):
-            pass
+    monkeypatch.setattr(creds, "refresh", fake_refresh)
+    seen = {}
 
-    monkeypatch.setattr(base, "_PYDRIVE2_AVAILABLE", True)
-    monkeypatch.setattr(base, "GoogleAuth", FakeAuth)
-    monkeypatch.setattr(base, "GoogleDrive", lambda auth: "DRIVE")
-    drive_from_service_account("/key.json")
-    assert "client_user_email" not in captured["settings"]["service_config"]
+    class FakeHttp:
+        def request(self, uri, method="GET", body=None, headers=None, **kw):
+            seen["auth"] = (headers or {}).get("authorization")
+
+            class R(dict):
+                status = 200
+
+            return R(), b"{}"
+
+    http = drive.auth.credentials.authorize(FakeHttp())
+    http.request("https://www.googleapis.com/drive/v2/about")
+    assert seen["auth"] == "Bearer tok123"
+    assert isinstance(creds, _gc.Credentials)
 
 
 def test_gdreader_uses_injected_drive(monkeypatch):
