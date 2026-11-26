@@ -44,6 +44,11 @@ Usage:
     >>> list(reader)  # doctest: +SKIP
     >>> content = reader['path/to/file.txt']  # doctest: +SKIP
 
+    Read a link-shared folder with just an API key, and mirror it incrementally
+
+    >>> folder = PublicDriveFolder(folder_url, api_key=key)  # doctest: +SKIP
+    >>> report = sync_to_dir(folder, 'mirror/', include={'.mp4'})  # doctest: +SKIP
+
     Write to folder
 
     >>> store = GDStore(folder_url)  # doctest: +SKIP
@@ -71,6 +76,11 @@ from pydrivedol.base import (
     drive_from_service_account,  # headless auth: build a GoogleDrive from an SA key
     xlsx_to_google_sheet,  # upload an .xlsx as a native Google Sheet -> URL
     GOOGLE_MIME,  # office-ext -> Google-native editor mimetype map
+)
+from pydrivedol.rest import (
+    PublicDriveFolder,  # Mapping[path, bytes] over a Drive folder via REST (API key or session)
+    sync_to_dir,  # incremental, md5-indexed mirror of a Drive folder to a local dir
+    SyncReport,  # what sync_to_dir added / changed / left unchanged
 )
 from pydrivedol.ops import (
     get_url,  # shareable URL of a key (works through dol key codecs)
