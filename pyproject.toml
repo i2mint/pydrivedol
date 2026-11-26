@@ -38,6 +38,7 @@ Homepage = "https://github.com/i2mint/pydrivedol"
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0",
+    "cryptography",
     "pytest-cov>=4.0",
     "ruff>=0.1.0",
 ]
