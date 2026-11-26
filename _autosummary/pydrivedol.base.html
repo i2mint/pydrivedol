@@ -29,7 +29,7 @@
 <meta content="pydrivedol.base | pydrivedol" property="og:title"/>
 <meta content="pydrivedol.base | pydrivedol" name="twitter:title"/>
 <link href="../_static/pygments.css?v=d75fae25" rel="stylesheet" type="text/css"/>
-<link href="../_static/theme.css?v=d6d7c91b" rel="stylesheet" type="text/css"/>
+<link href="../_static/theme.css?v=009055c6" rel="stylesheet" type="text/css"/>
 <link href="../_static/sphinx_autodoc_typehints.css?v=057ac668" rel="stylesheet" type="text/css"/>
 <link href="../_static/copybutton.css?v=76b2166b" rel="stylesheet" type="text/css"/>
 <link href="../_static/epythet.css?v=518c29d0" rel="stylesheet" type="text/css"/>
@@ -138,19 +138,22 @@ for headless use – as <code class="docutils literal notranslate"><span class="
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pydrivedol.base.drive_from_service_account" title="pydrivedol.base.drive_from_service_account"><code class="xref py py-obj docutils literal notranslate"><span class="pre">drive_from_service_account</span></code></a>(key_file, *[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pydrivedol.base.drive_from_google_credentials" title="pydrivedol.base.drive_from_google_credentials"><code class="xref py py-obj docutils literal notranslate"><span class="pre">drive_from_google_credentials</span></code></a>(credentials)</p></td>
+<td><p>Build a PyDrive2 <code class="docutils literal notranslate"><span class="pre">GoogleDrive</span></code> from any <code class="docutils literal notranslate"><span class="pre">google.auth</span></code> credentials object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pydrivedol.base.drive_from_service_account" title="pydrivedol.base.drive_from_service_account"><code class="xref py py-obj docutils literal notranslate"><span class="pre">drive_from_service_account</span></code></a>(key_file, *[, ...])</p></td>
 <td><p>Build an authenticated <code class="docutils literal notranslate"><span class="pre">GoogleDrive</span></code> from a service-account key file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pydrivedol.base.get_bytes" title="pydrivedol.base.get_bytes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_bytes</span></code></a>(url, *[, local_path, use_cache, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pydrivedol.base.get_bytes" title="pydrivedol.base.get_bytes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_bytes</span></code></a>(url, *[, local_path, use_cache, ...])</p></td>
 <td><p>Download bytes from a Google Drive URL.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pydrivedol.base.get_metadata" title="pydrivedol.base.get_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_metadata</span></code></a>(url_or_id, *, drive[, fields])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pydrivedol.base.get_metadata" title="pydrivedol.base.get_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_metadata</span></code></a>(url_or_id, *, drive[, fields])</p></td>
 <td><p>Fetch a Drive file's metadata <strong>without downloading its content</strong>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pydrivedol.base.iter_folder_items" title="pydrivedol.base.iter_folder_items"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iter_folder_items</span></code></a>(drive, folder_id, *[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pydrivedol.base.iter_folder_items" title="pydrivedol.base.iter_folder_items"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iter_folder_items</span></code></a>(drive, folder_id, *[, ...])</p></td>
 <td><p>Yield <code class="docutils literal notranslate"><span class="pre">(relative_path,</span> <span class="pre">metadata)</span></code> for every file under <code class="docutils literal notranslate"><span class="pre">folder_id</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pydrivedol.base.xlsx_to_google_sheet" title="pydrivedol.base.xlsx_to_google_sheet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">xlsx_to_google_sheet</span></code></a>(folder_url, title, xlsx, *)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pydrivedol.base.xlsx_to_google_sheet" title="pydrivedol.base.xlsx_to_google_sheet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">xlsx_to_google_sheet</span></code></a>(folder_url, title, xlsx, *)</p></td>
 <td><p>Upload an <code class="docutils literal notranslate"><span class="pre">.xlsx</span></code> as a <strong>native Google Sheet</strong> and return its shareable URL.</p></td>
 </tr>
 </tbody>
@@ -296,6 +299,13 @@ one-off control use <code class="docutils literal notranslate"><span class="pre"
 explicit check that page body would be returned as if it were the file: plausible-looking
 bytes that only blow up much later, in whatever tries to parse them. Catch this to fall
 back to an authenticated fetch (<code class="docutils literal notranslate"><span class="pre">get_bytes(url,</span> <span class="pre">drive=...)</span></code>).</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="pydrivedol.base.drive_from_google_credentials">
+<span class="sig-prename descclassname"><span class="pre">pydrivedol.base.</span></span><span class="sig-name descname"><span class="pre">drive_from_google_credentials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">credentials</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydrivedol/base.html#drive_from_google_credentials"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#pydrivedol.base.drive_from_google_credentials" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#pydrivedol.base.drive_from_google_credentials'">¶</a></dt>
+<dd><p>Build a PyDrive2 <code class="docutils literal notranslate"><span class="pre">GoogleDrive</span></code> from any <code class="docutils literal notranslate"><span class="pre">google.auth</span></code> credentials object.</p>
+<p>The seam under <a class="reference internal" href="#pydrivedol.base.drive_from_service_account" title="pydrivedol.base.drive_from_service_account"><code class="xref py py-func docutils literal notranslate"><span class="pre">drive_from_service_account()</span></code></a>: pass service-account,
+impersonated, or user credentials created with <code class="docutils literal notranslate"><span class="pre">google-auth</span></code>.</p>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="pydrivedol.base.drive_from_service_account">
@@ -470,6 +480,7 @@ fetched, as the traversal needs them, but only those in <code class="docutils li
 </ul>
 </li>
 <li><a :data-current="activeSection === '#pydrivedol.base.NotPubliclyShared'" class="reference internal" href="#pydrivedol.base.NotPubliclyShared"><code class="docutils literal notranslate"><span class="pre">NotPubliclyShared</span></code></a></li>
+<li><a :data-current="activeSection === '#pydrivedol.base.drive_from_google_credentials'" class="reference internal" href="#pydrivedol.base.drive_from_google_credentials"><code class="docutils literal notranslate"><span class="pre">drive_from_google_credentials()</span></code></a></li>
 <li><a :data-current="activeSection === '#pydrivedol.base.drive_from_service_account'" class="reference internal" href="#pydrivedol.base.drive_from_service_account"><code class="docutils literal notranslate"><span class="pre">drive_from_service_account()</span></code></a></li>
 <li><a :data-current="activeSection === '#pydrivedol.base.get_bytes'" class="reference internal" href="#pydrivedol.base.get_bytes"><code class="docutils literal notranslate"><span class="pre">get_bytes()</span></code></a></li>
 <li><a :data-current="activeSection === '#pydrivedol.base.get_metadata'" class="reference internal" href="#pydrivedol.base.get_metadata"><code class="docutils literal notranslate"><span class="pre">get_metadata()</span></code></a></li>
@@ -488,11 +499,11 @@ fetched, as the traversal needs them, but only those in <code class="docutils li
 </div>
 </footer>
 </div>
-<script src="../_static/documentation_options.js?v=a83ce22a"></script>
+<script src="../_static/documentation_options.js?v=0c446633"></script>
 <script src="../_static/doctools.js?v=fd6eb6e6"></script>
 <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
 <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
 <script src="../_static/copybutton.js?v=fd10adb8"></script>
-<script defer="defer" src="../_static/theme.js?v=5db23cf8"></script>
+<script defer="defer" src="../_static/theme.js?v=49cc6205"></script>
 </body>
 </html>

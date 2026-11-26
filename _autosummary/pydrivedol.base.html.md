@@ -19,8 +19,9 @@ Two access levels, both returning `bytes`:
 
 ### Functions
 
-| [`drive_from_service_account`](#pydrivedol.base.drive_from_service_account)(key_file, \*[, ...])   | Build an authenticated `GoogleDrive` from a service-account key file.        |
+| [`drive_from_google_credentials`](#pydrivedol.base.drive_from_google_credentials)(credentials)        | Build a PyDrive2 `GoogleDrive` from any `google.auth` credentials object.    |
 |----------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|
+| [`drive_from_service_account`](#pydrivedol.base.drive_from_service_account)(key_file, \*[, ...])   | Build an authenticated `GoogleDrive` from a service-account key file.        |
 | [`get_bytes`](#pydrivedol.base.get_bytes)(url, \*[, local_path, use_cache, ...])  | Download bytes from a Google Drive URL.                                      |
 | [`get_metadata`](#pydrivedol.base.get_metadata)(url_or_id, \*, drive[, fields])      | Fetch a Drive file's metadata **without downloading its content**.           |
 | [`iter_folder_items`](#pydrivedol.base.iter_folder_items)(drive, folder_id, \*[, ...])    | Yield `(relative_path, metadata)` for every file under `folder_id`.          |
@@ -156,6 +157,13 @@ Google serves its HTML sign-in / permission interstitial with HTTP **200**, so w
 explicit check that page body would be returned as if it were the file: plausible-looking
 bytes that only blow up much later, in whatever tries to parse them. Catch this to fall
 back to an authenticated fetch (`get_bytes(url, drive=...)`).
+
+### pydrivedol.base.drive_from_google_credentials(credentials)
+
+Build a PyDrive2 `GoogleDrive` from any `google.auth` credentials object.
+
+The seam under [`drive_from_service_account()`](#pydrivedol.base.drive_from_service_account): pass service-account,
+impersonated, or user credentials created with `google-auth`.
 
 ### pydrivedol.base.drive_from_service_account(key_file, , scopes=('https://www.googleapis.com/auth/drive',), subject=None)
 

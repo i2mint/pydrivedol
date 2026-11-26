@@ -1,4 +1,4 @@
-> built 2026-10-20 02:47 UTC from 1adec63 (master) · pydrivedol 0.0.10. Details: build_info.json
+> built 2026-11-26 12:54 UTC from 4baad49 (master) · pydrivedol 0.0.11. Details: build_info.json
 
 # index.html.md
 
@@ -616,8 +616,9 @@ Two access levels, both returning `bytes`:
 
 ### Functions
 
-| [`drive_from_service_account`](_autosummary/pydrivedol.base.html.md#pydrivedol.base.drive_from_service_account)(key_file, \*[, ...])   | Build an authenticated `GoogleDrive` from a service-account key file.        |
+| [`drive_from_google_credentials`](_autosummary/pydrivedol.base.html.md#pydrivedol.base.drive_from_google_credentials)(credentials)        | Build a PyDrive2 `GoogleDrive` from any `google.auth` credentials object.    |
 |----------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|
+| [`drive_from_service_account`](_autosummary/pydrivedol.base.html.md#pydrivedol.base.drive_from_service_account)(key_file, \*[, ...])   | Build an authenticated `GoogleDrive` from a service-account key file.        |
 | [`get_bytes`](_autosummary/pydrivedol.base.html.md#pydrivedol.base.get_bytes)(url, \*[, local_path, use_cache, ...])  | Download bytes from a Google Drive URL.                                      |
 | [`get_metadata`](_autosummary/pydrivedol.base.html.md#pydrivedol.base.get_metadata)(url_or_id, \*, drive[, fields])      | Fetch a Drive file's metadata **without downloading its content**.           |
 | [`iter_folder_items`](_autosummary/pydrivedol.base.html.md#pydrivedol.base.iter_folder_items)(drive, folder_id, \*[, ...])    | Yield `(relative_path, metadata)` for every file under `folder_id`.          |
@@ -753,6 +754,13 @@ Google serves its HTML sign-in / permission interstitial with HTTP **200**, so w
 explicit check that page body would be returned as if it were the file: plausible-looking
 bytes that only blow up much later, in whatever tries to parse them. Catch this to fall
 back to an authenticated fetch (`get_bytes(url, drive=...)`).
+
+### pydrivedol.base.drive_from_google_credentials(credentials)
+
+Build a PyDrive2 `GoogleDrive` from any `google.auth` credentials object.
+
+The seam under [`drive_from_service_account()`](_autosummary/pydrivedol.base.html.md#pydrivedol.base.drive_from_service_account): pass service-account,
+impersonated, or user credentials created with `google-auth`.
 
 ### pydrivedol.base.drive_from_service_account(key_file, , scopes=('https://www.googleapis.com/auth/drive',), subject=None)
 
@@ -1042,18 +1050,18 @@ Google doc. See the module docstring for how the write goes through the caller�
 
 # About this build
 
-This documentation was built on **2026-10-20 02:47 UTC** from commit <a href="https://github.com/i2mint/pydrivedol/commit/1adec63157500ab5a3eb7820721e5c06b2232413"><code>1adec63</code></a> on branch <code>master</code>, for **pydrivedol 0.0.10** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-11-26 12:54 UTC** from commit <a href="https://github.com/i2mint/pydrivedol/commit/4baad49966f1a9db05f236e49e94d27b3069a38b"><code>4baad49</code></a> on branch <code>master</code>, for **pydrivedol 0.0.11** (from <code>pyproject.toml</code>).
 
 #### WARNING
 The documentation and the package may be misaligned:
 
-- The documented version (0.0.10) is behind the latest release on PyPI (0.0.11): `pip install pydrivedol` gives newer code than these docs describe.
+- The documented version (0.0.11) is behind the latest release on PyPI (0.0.12): `pip install pydrivedol` gives newer code than these docs describe.
 
 ## Source
 
 |                     |                                                                                                                                                          |
 |---------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/i2mint/pydrivedol/commit/1adec63157500ab5a3eb7820721e5c06b2232413"><code>1adec63157500ab5a3eb7820721e5c06b2232413</code></a> |
+| Commit              | <a href="https://github.com/i2mint/pydrivedol/commit/4baad49966f1a9db05f236e49e94d27b3069a38b"><code>4baad49966f1a9db05f236e49e94d27b3069a38b</code></a> |
 | Branch              | <code>master</code>                                                                                                                                      |
 | Tags at this commit | none                                                                                                                                                     |
 | Working tree        | clean                                                                                                                                                    |
@@ -1064,18 +1072,18 @@ The documentation and the package may be misaligned:
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>i2mint/pydrivedol</code>                                                             |
-| Run          | <a href="https://github.com/i2mint/pydrivedol/actions/runs/39360669429">39360669429</a>    |
+| Run          | <a href="https://github.com/i2mint/pydrivedol/actions/runs/45823829521">45823829521</a>    |
 | Ref          | <code>refs/heads/master</code>                                                             |
-| Event commit | <code>1adec63157500ab5a3eb7820721e5c06b2232413</code> (in the history of the built commit) |
+| Event commit | <code>4baad49966f1a9db05f236e49e94d27b3069a38b</code> (in the history of the built commit) |
 
 ## Tools
 
 |          |         |
 |----------|---------|
-| epythet  | 0.2.18  |
+| epythet  | 0.2.25  |
 | Sphinx   | 9.1.1   |
 | docutils | 0.22.4  |
-| Python   | 3.12.15 |
+| Python   | 3.12.16 |
 
 ## Configuration as resolved
 
@@ -1091,14 +1099,14 @@ The documentation and the package may be misaligned:
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/pydrivedol/0.0.11/">0.0.11</a>, newer than the documented version (0.0.10).
+Latest release: <a href="https://pypi.org/project/pydrivedol/0.0.12/">0.0.12</a>, newer than the documented version (0.0.11).
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/i2mint/pydrivedol && cd pydrivedol
-git checkout 1adec63157500ab5a3eb7820721e5c06b2232413
-pip install "epythet==0.2.18"
+git checkout 4baad49966f1a9db05f236e49e94d27b3069a38b
+pip install "epythet==0.2.25"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
 

@@ -14,6 +14,7 @@ pydrivedol.base
 
    .. autosummary::
    
+      drive_from_google_credentials
       drive_from_service_account
       get_bytes
       get_metadata
